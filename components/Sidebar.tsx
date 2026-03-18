@@ -38,33 +38,33 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
         {/* Analytics */}
         {!col&&<div className="sec-lbl">Analytics</div>}
         {!col&&<div className="ni" onClick={()=>setOpenA(a=>!a)}>
-          <span>📊</span><span className="ni-lbl">Dashboards</span><span className="ni-arr" style={{marginLeft:"auto"}}>{openA?"▾":"▸"}</span>
+          <span className="ni-icon">📊</span><span className="ni-lbl">Dashboards</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:12,opacity:.6}}>{openA?"▾":"▸"}</span>
         </div>}
         {(openA||col)&&<div className={col?"":"ni-kids"}>
           {NAV_ANALYTICS.map(i=>(
             <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>setPage(i.id)} title={col?i.lbl:""}>
               <span className="ni-icon">{i.ico}</span>
-              {!col && <span className="ni-kid-txt"> {i.lbl}</span>}
+              {!col && <span className="ni-kid-txt">{i.lbl}</span>}
             </div>
           ))}
         </div>}
         {/* Operations */}
-        {!col&&<div className="sec-lbl" style={{marginTop:6}}>Operations</div>}
+        {!col&&<div className="sec-lbl">Operations</div>}
         {!col&&<div className="ni" onClick={()=>setOpenO(o=>!o)}>
-          <span>⚙</span><span className="ni-lbl">Rig Ops</span><span className="ni-arr" style={{marginLeft:"auto"}}>{openO?"▾":"▸"}</span>
+          <span className="ni-icon">⚙</span><span className="ni-lbl">Rig Ops</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:12,opacity:.6}}>{openO?"▾":"▸"}</span>
         </div>}
         {(openO||col)&&<div className={col?"":"ni-kids"}>
           {NAV_OPS.map(i=>(
             <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>setPage(i.id)} title={col?i.lbl:""}>
               <span className="ni-icon">{i.ico}</span>
-              {!col && <span className="ni-kid-txt"> {i.lbl}</span>}
+              {!col && <span className="ni-kid-txt">{i.lbl}</span>}
             </div>
           ))}
         </div>}
         {/* Data Entry */}
-        {!col&&<div className="sec-lbl" style={{marginTop:6}}>Data Entry</div>}
+        {!col&&<div className="sec-lbl">Data Entry</div>}
         {!col&&<div className="ni" onClick={()=>setOpenE(a=>!a)}>
-          <span>📝</span><span className="ni-lbl">Entry Forms</span><span className="ni-arr" style={{marginLeft:"auto"}}>{openE?"▾":"▸"}</span>
+          <span className="ni-icon">📝</span><span className="ni-lbl">Entry Forms</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:12,opacity:.6}}>{openE?"▾":"▸"}</span>
         </div>}
         {(openE||col)&&<div className={col?"":"ni-kids"}>
           {NAV_ENTRY.map(i=>(
@@ -76,7 +76,7 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
         </div>}
       </nav>
       <div className="sb-foot" onClick={()=>setCol(c=>!c)}>
-        <span>{col?"▶":"◀"}</span><span>Collapse</span>
+        <span style={{fontSize:14}}>{col?"▶":"◀"}</span><span>Collapse</span>
       </div>
     </div>
   );
