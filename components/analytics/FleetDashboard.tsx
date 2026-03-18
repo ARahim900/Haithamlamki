@@ -14,7 +14,7 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
         <span>⚠</span>
         <div>
           <strong>3 DDORs pending approval</strong> — Rigs 108, 201, 302 overdue by more than 2 hrs.
-          <button className="btn btn-xs btn-o" style={{marginLeft:10}} onClick={()=>setPage("ddor")}>Open DDOR →</button>
+          <button className="btn btn-s btn-o" style={{marginLeft:10}} onClick={()=>setPage("ddor")}>Open DDOR →</button>
         </div>
       </div>
       <div className="kpi-row">
@@ -30,10 +30,10 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={revData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
-                <XAxis dataKey="m" tick={{fontSize:10}} stroke="#ccc"/>
-                <YAxis tick={{fontSize:10}} stroke="#ccc" domain={[2.5,4.5]}/>
+                <XAxis dataKey="m" tick={{fontSize:11, fill: "#888"}} stroke="#eaeaea"/>
+                <YAxis tick={{fontSize:11, fill: "#888"}} stroke="#eaeaea" domain={[2.5,4.5]}/>
                 <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
-                <Legend wrapperStyle={{fontSize:10}}/>
+                <Legend align="center" verticalAlign="bottom" wrapperStyle={{fontSize:11, paddingTop: 10}}/>
                 <Area type="monotone" dataKey="bud" stroke="#0085CA" fill="#0085CA10" strokeDasharray="4 4" strokeWidth={1.5} name="Budget ($M)"/>
                 <Area type="monotone" dataKey="act" stroke="#07788D" fill="#07788D12" strokeWidth={2.5} name="Actual ($M)"/>
               </AreaChart>
@@ -49,7 +49,7 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
                   {nptPie.map((d,i)=><Cell key={i} fill={d.c}/>)}
                 </Pie>
                 <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
-                <Legend iconSize={8} wrapperStyle={{fontSize:10}}/>
+                <Legend align="center" verticalAlign="bottom" iconSize={8} wrapperStyle={{fontSize:11, paddingTop: 10}}/>
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -67,7 +67,7 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
         </div>
         <div className="tw">
           <table>
-            <thead><tr>{["Rig","Well","Status","Depth (ft)","Days","Rate","CSAT","NPT 30d"].map(h=><th key={h} className="th">{h}</th>)}</tr></thead>
+            <thead><tr>{["Rig","Well","Status","Depth (ft)","Days","Rate","CSAT","NPT 30d"].map(h=><th key={h} className={"th"+(h==="Days"||h==="NPT 30d"?" tb-num":"")}>{h}</th>)}</tr></thead>
             <tbody>
               {fleetRows.map((r,i)=>(
                 <tr key={i}>
@@ -75,7 +75,7 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
                   <td style={{color:"#0085CA",fontWeight:700,fontSize:11}}>{r.well}</td>
                   <td><Bdg c={r.status==="Drilling"?"g":r.status==="Stacked"?"gr":r.status==="Rig Move"?"t":"b"}>{r.status}</Bdg></td>
                   <td style={{fontFamily:"monospace"}}>{r.depth}</td>
-                  <td>{r.days}d</td>
+                  <td className="tb-num">{r.days}d</td>
                   <td><Bdg c={r.rate==="Op"?"g":r.rate==="Stack"?"gr":"b"}>{r.rate}</Bdg></td>
                   <td>
                     <div style={{display:"flex",alignItems:"center",gap:6}}>
@@ -83,7 +83,9 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
                       <span style={{fontSize:10,fontWeight:900,color:r.csat>=90?"#16A34A":r.csat>=80?"#D97706":"#DC2626"}}>{r.csat}%</span>
                     </div>
                   </td>
-                  <td style={{fontWeight:900,color:r.npt>4?"#DC2626":r.npt>2?"#D97706":"#16A34A"}}>{r.npt}%</td>
+                  <td className="tb-num">
+                    <Bdg c={r.npt>4?"r":r.npt>2?"w":"g"}>{r.npt}%</Bdg>
+                  </td>
                 </tr>
               ))}
             </tbody>

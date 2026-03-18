@@ -5,26 +5,29 @@ export const NAV_ANALYTICS=[
   {id:"home",lbl:"Fleet Dashboard",ico:"📊"},
   {id:"viz-financial",lbl:"Financial Analytics",ico:"💰"},
   {id:"viz-performance",lbl:"Performance Analytics",ico:"📈"},
+];
+export const NAV_OPS=[
   {id:"viz-operations",lbl:"Operations Analytics",ico:"⚙"},
+  {id:"accruals",lbl:"Billing Accruals",ico:"📑",who:"Engineer (HQ)"},
+  {id:"revenue",lbl:"Revenue",ico:"💵",who:"Engineer (HQ)"},
+  {id:"welltrack",lbl:"Well Tracking",ico:"🎯",who:"Engineer (HQ)"},
+  {id:"nptbill",lbl:"NPT Billing",ico:"🔴",who:"Engineer (HQ)"},
+  {id:"util",lbl:"Utilization",ico:"🟢",who:"Engineer (HQ)"},
+  {id:"fuel",lbl:"Fuel Tracking",ico:"⛽",who:"Engineer"},
+  {id:"rigmove",lbl:"Rig Move",ico:"🚚",who:"Rig Move Engineer"},
 ];
 export const NAV_ENTRY=[
-  {id:"ddor",lbl:"DDOR Entry",ico:"📋",rno:3,who:"Tool Pusher"},
-  {id:"ahead",lbl:"72hr Ahead Plan",ico:"📅",rno:2,who:"Tool Pusher / Engineer"},
-  {id:"ytd",lbl:"YTD / NPT Details",ico:"⚠",rno:5,who:"Tool Pusher"},
-  {id:"billing",lbl:"Billing Ticket",ico:"🧾",rno:4,who:"Engineer"},
-  {id:"fuel",lbl:"Fuel Tracking",ico:"⛽",rno:9,who:"Engineer"},
-  {id:"crm",lbl:"Customer Satisfaction",ico:"⭐",rno:11,who:"Quality Manager"},
-  {id:"rigmove",lbl:"Rig Move",ico:"🚚",rno:1,who:"Rig Move Engineer"},
-  {id:"accruals",lbl:"Billing Accruals",ico:"📑",rno:12,who:"Engineer (HQ)"},
-  {id:"revenue",lbl:"Revenue",ico:"💵",rno:10,who:"Engineer (HQ)"},
-  {id:"welltrack",lbl:"Well Tracking",ico:"🎯",rno:7,who:"Engineer (HQ)"},
-  {id:"nptbill",lbl:"NPT Billing",ico:"🔴",rno:8,who:"Engineer (HQ)"},
-  {id:"util",lbl:"Utilization",ico:"🟢",rno:6,who:"Engineer (HQ)"},
+  {id:"ddor",lbl:"DDOR Entry",ico:"📋",who:"Tool Pusher"},
+  {id:"ahead",lbl:"72hr Ahead Plan",ico:"📅",who:"Tool Pusher / Engineer"},
+  {id:"ytd",lbl:"YTD / NPT Details",ico:"⚠",who:"Tool Pusher"},
+  {id:"billing",lbl:"Billing Ticket",ico:"🧾",who:"Engineer"},
+  {id:"crm",lbl:"Customer Satisfaction",ico:"⭐",who:"Quality Manager"},
 ];
 
 export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: string) => void, col: boolean, setCol: React.Dispatch<React.SetStateAction<boolean>>}){
   const [openA,setOpenA]=useState(true);
-  const [openE,setOpenE]=useState(true);
+  const [openO,setOpenO]=useState(false);
+  const [openE,setOpenE]=useState(false);
   return (
     <div className={"sb"+(col?" col":"")}>
       <div className="sb-logo" onClick={()=>setCol(c=>!c)}>
@@ -34,25 +37,40 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
       <nav>
         {/* Analytics */}
         {!col&&<div className="sec-lbl">Analytics</div>}
-        {!col&&<div className="ni" onClick={()=>setOpenA(a=>!a)} style={{opacity:.7,fontSize:11}}>
-          <span>📊</span><span className="ni-lbl">Dashboards</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:10}}>{openA?"▾":"▸"}</span>
+        {!col&&<div className="ni" onClick={()=>setOpenA(a=>!a)}>
+          <span>📊</span><span className="ni-lbl">Dashboards</span><span className="ni-arr" style={{marginLeft:"auto"}}>{openA?"▾":"▸"}</span>
         </div>}
         {(openA||col)&&<div className={col?"":"ni-kids"}>
           {NAV_ANALYTICS.map(i=>(
             <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>setPage(i.id)} title={col?i.lbl:""}>
-              {col?<span style={{fontSize:14}}>{i.ico}</span>:<>{i.ico} {i.lbl}</>}
+              <span className="ni-icon">{i.ico}</span>
+              {!col && <span className="ni-kid-txt"> {i.lbl}</span>}
+            </div>
+          ))}
+        </div>}
+        {/* Operations */}
+        {!col&&<div className="sec-lbl" style={{marginTop:6}}>Operations</div>}
+        {!col&&<div className="ni" onClick={()=>setOpenO(o=>!o)}>
+          <span>⚙</span><span className="ni-lbl">Rig Ops</span><span className="ni-arr" style={{marginLeft:"auto"}}>{openO?"▾":"▸"}</span>
+        </div>}
+        {(openO||col)&&<div className={col?"":"ni-kids"}>
+          {NAV_OPS.map(i=>(
+            <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>setPage(i.id)} title={col?i.lbl:""}>
+              <span className="ni-icon">{i.ico}</span>
+              {!col && <span className="ni-kid-txt"> {i.lbl}</span>}
             </div>
           ))}
         </div>}
         {/* Data Entry */}
         {!col&&<div className="sec-lbl" style={{marginTop:6}}>Data Entry</div>}
-        {!col&&<div className="ni" onClick={()=>setOpenE(a=>!a)} style={{opacity:.7,fontSize:11}}>
-          <span>📝</span><span className="ni-lbl">Entry Forms</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:10}}>{openE?"▾":"▸"}</span>
+        {!col&&<div className="ni" onClick={()=>setOpenE(a=>!a)}>
+          <span>📝</span><span className="ni-lbl">Entry Forms</span><span className="ni-arr" style={{marginLeft:"auto"}}>{openE?"▾":"▸"}</span>
         </div>}
         {(openE||col)&&<div className={col?"":"ni-kids"}>
           {NAV_ENTRY.map(i=>(
-            <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>setPage(i.id)} title={col?i.lbl+"|#"+i.rno:""}>
-              {col?<span style={{fontSize:13}}>{i.ico}</span>:<><span style={{opacity:.35,fontSize:10,marginRight:3}}>#{i.rno}</span>{i.lbl}</>}
+            <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>setPage(i.id)} title={col?i.lbl:""}>
+              <span className="ni-icon">{i.ico}</span>
+              {!col && <span className="ni-kid-txt">{i.lbl}</span>}
             </div>
           ))}
         </div>}

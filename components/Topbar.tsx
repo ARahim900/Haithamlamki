@@ -29,12 +29,12 @@ export function Topbar({page}: {page: string}){
         <span className="bc-par">{par}</span>
         <span className="bc-sep"> / </span>
         <span className="bc-cur">{cur}</span>
-        {isEntry&&<span style={{marginLeft:8,background:"rgba(255,255,255,.15)",color:"rgba(255,255,255,.9)",fontSize:10,fontWeight:900,padding:"2px 8px",borderRadius:4}}>DATA ENTRY</span>}
+        {isEntry&&<span style={{marginLeft:12,background:"#DBEAFE",color:"#1D4ED8",fontSize:11,fontWeight:800,padding:"4px 10px",borderRadius:6}}>DATA ENTRY</span>}
       </div>
       <div className="tb-right">
-        <span style={{fontSize:11,color:"rgba(255,255,255,.6)"}}>PDO Contract</span>
-        <span style={{background:"rgba(255,255,255,.15)",color:"#fff",borderRadius:20,padding:"3px 10px",fontSize:10,fontWeight:900}}>● Live</span>
-        <div style={{width:30,height:30,borderRadius:"50%",background:"rgba(255,255,255,.2)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:10,fontWeight:900}}>RM</div>
+        <span style={{background:"#F1F5F9",color:"#475569",borderRadius:24,padding:"6px 16px",fontSize:12,fontWeight:700, border:"1px solid #E2E8F0"}}>PDO Contract</span>
+        <span style={{background:"#ECFDF5",color:"#047857",borderRadius:24,padding:"6px 16px",fontSize:12,fontWeight:800, border:"1px solid #A7F3D0"}}>● Live</span>
+        <div style={{width:36,height:36,borderRadius:"50%",background:"linear-gradient(135deg, #0EA5E9, #0284C7)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13,fontWeight:800,boxShadow:"0 4px 12px rgba(14,165,233,0.3)"}}>RM</div>
       </div>
     </div>
   );

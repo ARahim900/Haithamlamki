@@ -42,11 +42,11 @@ export default function DashboardApp() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#f4f7f6] overflow-hidden font-sans text-sm text-gray-800">
+    <div className="app">
       <Sidebar page={page} setPage={setPage} col={col} setCol={setCol} />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="main">
         <Topbar page={page} />
-        <div className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="content">
           {renderContent()}
         </div>
       </div>
