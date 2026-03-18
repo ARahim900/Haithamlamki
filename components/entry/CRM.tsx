@@ -1,23 +1,36 @@
 'use client';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FM, FieldLegend, KPI, Bdg } from '@/components/Shared';
 import { RIGS, MONTHS } from '@/lib/data';
 
-// Generate CRM data: 30 rigs x 12 months
-const crmGrid = RIGS.map((rig, ri) => {
-  const scores = MONTHS.map((_, mi) => {
-    const base = 85 - ri * 0.5 + mi * 0.3;
-    return Math.min(100, Math.max(60, Math.round(base + (Math.random() - 0.5) * 10)));
-  });
-  const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-  return { rig, scores, avg };
-});
+// Deterministic seeded RNG to avoid hydration mismatches
+function seededRandom(seed: number) {
+  let s = seed;
+  return () => {
+    s = (s * 16807 + 0) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
 
-const monthAvgs = MONTHS.map((_, mi) =>
-  Math.round(crmGrid.reduce((s, r) => s + r.scores[mi], 0) / crmGrid.length)
-);
+function generateCrmGrid(rigs: string[]) {
+  const rng = seededRandom(42);
+  return rigs.map((rig, ri) => {
+    const scores = MONTHS.map((_, mi) => {
+      const base = 85 - ri * 0.5 + mi * 0.3;
+      return Math.min(100, Math.max(60, Math.round(base + (rng() - 0.5) * 10)));
+    });
+    const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    return { rig, scores, avg };
+  });
+}
 
 export function CRM() {
+  const crmGrid = useMemo(() => generateCrmGrid(RIGS), []);
+
+  const monthAvgs = MONTHS.map((_, mi) =>
+    Math.round(crmGrid.reduce((s, r) => s + r.scores[mi], 0) / crmGrid.length)
+  );
+
   const fleetAvg = Math.round(crmGrid.reduce((s, r) => s + r.avg, 0) / crmGrid.length);
   const best = crmGrid.reduce((a, b) => a.avg > b.avg ? a : b);
   const worst = crmGrid.reduce((a, b) => a.avg < b.avg ? a : b);

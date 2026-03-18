@@ -1,19 +1,24 @@
 'use client';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FA, FD, FieldLegend, Bdg } from '@/components/Shared';
 import { RIGS, MONTHS } from '@/lib/data';
 
-const utilRows = RIGS.slice(0, 15).map((rig, i) => {
-  const op = 700 - i * 5 + Math.floor(Math.random() * 20);
-  const nptHrs = Math.floor(Math.random() * 30) + 5;
-  const nptPct = ((nptHrs / 744) * 100).toFixed(1);
-  const workDays = ((op) / 24).toFixed(1);
-  const nptType = i % 3 === 0 ? 'Contractual' : 'Abraj';
-  const allowable = nptType === 'Contractual' ? '5%' : '3%';
-  return { rig, year: '2025', month: 'Jun', op, nptHrs, nptPct, workDays, nptType, allowable };
-});
+function generateUtilRows(rigs: string[]) {
+  return rigs.slice(0, 15).map((rig, i) => {
+    const op = 700 - i * 5 + ((i * 7 + 3) % 20); // deterministic instead of Math.random()
+    const nptHrs = (i * 11 + 5) % 30 + 5; // deterministic
+    const monthHours = 720; // June = 30 days × 24 hours
+    const nptPct = ((nptHrs / monthHours) * 100).toFixed(1);
+    const workDays = ((op) / 24).toFixed(1);
+    const nptType = i % 3 === 0 ? 'Contractual' : 'Abraj';
+    const allowable = nptType === 'Contractual' ? '5%' : '3%';
+    return { rig, year: '2025', month: 'Jun', op, nptHrs, nptPct, workDays, nptType, allowable };
+  });
+}
 
 export function Utilization() {
+  const utilRows = useMemo(() => generateUtilRows(RIGS), []);
+
   return (
     <div className="flex flex-col gap-4">
       <div className="card">

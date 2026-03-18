@@ -1,21 +1,25 @@
 'use client';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FA, FD, FM, FieldLegend, Bdg } from '@/components/Shared';
 import { RIGS, MONTHS } from '@/lib/data';
 
-const nptBillingRows = RIGS.slice(0, 12).map((rig, i) => {
-  const op = 700 - i * 6;
-  const rd = i % 3 === 0 ? 24 : i % 3 === 1 ? 0 : 12;
-  const repair = Math.floor(Math.random() * 16) + 2;
-  const zero = i % 4 === 0 ? 8 : 0;
-  const sp = i % 5 === 0 ? 24 : 0;
-  const total = op + rd + repair + zero + sp;
-  const eTicket = total + (i % 3 === 2 ? 4 : 0); // mismatch for some rows
-  const mismatch = total !== eTicket;
-  return { rig, month: 'Jun', year: '2025', op, rd, repair, zero, sp, total, eTicket, mismatch };
-});
+function generateNptBillingRows(rigs: string[]) {
+  return rigs.slice(0, 12).map((rig, i) => {
+    const op = 700 - i * 6;
+    const rd = i % 3 === 0 ? 24 : i % 3 === 1 ? 0 : 12;
+    const repair = (i * 13 + 5) % 16 + 2; // deterministic instead of Math.random()
+    const zero = i % 4 === 0 ? 8 : 0;
+    const sp = i % 5 === 0 ? 24 : 0;
+    const total = op + rd + repair + zero + sp;
+    const eTicket = total + (i % 3 === 2 ? 4 : 0);
+    const mismatch = total !== eTicket;
+    return { rig, month: 'Jun', year: '2025', op, rd, repair, zero, sp, total, eTicket, mismatch };
+  });
+}
 
 export function NPTBilling() {
+  const nptBillingRows = useMemo(() => generateNptBillingRows(RIGS), []);
+
   return (
     <div className="flex flex-col gap-4">
       <div className="card">

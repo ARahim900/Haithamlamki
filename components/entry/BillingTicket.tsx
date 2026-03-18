@@ -5,6 +5,13 @@ import { FA, FD, FM, FDr, FieldLegend } from '@/components/Shared';
 const dailyRates = { OP: 18500, RD: 9250, BKD: 0, SP: 14000, ZR: 0, SK: 4500 };
 type RateKey = keyof typeof dailyRates;
 
+const rateLabels: Record<RateKey, string> = {
+  OP: 'Operating', RD: 'Reduced', BKD: 'Breakdown', SP: 'Special', ZR: 'Zero Rate', SK: 'Stacking',
+};
+const rateColors: Record<RateKey, string> = {
+  OP: 'g', RD: 'w', BKD: 'r', SP: 'b', ZR: 'gr', SK: 'p',
+};
+
 const initialDays = Array.from({ length: 10 }, (_, i) => ({
   day: i + 1,
   date: `${String(i + 1).padStart(2, '0')}-Jun-2025`,
@@ -118,21 +125,13 @@ export function BillingTicket() {
       <div className="card">
         <div className="card-hdr">Rate Summary</div>
         <div className="kpi-row" style={{ margin: 0 }}>
-          <div className="kpi g">
-            <div className="kpi-l">Operating</div>
-            <div className="kpi-v">{totalByRate('OP')}h</div>
-            <div className="kpi-s">{(totalByRate('OP') / 24).toFixed(1)} days</div>
-          </div>
-          <div className="kpi w">
-            <div className="kpi-l">Reduced</div>
-            <div className="kpi-v">{totalByRate('RD')}h</div>
-            <div className="kpi-s">{(totalByRate('RD') / 24).toFixed(1)} days</div>
-          </div>
-          <div className="kpi r">
-            <div className="kpi-l">Breakdown</div>
-            <div className="kpi-v">{totalByRate('BKD')}h</div>
-            <div className="kpi-s">{(totalByRate('BKD') / 24).toFixed(1)} days</div>
-          </div>
+          {(Object.keys(dailyRates) as RateKey[]).map(code => (
+            <div key={code} className={`kpi ${rateColors[code]}`}>
+              <div className="kpi-l">{rateLabels[code]}</div>
+              <div className="kpi-v">{totalByRate(code)}h</div>
+              <div className="kpi-s">{(totalByRate(code) / 24).toFixed(1)} days</div>
+            </div>
+          ))}
           <div className="kpi b">
             <div className="kpi-l">Est. Revenue</div>
             <div className="kpi-v">${Math.round(totalRevenue / 1000)}K</div>

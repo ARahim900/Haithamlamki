@@ -1,22 +1,34 @@
 'use client';
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { FD, FM, FieldLegend, KPI } from '@/components/Shared';
 import { RIGS, MONTHS } from '@/lib/data';
 
-const revenueRows = RIGS.slice(0, 12).map((rig, i) => {
-  const actual = Math.round(520000 - i * 12000 + Math.random() * 30000);
-  const budget = Math.round(510000 - i * 8000);
-  const fuel = Math.round(18000 + Math.random() * 8000);
-  const nptLoss = Math.round(Math.random() * 25000);
-  const zeroLoss = i % 4 === 0 ? Math.round(Math.random() * 15000) : 0;
-  return { rig, actual, budget, fuel, nptLoss, zeroLoss, comment: '' };
-});
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+function generateRevenueRows(rigs: string[]) {
+  return rigs.slice(0, 12).map((rig, i) => {
+    // Deterministic pseudo-random using index-based formulas
+    const actual = Math.round(520000 - i * 12000 + ((i * 17 + 7) % 30) * 1000);
+    const budget = Math.round(510000 - i * 8000);
+    const fuel = Math.round(18000 + ((i * 11 + 3) % 8) * 1000);
+    const nptLoss = Math.round(((i * 19 + 5) % 25) * 1000);
+    const zeroLoss = i % 4 === 0 ? Math.round(((i * 13 + 2) % 15) * 1000) : 0;
+    return { rig, actual, budget, fuel, nptLoss, zeroLoss, comment: '' };
+  });
+}
 
 export function Revenue() {
+  const [selectedMonth, setSelectedMonth] = useState('Jun');
+  const [selectedYear, setSelectedYear] = useState('2025');
+  const [revenueRows] = useState(() => generateRevenueRows(RIGS));
+
   const totalActual = revenueRows.reduce((s, r) => s + r.actual, 0);
   const totalBudget = revenueRows.reduce((s, r) => s + r.budget, 0);
   const totalFuel = revenueRows.reduce((s, r) => s + r.fuel, 0);
   const totalNPT = revenueRows.reduce((s, r) => s + r.nptLoss, 0);
+
+  const monthIdx = MONTHS.indexOf(selectedMonth);
+  const fullMonthName = monthIdx >= 0 ? MONTH_NAMES[monthIdx] : selectedMonth;
 
   return (
     <div className="flex flex-col gap-4">
@@ -27,8 +39,8 @@ export function Revenue() {
             <span className="bdg g">Sheet 10</span>
           </div>
           <div className="flex items-center gap-2">
-            <FD v="Jun" opts={MONTHS} />
-            <FD v="2025" opts={['2024', '2025']} />
+            <FD v={selectedMonth} opts={MONTHS} onChange={(e: any) => setSelectedMonth(e.target.value)} />
+            <FD v={selectedYear} opts={['2024', '2025']} onChange={(e: any) => setSelectedYear(e.target.value)} />
             <button className="btn btn-o btn-xs">Export</button>
           </div>
         </div>
@@ -51,7 +63,7 @@ export function Revenue() {
       </div>
 
       <div className="card">
-        <div className="card-hdr">Monthly Revenue by Rig — Jun 2025</div>
+        <div className="card-hdr">Monthly Revenue by Rig — {fullMonthName} {selectedYear}</div>
         <div className="tw">
           <table>
             <thead>

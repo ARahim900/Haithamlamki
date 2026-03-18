@@ -14,6 +14,10 @@ export function YTDDetails() {
   const [rows, setRows] = useState(initialNPT);
   const [filter, setFilter] = useState('All');
 
+  const updateRow = (id: number, field: string, value: string | number) => {
+    setRows(rows.map(r => r.id === id ? { ...r, [field]: value } : r));
+  };
+
   const addRow = () => {
     setRows([...rows, { id: Date.now(), rig: '', date: '', type: 'Abraj', hrs: 0, system: '', equip: '', rootCause: '', corrective: '', future: '', resp: '' }]);
   };
@@ -64,8 +68,8 @@ export function YTDDetails() {
       <div className="alert-info">
         <span>ℹ</span>
         <div>
-          <strong>Conditional Logic:</strong> If NPT type = "Contractual," equipment failure fields are disabled and contractual process field appears.
-          If type = "Abraj," the reverse applies.
+          <strong>Conditional Logic:</strong> If NPT type = &quot;Contractual,&quot; equipment failure fields are disabled and contractual process field appears.
+          If type = &quot;Abraj,&quot; the reverse applies.
         </div>
       </div>
 
@@ -84,25 +88,25 @@ export function YTDDetails() {
           </div>
 
           <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-            <FD l="Rig" v={r.rig} />
-            <FM l="Date" v={r.date} />
-            <FD l="NPT Type" v={r.type} opts={['Abraj', 'Contractual']} />
-            <FM l="Duration (hrs)" v={String(r.hrs)} type="number" />
+            <FD l="Rig" v={r.rig} onChange={(e: any) => updateRow(r.id, 'rig', e.target.value)} />
+            <FM l="Date" v={r.date} onChange={(e: any) => updateRow(r.id, 'date', e.target.value)} />
+            <FD l="NPT Type" v={r.type} opts={['Abraj', 'Contractual']} onChange={(e: any) => updateRow(r.id, 'type', e.target.value)} />
+            <FM l="Duration (hrs)" v={String(r.hrs)} type="number" onChange={(e: any) => updateRow(r.id, 'hrs', parseFloat(e.target.value) || 0)} />
           </div>
 
           {r.type === 'Abraj' ? (
             <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FD l="System / Category" v={r.system} opts={['Drawworks', 'Mud Pumps', 'Top Drive', 'Electrical', 'BOP', 'MWD/LWD', 'Drill String']} />
-              <FM l="Equipment Failed" v={r.equip || ''} />
-              <FM l="Root Cause" v={r.rootCause || ''} rows={2} />
-              <FM l="Corrective Action" v={r.corrective || ''} rows={2} />
-              <FM l="Future Improvement" v={r.future || ''} />
-              <FD l="Responsible Party" v={r.resp || ''} opts={['Maint. Supervisor', 'Drilling Engr.', 'Electrical Engr.', 'Rig Manager']} />
+              <FD l="System / Category" v={r.system} opts={['Drawworks', 'Mud Pumps', 'Top Drive', 'Electrical', 'BOP', 'MWD/LWD', 'Drill String']} onChange={(e: any) => updateRow(r.id, 'system', e.target.value)} />
+              <FM l="Equipment Failed" v={r.equip || ''} onChange={(e: any) => updateRow(r.id, 'equip', e.target.value)} />
+              <FM l="Root Cause" v={r.rootCause || ''} rows={2} onChange={(e: any) => updateRow(r.id, 'rootCause', e.target.value)} />
+              <FM l="Corrective Action" v={r.corrective || ''} rows={2} onChange={(e: any) => updateRow(r.id, 'corrective', e.target.value)} />
+              <FM l="Future Improvement" v={r.future || ''} onChange={(e: any) => updateRow(r.id, 'future', e.target.value)} />
+              <FD l="Responsible Party" v={r.resp || ''} opts={['Maint. Supervisor', 'Drilling Engr.', 'Electrical Engr.', 'Rig Manager']} onChange={(e: any) => updateRow(r.id, 'resp', e.target.value)} />
             </div>
           ) : (
             <div className="p-4 grid grid-cols-1 gap-4">
-              <FM l="Contractual Process Description" v={(r as typeof r & { contractual?: string }).contractual || ''} rows={3} />
-              <FD l="Responsible Party" v={r.resp || ''} opts={['Client Rep', 'WSL', 'Third Party']} />
+              <FM l="Contractual Process Description" v={(r as typeof r & { contractual?: string }).contractual || ''} rows={3} onChange={(e: any) => updateRow(r.id, 'contractual', e.target.value)} />
+              <FD l="Responsible Party" v={r.resp || ''} opts={['Client Rep', 'WSL', 'Third Party']} onChange={(e: any) => updateRow(r.id, 'resp', e.target.value)} />
             </div>
           )}
         </div>

@@ -4,6 +4,9 @@ import { FD, FM, FieldLegend } from '@/components/Shared';
 
 const HSE_CONTROLS = ['PTW', 'Isolation', 'JSA/SOP', 'Lift Plan', 'MOC', 'Out of Sight', 'Self-Verification', 'Fall Protection'];
 
+const DEPT_OPTIONS = ['Drilling', 'Mechanical', 'Electrical', 'HSE', 'Logistics'];
+const DAY_OPTIONS = ['Day 1', 'Day 2', 'Day 3', 'Day 1-2', 'Day 2-3', 'Day 1-3'];
+
 const initialTasks = [
   { id: 1, dept: 'Drilling', task: 'Run 9-5/8" casing to 10,100ft', sop: 'SOP-DRL-042', day: 'Day 1', checks: [true, false, true, false, false, false, true, false] },
   { id: 2, dept: 'Drilling', task: 'Cement 9-5/8" casing — 2-stage', sop: 'SOP-DRL-055', day: 'Day 1', checks: [true, true, true, false, false, false, true, false] },
@@ -22,10 +25,14 @@ export function LookAheadPlan() {
     ));
   };
 
+  const updateTask = (taskId: number, field: string, value: string) => {
+    setTasks(tasks.map(t => t.id === taskId ? { ...t, [field]: value } : t));
+  };
+
   const addTask = () => {
     setTasks([...tasks, {
       id: Date.now(), dept: '', task: '', sop: '', day: 'Day 1',
-      checks: new Array(8).fill(false)
+      checks: new Array(HSE_CONTROLS.length).fill(false)
     }]);
   };
 
@@ -77,19 +84,59 @@ export function LookAheadPlan() {
             <tbody>
               {tasks.map(t => (
                 <tr key={t.id}>
-                  <td style={{ fontSize: 13, fontWeight: 700, color: '#0284C7' }}>{t.day}</td>
-                  <td>
-                    <span className={'bdg ' + (t.dept === 'Drilling' ? 'b' : t.dept === 'Mechanical' ? 'w' : t.dept === 'Electrical' ? 'p' : 'gr')}>
-                      {t.dept || '—'}
-                    </span>
+                  <td style={{ padding: '8px 10px' }}>
+                    <select
+                      className="f-dd"
+                      style={{ padding: '6px 8px', fontSize: 12, minWidth: 70 }}
+                      value={t.day}
+                      onChange={(e) => updateTask(t.id, 'day', e.target.value)}
+                    >
+                      {DAY_OPTIONS.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
                   </td>
-                  <td style={{ fontSize: 13 }}>{t.task || '—'}</td>
-                  <td style={{ fontSize: 12, color: '#64748B', fontFamily: 'monospace' }}>{t.sop || '—'}</td>
+                  <td style={{ padding: '8px 10px' }}>
+                    <select
+                      className="f-dd"
+                      style={{ padding: '6px 8px', fontSize: 12, minWidth: 90 }}
+                      value={t.dept}
+                      onChange={(e) => updateTask(t.id, 'dept', e.target.value)}
+                    >
+                      <option value="">— Select —</option>
+                      {DEPT_OPTIONS.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </td>
+                  <td style={{ padding: '8px 10px' }}>
+                    <input
+                      className="f-man"
+                      style={{ padding: '6px 10px', fontSize: 13 }}
+                      value={t.task}
+                      onChange={(e) => updateTask(t.id, 'task', e.target.value)}
+                      placeholder="Enter task description..."
+                    />
+                  </td>
+                  <td style={{ padding: '8px 10px' }}>
+                    <input
+                      className="f-man"
+                      style={{ padding: '6px 10px', fontSize: 12, fontFamily: 'monospace' }}
+                      value={t.sop}
+                      onChange={(e) => updateTask(t.id, 'sop', e.target.value)}
+                      placeholder="SOP-XXX-000"
+                    />
+                  </td>
                   {t.checks.map((checked, ci) => (
                     <td key={ci} style={{ textAlign: 'center' }}>
                       <div
                         className={'hcb' + (checked ? ' on' : '')}
+                        role="checkbox"
+                        tabIndex={0}
+                        aria-checked={checked}
                         onClick={() => toggleCheck(t.id, ci)}
+                        onKeyDown={(e) => {
+                          if (e.key === ' ' || e.key === 'Enter') {
+                            e.preventDefault();
+                            toggleCheck(t.id, ci);
+                          }
+                        }}
                       >
                         {checked ? '✓' : ''}
                       </div>

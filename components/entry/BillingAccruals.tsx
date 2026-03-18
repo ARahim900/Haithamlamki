@@ -1,26 +1,30 @@
 'use client';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FA, FD, FM, FDr, FieldLegend, KPI, Bdg } from '@/components/Shared';
 import { RIGS, MONTHS } from '@/lib/data';
 
-const accrualRows = RIGS.slice(0, 12).map((rig, i) => {
-  const op = 700 - i * 5;
-  const rd = i % 3 === 0 ? 24 : 0;
-  const bkd = Math.floor(Math.random() * 12);
-  const sp = i % 5 === 0 ? 24 : 0;
-  const zero = i % 4 === 0 ? 8 : 0;
-  const sk = 0;
-  const rigMove = i % 6 === 0 ? 42000 : 0;
-  const total = 744;
-  const wbs = `WBS-2025-${['NWT', 'SFN', 'YIB', 'MRD', 'FHD', 'LKW'][i % 6]}-${rig.replace('Rig ', '')}`;
-  const network = `NET-${1000 + i}`;
-  const well = ['HAJAL NE 20H1', 'SF-41', 'Yibal-611', 'Maurid-SW-2', 'Fahud-88', 'Lekhwair-45', 'Qarn Alam-12', 'Saih Rawl-8', 'Nimr-44', 'Bahja-22', 'Harweel-15', 'Karim-9'][i];
-  const field = ['NWT', 'SFN', 'YIB', 'MRD', 'FHD', 'LKW', 'QAR', 'SRW', 'NMR', 'BAH', 'HRW', 'KRM'][i];
-  const area = ['North', 'South', 'North', 'Central', 'North', 'North', 'Central', 'South', 'South', 'South', 'South', 'Central'][i];
-  return { rig, wbs, network, well, field, area, op, rd, bkd, sp, zero, sk, rigMove, total };
-});
+function generateAccrualRows(rigs: string[]) {
+  return rigs.slice(0, 12).map((rig, i) => {
+    const op = 700 - i * 5;
+    const rd = i % 3 === 0 ? 24 : 0;
+    const bkd = (i * 7 + 3) % 12; // deterministic instead of Math.random()
+    const sp = i % 5 === 0 ? 24 : 0;
+    const zero = i % 4 === 0 ? 8 : 0;
+    const sk = 0;
+    const rigMove = i % 6 === 0 ? 42000 : 0;
+    const total = 744;
+    const wbs = `WBS-2025-${['NWT', 'SFN', 'YIB', 'MRD', 'FHD', 'LKW'][i % 6]}-${rig.replace('Rig ', '')}`;
+    const network = `NET-${1000 + i}`;
+    const well = ['HAJAL NE 20H1', 'SF-41', 'Yibal-611', 'Maurid-SW-2', 'Fahud-88', 'Lekhwair-45', 'Qarn Alam-12', 'Saih Rawl-8', 'Nimr-44', 'Bahja-22', 'Harweel-15', 'Karim-9'][i];
+    const field = ['NWT', 'SFN', 'YIB', 'MRD', 'FHD', 'LKW', 'QAR', 'SRW', 'NMR', 'BAH', 'HRW', 'KRM'][i];
+    const area = ['North', 'South', 'North', 'Central', 'North', 'North', 'Central', 'South', 'South', 'South', 'South', 'Central'][i];
+    return { rig, wbs, network, well, field, area, op, rd, bkd, sp, zero, sk, rigMove, total };
+  });
+}
 
 export function BillingAccruals() {
+  const accrualRows = useMemo(() => generateAccrualRows(RIGS), []);
+
   const totalOP = accrualRows.reduce((s, r) => s + r.op, 0);
   const totalRD = accrualRows.reduce((s, r) => s + r.rd, 0);
   const totalBKD = accrualRows.reduce((s, r) => s + r.bkd, 0);
