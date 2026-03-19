@@ -1,16 +1,73 @@
 'use client';
 import React, { useState } from 'react';
 import { FA, FD, FM, FieldLegend } from '@/components/Shared';
+import { useRigMoves } from '@/hooks/useDb';
 import { RIGS } from '@/lib/data';
 
-const moveData = [
-  { rig: 'Rig 106', from: 'Fahud-88', to: 'Maurid-SW-2', budgetDays: 5, actualDays: 7, budgetCost: 125000, actualCost: 168000, status: 'Completed', startDate: '01-Jun-2025', endDate: '07-Jun-2025' },
-  { rig: 'Rig 109', from: 'Lekhwair-45', to: 'Yibal-612', budgetDays: 4, actualDays: 4, budgetCost: 98000, actualCost: 95000, status: 'Completed', startDate: '10-Jun-2025', endDate: '14-Jun-2025' },
-  { rig: 'Rig 203', from: 'Qarn Alam-12', to: 'Saih Rawl-8', budgetDays: 6, actualDays: 5, budgetCost: 145000, actualCost: 128000, status: 'In Progress', startDate: '18-Jun-2025', endDate: '' },
-];
-
 export function RigMove() {
+  const { data: moveData, loading, error, refetch, insert, update, remove } = useRigMoves();
   const [selectedRig, setSelectedRig] = useState('Rig 106');
+  
+  // Add Modal State
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addForm, setAddForm] = useState({
+    rig: '', move_from: '', move_to: '', move_type: 'Intra-field',
+    start_date: '', end_date: '', budget_days: '', actual_days: '',
+    budget_cost: '', actual_cost: '', revenue_income: '', remarks: '', status: 'In Progress'
+  });
+  
+  // Edit Modal State
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({
+    rig: '', move_from: '', move_to: '', move_type: 'Intra-field',
+    start_date: '', end_date: '', budget_days: '', actual_days: '',
+    budget_cost: '', actual_cost: '', revenue_income: '', remarks: '', status: 'In Progress'
+  });
+  
+  // Delete Modal State
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  
+  const handleAddSubmit = async () => {
+    await insert(addForm);
+    setShowAddModal(false);
+    setAddForm({
+      rig: '', move_from: '', move_to: '', move_type: 'Intra-field',
+      start_date: '', end_date: '', budget_days: '', actual_days: '',
+      budget_cost: '', actual_cost: '', revenue_income: '', remarks: '', status: 'In Progress'
+    });
+    refetch();
+  };
+  
+  const handleEditClick = (row: any) => {
+    setEditingId(row.id);
+    setEditForm(row);
+    setShowEditModal(true);
+  };
+  
+  const handleEditSubmit = async () => {
+    if (editingId) {
+      await update(editingId, editForm);
+      setShowEditModal(false);
+      setEditingId(null);
+      refetch();
+    }
+  };
+  
+  const handleDeleteClick = (id: string) => {
+    setDeletingId(id);
+    setShowDeleteModal(true);
+  };
+  
+  const handleDeleteConfirm = async () => {
+    if (deletingId) {
+      await remove(deletingId);
+      setShowDeleteModal(false);
+      setDeletingId(null);
+      refetch();
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -22,7 +79,7 @@ export function RigMove() {
           </div>
           <div className="flex items-center gap-2">
             <button className="btn btn-o btn-xs">Export</button>
-            <button className="btn btn-t btn-xs">+ New Move</button>
+            <button className="btn btn-t btn-xs" onClick={() => setShowAddModal(true)}>+ New Move</button>
           </div>
         </div>
 
@@ -31,33 +88,31 @@ export function RigMove() {
         </div>
 
         <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <FD l="Rig" v={selectedRig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedRig(e.target.value)} />
-          <FM l="Move From (Well/Location)" v="Fahud-88" />
-          <FM l="Move To (Well/Location)" v="Maurid-SW-2" />
-          <FD l="Move Type" v="Intra-field" opts={['Intra-field', 'Inter-field', 'Pad to Pad']} />
+          <FD l="Rig" v={addForm.rig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, rig: e.target.value })} />
+          <FM l="Move From (Well/Location)" v={addForm.move_from} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, move_from: e.target.value })} />
+          <FM l="Move To (Well/Location)" v={addForm.move_to} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, move_to: e.target.value })} />
+          <FD l="Move Type" v={addForm.move_type} opts={['Intra-field', 'Inter-field', 'Pad to Pad']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, move_type: e.target.value })} />
         </div>
 
         <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FM l="Start Date" v="01-Jun-2025" type="text" />
-          <FM l="End Date" v="07-Jun-2025" type="text" />
-          <FA l="Duration (Days)" v="7" />
+          <FM l="Start Date" v={addForm.start_date} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, start_date: e.target.value })} />
+          <FM l="End Date" v={addForm.end_date} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, end_date: e.target.value })} />
+          <FM l="Budget Days" v={addForm.budget_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, budget_days: e.target.value })} />
         </div>
 
         <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <FM l="Budget Days" v="5" type="number" />
-          <FA l="Actual Days" v="7" />
-          <FM l="Budget Cost ($)" v="125,000" />
-          <FA l="Actual Cost ($)" v="168,000" />
+          <FM l="Actual Days" v={addForm.actual_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, actual_days: e.target.value })} />
+          <FM l="Budget Cost ($)" v={addForm.budget_cost} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, budget_cost: e.target.value })} />
+          <FM l="Actual Cost ($)" v={addForm.actual_cost} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, actual_cost: e.target.value })} />
+          <FM l="Client Contract Income ($)" v={addForm.revenue_income} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, revenue_income: e.target.value })} />
         </div>
 
-        <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FA l="Variance (Days)" v="+2" />
-          <FA l="Variance ($)" v="+$43,000" />
-          <FM l="Client Contract Income ($)" v="185,000" />
+        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FD l="Status" v={addForm.status} opts={['In Progress', 'Completed', 'On Hold']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, status: e.target.value })} />
         </div>
 
         <div className="p-4">
-          <FM l="Move Remarks / Delays" v="Delayed 2 days due to heavy equipment transport permit issues. Road closure on Route 21." rows={3} />
+          <FM l="Move Remarks / Delays" v={addForm.remarks} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, remarks: e.target.value })} rows={3} />
         </div>
       </div>
 
@@ -67,7 +122,7 @@ export function RigMove() {
           <table>
             <thead>
               <tr>
-                {['Rig', 'From', 'To', 'Budget Days', 'Actual Days', 'Var', 'Budget Cost', 'Actual Cost', 'Revenue Impact', 'Status'].map(h => (
+                {['Rig', 'From', 'To', 'Budget Days', 'Actual Days', 'Var', 'Budget Cost', 'Actual Cost', 'Revenue Impact', 'Status', 'Actions'].map(h => (
                   <th key={h} className="th">{h}</th>
                 ))}
               </tr>
@@ -88,6 +143,10 @@ export function RigMove() {
                     <td className="tb-num" style={{ fontWeight: 700 }}>${r.actualCost.toLocaleString()}</td>
                     <td className="tb-num" style={{ fontWeight: 800, color: costVar > 0 ? '#DC2626' : '#16A34A' }}>{costVar > 0 ? '+' : ''}${Math.abs(costVar).toLocaleString()}</td>
                     <td><span className={'bdg ' + (r.status === 'Completed' ? 'g' : 't')}>{r.status}</span></td>
+                    <td className="flex gap-2">
+                      <button className="btn btn-t btn-xs" onClick={() => handleEditClick(r)}>Edit</button>
+                      <button className="btn btn-d btn-xs" onClick={() => handleDeleteClick(r.id)}>Delete</button>
+                    </td>
                   </tr>
                 );
               })}
