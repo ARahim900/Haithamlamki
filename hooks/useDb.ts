@@ -176,20 +176,22 @@ export const useBillingTickets = makeUseTable<BillingTicket>(
 );
 
 export function useBillingTicketDays(ticketId: number | null) {
-  const [days, setDays] = useState<BillingTicketDay[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [state, setState] = useState<{
+    days: BillingTicketDay[];
+    loading: boolean;
+    error: string | null;
+  }>({ days: [], loading: ticketId != null, error: null });
 
   useEffect(() => {
     if (ticketId == null) return;
-    setLoading(true);
+    let cancelled = false;
     BillingTickets.getDays(ticketId)
-      .then(setDays)
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
+      .then((data) => { if (!cancelled) setState({ days: data, loading: false, error: null }); })
+      .catch((e) => { if (!cancelled) setState(prev => ({ ...prev, loading: false, error: e.message })); });
+    return () => { cancelled = true; };
   }, [ticketId]);
 
-  return { days, loading, error };
+  return state;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
