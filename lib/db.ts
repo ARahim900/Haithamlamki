@@ -67,27 +67,28 @@ async function remove(table: string, id: number): Promise<void> {
 export interface RigMove {
   id: number;
   rig: string;
-  from_location: string;
-  to_location: string;
-  budget_days: number;
-  actual_days: number;
-  budget_cost: number;
-  actual_cost: number;
-  client_income: number;
-  distance_km: number;
-  mover_company: string;
-  start_date: string;     // ISO date
-  end_date: string;       // ISO date
-  status: string;
+  move_from: string | null;
+  move_to: string | null;
+  budget_days: number | null;
+  actual_days: number | null;
+  budget_cost: number | null;
+  actual_cost: number | null;
+  client_income: number | null;
+  distance_km: string | null;
+  mover_company: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  status: string | null;
   remarks: string | null;
   created_at?: string;
+  updated_at?: string;
 }
 
 export const RigMoves = {
   getAll: () => getAll<RigMove>('rig_moves'),
   getById: (id: number) => getById<RigMove>('rig_moves', id),
-  insert: (row: Omit<RigMove, 'id' | 'created_at'>) => insert<RigMove>('rig_moves', row),
-  insertMany: (rows: Omit<RigMove, 'id' | 'created_at'>[]) => insertMany<RigMove>('rig_moves', rows),
+  insert: (row: Omit<RigMove, 'id' | 'created_at' | 'updated_at'>) => insert<RigMove>('rig_moves', row),
+  insertMany: (rows: Omit<RigMove, 'id' | 'created_at' | 'updated_at'>[]) => insertMany<RigMove>('rig_moves', rows),
   update: (id: number, patch: Partial<RigMove>) => update<RigMove>('rig_moves', id, patch),
   delete: (id: number) => remove('rig_moves', id),
 };
@@ -97,12 +98,21 @@ export const RigMoves = {
 // ─────────────────────────────────────────────────────────────────────────────
 export interface LookAheadTask {
   id: number;
-  dept: string;
+  rig: string | null;
+  well: string | null;
+  report_date: string | null;
+  dept: string | null;
   task: string;
-  sop: string | null;
-  day: string;
-  check_d1: boolean; check_d2: boolean; check_d3: boolean; check_d4: boolean;
-  check_d5: boolean; check_d6: boolean; check_d7: boolean; check_d8: boolean;
+  sop_ref: string | null;
+  day_slot: string | null;
+  ptw: boolean;
+  isolation: boolean;
+  jsa_sop: boolean;
+  lift_plan: boolean;
+  moc: boolean;
+  out_of_sight: boolean;
+  self_verify: boolean;
+  fall_protection: boolean;
   created_at?: string;
 }
 
@@ -121,14 +131,27 @@ export const LookAheadTasks = {
 export interface DdorReport {
   id: number;
   rig: string;
-  report_date: string;
   well_name: string | null;
-  field: string | null;
-  depth_start: number | null;
-  depth_end: number | null;
-  activity_code: string | null;
-  hours: number | null;
-  remarks: string | null;
+  wbs: string | null;
+  network: string | null;
+  report_date: string;
+  rig_status: string | null;
+  current_depth: number | null;
+  prev_depth: number | null;
+  footage: number | null;
+  days_on_well: number | null;
+  current_phase: string | null;
+  mud_weight: number | null;
+  viscosity: number | null;
+  wob: number | null;
+  rop_avg: number | null;
+  rop_max: number | null;
+  spm: number | null;
+  standpipe_psi: number | null;
+  rotating_hrs: number | null;
+  npt_hrs: number | null;
+  npt_system: string | null;
+  npt_description: string | null;
   created_at?: string;
 }
 
@@ -155,19 +178,24 @@ export const DdorReports = {
 export interface BillingTicket {
   id: number;
   rig: string;
-  month: string;
-  year: number;
-  daily_rate: number | null;
+  well_name: string | null;
+  wbs: string | null;
+  billing_period: string | null;
+  rig_move_date: string | null;
+  spud_date: string | null;
+  release_date: string | null;
   created_at?: string;
 }
 
 export interface BillingTicketDay {
   id: number;
   ticket_id: number;
-  day_number: number;
-  rate_type: string;
-  hours: number;
-  amount: number | null;
+  day_number: number | null;
+  entry_date: string | null;
+  rate_type: string | null;
+  hours: number | null;
+  revenue: number | null;
+  remarks: string | null;
   created_at?: string;
 }
 
@@ -198,23 +226,23 @@ export interface NptEvent {
   id: number;
   rig: string;
   event_date: string;
-  year: number;
-  month: string;
-  hours: number;
-  npt_system: string;
-  parent_equip: string | null;
-  part_equip: string | null;
+  year: number | null;
+  month: string | null;
+  npt_type: string | null;
+  hours: number | null;
+  system_category: string | null;
+  parent_equipment: string | null;
+  part_equipment: string | null;
   contractual_process: string | null;
-  dept_resp: string | null;
-  imm_cause: string | null;
+  dept_responsibility: string | null;
+  immediate_cause: string | null;
   root_cause: string | null;
-  corrective: string | null;
+  corrective_action: string | null;
   future_action: string | null;
   action_party: string | null;
-  field: string | null;
-  well_name: string | null;
-  remarks: string | null;
+  notification_number: string | null;
   created_at?: string;
+  updated_at?: string;
 }
 
 export const NptEvents = {
@@ -237,8 +265,8 @@ export const NptEvents = {
     if (error) throw new Error(`[npt_events] getByYear: ${error.message}`);
     return (data ?? []) as NptEvent[];
   },
-  insert: (row: Omit<NptEvent, 'id' | 'created_at'>) => insert<NptEvent>('npt_events', row),
-  insertMany: (rows: Omit<NptEvent, 'id' | 'created_at'>[]) => insertMany<NptEvent>('npt_events', rows),
+  insert: (row: Omit<NptEvent, 'id' | 'created_at' | 'updated_at'>) => insert<NptEvent>('npt_events', row),
+  insertMany: (rows: Omit<NptEvent, 'id' | 'created_at' | 'updated_at'>[]) => insertMany<NptEvent>('npt_events', rows),
   update: (id: number, patch: Partial<NptEvent>) => update<NptEvent>('npt_events', id, patch),
   delete: (id: number) => remove('npt_events', id),
 };
@@ -248,16 +276,16 @@ export const NptEvents = {
 // ─────────────────────────────────────────────────────────────────────────────
 export interface Utilization {
   id: number;
-  month: string;
+  rig: string;
   year: number;
-  op_hours: number;
-  rd_hours: number;
-  bkd_hours: number;
-  sp_hours: number;
-  zr_hours: number;
-  sk_hours: number;
-  total_hours: number | null;
-  utilization_pct: number | null;
+  month: string;
+  op_hours: number | null;
+  npt_hours: number | null;
+  npt_pct: number | null;
+  npt_type: string | null;
+  allowable_npt: string | null;
+  working_days: number | null;
+  comment: string | null;
   created_at?: string;
 }
 
@@ -275,10 +303,10 @@ export const UtilizationData = {
   insert: (row: Omit<Utilization, 'id' | 'created_at'>) => insert<Utilization>('utilization', row),
   insertMany: (rows: Omit<Utilization, 'id' | 'created_at'>[]) => insertMany<Utilization>('utilization', rows),
   update: (id: number, patch: Partial<Utilization>) => update<Utilization>('utilization', id, patch),
-  upsertByMonth: async (year: number, month: string, data: Partial<Utilization>): Promise<void> => {
+  upsertByMonth: async (rig: string, year: number, month: string, data: Partial<Utilization>): Promise<void> => {
     const { error } = await supabase
       .from('utilization')
-      .upsert({ year, month, ...data }, { onConflict: 'year,month' });
+      .upsert({ rig, year, month, ...data }, { onConflict: 'rig,year,month' });
     if (error) throw new Error(`[utilization] upsert: ${error.message}`);
   },
 };
@@ -291,17 +319,19 @@ export interface WellTracking {
   rig: string;
   well_name: string;
   field: string | null;
-  spud_date: string | null;
-  td_date: string | null;
-  budget_days: number | null;
-  actual_days: number | null;
-  depth_target: number | null;
-  depth_actual: number | null;
-  status: string | null;
   rig_move_date: string | null;
+  spud_date: string | null;
+  release_date: string | null;
+  total_depth: number | null;
+  current_depth: number | null;
+  afe_days: number | null;
+  actual_days: number | null;
   contracting_co: string | null;
-  remarks: string | null;
+  status: string | null;
+  year: number | null;
+  month: string | null;
   created_at?: string;
+  updated_at?: string;
 }
 
 export const WellTrackingData = {
@@ -315,8 +345,8 @@ export const WellTrackingData = {
     if (error) throw new Error(`[well_tracking] getByRig: ${error.message}`);
     return (data ?? []) as WellTracking[];
   },
-  insert: (row: Omit<WellTracking, 'id' | 'created_at'>) => insert<WellTracking>('well_tracking', row),
-  insertMany: (rows: Omit<WellTracking, 'id' | 'created_at'>[]) => insertMany<WellTracking>('well_tracking', rows),
+  insert: (row: Omit<WellTracking, 'id' | 'created_at' | 'updated_at'>) => insert<WellTracking>('well_tracking', row),
+  insertMany: (rows: Omit<WellTracking, 'id' | 'created_at' | 'updated_at'>[]) => insertMany<WellTracking>('well_tracking', rows),
   update: (id: number, patch: Partial<WellTracking>) => update<WellTracking>('well_tracking', id, patch),
   delete: (id: number) => remove('well_tracking', id),
 };
@@ -327,17 +357,19 @@ export const WellTrackingData = {
 export interface NptBilling {
   id: number;
   rig: string;
-  month: string;
   year: number;
-  opr_rate: number | null;
-  reduce_rate: number | null;
-  repair_rate: number | null;
-  zero_rate: number | null;
-  special_rate: number | null;
+  month: string;
+  opr_rate_hrs: number | null;
+  reduce_rate_hrs: number | null;
+  repair_rate_hrs: number | null;
+  zero_rate_hrs: number | null;
+  special_rate_hrs: number | null;
   rig_move_reduce: number | null;
-  rig_move: number | null;
-  a_maint: number | null;
-  a_maint_zero: number | null;
+  rig_move_hrs: number | null;
+  a_maint_hrs: number | null;
+  a_maint_zero_hrs: number | null;
+  eticket_total: number | null;
+  mismatch: boolean | null;
   created_at?: string;
 }
 
@@ -369,8 +401,8 @@ export const NptBillingData = {
 export interface FuelConsumption {
   id: number;
   rig: string;
-  month: string;
   year: number;
+  month: string;
   opening_stock: number | null;
   received: number | null;
   rig_engine: number | null;
@@ -378,8 +410,8 @@ export interface FuelConsumption {
   invoice_client: number | null;
   other_site: number | null;
   vehicles: number | null;
-  total_consumed: number | null;  // calculated at app level: sum of all consumption columns
-  closing_balance: number | null; // calculated at app level: opening_stock + received - total_consumed
+  total_consumed: number | null;
+  closing_balance: number | null;
   po1: string | null;
   po2: string | null;
   po3: string | null;
@@ -408,14 +440,14 @@ export const FuelConsumptionData = {
 export interface Revenue {
   id: number;
   rig: string;
-  month: string;
   year: number;
-  op_revenue: number | null;
-  rd_revenue: number | null;
-  sp_revenue: number | null;
-  rig_move_revenue: number | null;
-  other_revenue: number | null;
-  total_revenue: number | null;
+  month: string;
+  actual: number | null;
+  fuel: number | null;
+  budgeted: number | null;
+  npt_repair: number | null;
+  npt_zero: number | null;
+  comments: string | null;
   created_at?: string;
 }
 
@@ -450,12 +482,9 @@ export const RevenueData = {
 export interface CrmScore {
   id: number;
   rig: string;
-  month: string;
   year: number;
+  month: string;
   score: number | null;
-  category: string | null;
-  client: string | null;
-  notes: string | null;
   created_at?: string;
 }
 
@@ -487,19 +516,22 @@ export const CrmScores = {
 export interface BillingAccrual {
   id: number;
   rig: string;
-  month: string;
-  year: number;
   wbs: string | null;
+  well_name: string | null;
   network: string | null;
-  op_hours: number | null;
-  rd_hours: number | null;
-  sp_hours: number | null;
-  sk_hours: number | null;
-  zr_hours: number | null;
-  bkd_hours: number | null;
+  opp_hrs: number | null;
+  reduce_hrs: number | null;
+  bkd_hrs: number | null;
+  zero_hrs: number | null;
+  special_rate: number | null;
+  stacked_hrs: number | null;
+  rig_move_hrs: number | null;
+  total_hrs: number | null;
   rig_move_amt: number | null;
   field_name: string | null;
   area: string | null;
+  billing_date: string | null;
+  remarks: string | null;
   created_at?: string;
 }
 
@@ -510,7 +542,7 @@ export const BillingAccruals = {
       .from('billing_accruals')
       .select('*')
       .eq('rig', rig)
-      .order('year,month');
+      .order('id');
     if (error) throw new Error(`[billing_accruals] getByRig: ${error.message}`);
     return (data ?? []) as BillingAccrual[];
   },

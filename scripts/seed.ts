@@ -34,13 +34,44 @@ import {
   MONTHS,
 } from '../lib/data';
 
-// ─── Supabase client (reads from env or falls back to hardcoded) ───────────
-const supabaseUrl =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ??
-  'https://ydvccqwtpofygzxveckj.supabase.co';
-const supabaseKey =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkdmNjcXd0cG9meWd6eHZlY2tqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI0ODI1MDAsImV4cCI6MjA1ODA1ODUwMH0.GM7LpHmbWUy0yr06hrsQ6d-CBmpbZWYAB-BH_-Zujh8';
+// ─── Helper: convert month number (01-12) or date string to month name ───────
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function getMonthName(dateStr: string | undefined): string {
+  if (!dateStr) return 'Jun'; // fallback
+  // If it's a date like "05-Jun-2025" or "15-Jun-2025", extract month name directly
+  const parts = dateStr.split('-');
+  if (parts.length >= 2) {
+    const monthPart = parts[1];
+    // Check if it's already a month name
+    if (MONTH_NAMES.includes(monthPart)) return monthPart;
+    // Otherwise it's a number
+    const monthNum = parseInt(monthPart, 10);
+    if (monthNum >= 1 && monthNum <= 12) return MONTH_NAMES[monthNum - 1];
+  }
+  return 'Jun';
+}
+
+// ─── Helper: normalize rig name to avoid "Rig Rig 103" ───────────────────────
+function normalizeRigName(rig: string | undefined | null): string {
+  if (!rig) return 'Rig 103';
+  const trimmed = rig.trim();
+  if (/^\s*rig\b/i.test(trimmed)) return trimmed;
+  return `Rig ${trimmed}`;
+}
+
+// ─── Supabase client ─────────────────────────────────────────────────────────
+// Load environment variables - require dotenv for local dev
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl) {
+  console.error('❌ NEXT_PUBLIC_SUPABASE_URL is not set. Add it to .env.local');
+  process.exit(1);
+}
+if (!supabaseKey) {
+  console.error('❌ SUPABASE_SERVICE_ROLE_KEY is not set. Add it to .env.local');
+  process.exit(1);
+}
 
 const sb = createClient(supabaseUrl, supabaseKey);
 
@@ -50,7 +81,7 @@ async function run(name: string, fn: () => Promise<void>) {
     await fn();
     console.log(' ✓');
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : String(e);
+    const msg = e instanceof Error ? e.message : JSON.stringify(e, null, 2);
     console.log(` ✗  ${msg}`);
   }
 }
@@ -61,8 +92,8 @@ async function run(name: string, fn: () => Promise<void>) {
 async function seedRigMoves() {
   const rows = rigMoveData.map((r) => ({
     rig: r.rig,
-    from_location: r.from,
-    to_location: r.to,
+    move_from: r.from,
+    move_to: r.to,
     budget_days: r.budgetDays,
     actual_days: r.actualDays,
     budget_cost: r.budgetCost,
@@ -84,18 +115,21 @@ async function seedRigMoves() {
 // ─────────────────────────────────────────────────────────────────────────────
 async function seedLookAheadTasks() {
   const rows = lookAheadTasks.map((t) => ({
+    rig: t.rig ?? 'Rig 103',
+    well: t.well ?? null,
+    report_date: t.reportDate ?? new Date().toISOString().slice(0, 10),
     dept: t.dept,
     task: t.task,
-    sop: t.sop ?? null,
-    day: t.day,
-    check_d1: t.checks[0] ?? false,
-    check_d2: t.checks[1] ?? false,
-    check_d3: t.checks[2] ?? false,
-    check_d4: t.checks[3] ?? false,
-    check_d5: t.checks[4] ?? false,
-    check_d6: t.checks[5] ?? false,
-    check_d7: t.checks[6] ?? false,
-    check_d8: t.checks[7] ?? false,
+    sop_ref: t.sop ?? null,
+    day_slot: t.day ?? null,
+    ptw: t.checks?.[0] ?? false,
+    isolation: t.checks?.[1] ?? false,
+    jsa_sop: t.checks?.[2] ?? false,
+    lift_plan: t.checks?.[3] ?? false,
+    moc: t.checks?.[4] ?? false,
+    out_of_sight: t.checks?.[5] ?? false,
+    self_verify: t.checks?.[6] ?? false,
+    fall_protection: t.checks?.[7] ?? false,
   }));
   const { error } = await sb.from('look_ahead_tasks').insert(rows);
   if (error) throw error;
@@ -111,9 +145,12 @@ async function seedBillingTickets() {
       .from('billing_tickets')
       .insert({
         rig: ticket.rig,
-        month: ticket.month,
-        year: ticket.year ?? 2025,
-        daily_rate: ticket.dailyRate ?? null,
+        well_name: ticket.well ?? null,
+        wbs: ticket.wbs ?? null,
+        billing_period: ticket.billingPeriod ?? null,
+        rig_move_date: ticket.rigMoveDate ?? null,
+        spud_date: ticket.spudDate ?? null,
+        release_date: ticket.releaseDate || null,
       })
       .select('id')
       .single();
@@ -121,12 +158,14 @@ async function seedBillingTickets() {
     const ticketId = headerData.id;
 
     // Insert days
-    const days = ticket.days?.map((d: { day: number; rateType: string; hours: number }) => ({
+    const days = ticket.days?.map((d: { day: number; date: string; rate: string; hrs: number; remarks?: string }) => ({
       ticket_id: ticketId,
       day_number: d.day,
-      rate_type: d.rateType,
-      hours: d.hours,
-      amount: null,
+      entry_date: d.date,
+      rate_type: d.rate,
+      hours: d.hrs,
+      revenue: null,
+      remarks: d.remarks || null,
     })) ?? [];
 
     if (days.length > 0) {
@@ -140,25 +179,24 @@ async function seedBillingTickets() {
 // 4. NPT Events
 // ─────────────────────────────────────────────────────────────────────────────
 async function seedNptEvents() {
-  const rows = nptEvents.map((e) => ({
+  const rows = nptEvents.map((e: { rig: string; date: string; type: string; hrs: number; system: string; parentEquip?: string; partEquip?: string; deptResp?: string; immCause?: string; rootCause?: string; corrective?: string; futureAction?: string; actionParty?: string; contractualProcess?: string }) => ({
     rig: e.rig,
-    event_date: e.eventDate ?? e.date ?? new Date().toISOString().slice(0, 10),
-    year: e.year ?? 2025,
-    month: e.month ?? 'Jan',
-    hours: e.hours,
-    npt_system: e.nptSystem,
-    parent_equip: e.parentEquip ?? null,
-    part_equip: e.partEquip ?? null,
+    event_date: e.date ?? new Date().toISOString().slice(0, 10),
+    year: 2025,
+    month: getMonthName(e.date),
+    hours: e.hrs,
+    npt_type: e.type ?? 'Abraj',
+    system_category: e.system ?? null,
+    parent_equipment: e.parentEquip ?? null,
+    part_equipment: e.partEquip ?? null,
     contractual_process: e.contractualProcess ?? null,
-    dept_resp: e.deptResp ?? null,
-    imm_cause: e.immCause ?? null,
+    dept_responsibility: e.deptResp ?? null,
+    immediate_cause: e.immCause ?? null,
     root_cause: e.rootCause ?? null,
-    corrective: e.corrective ?? null,
+    corrective_action: e.corrective ?? null,
     future_action: e.futureAction ?? null,
     action_party: e.actionParty ?? null,
-    field: e.field ?? null,
-    well_name: e.wellName ?? null,
-    remarks: e.remarks ?? null,
+    notification_number: null,
   }));
   const { error } = await sb.from('npt_events').insert(rows);
   if (error) throw error;
@@ -168,18 +206,24 @@ async function seedNptEvents() {
 // 5. Utilization
 // ─────────────────────────────────────────────────────────────────────────────
 async function seedUtilization() {
-  const rows = utilData.map((u) => ({
-    month: u.month,
-    year: u.year ?? 2025,
-    op_hours: u.op ?? 0,
-    rd_hours: u.rd ?? 0,
-    bkd_hours: u.bkd ?? 0,
-    sp_hours: u.sp ?? 0,
-    zr_hours: u.zr ?? 0,
-    sk_hours: u.sk ?? 0,
-    total_hours: (u.op ?? 0) + (u.rd ?? 0) + (u.bkd ?? 0) + (u.sp ?? 0) + (u.zr ?? 0) + (u.sk ?? 0),
-    utilization_pct: u.utilPct ?? null,
-  }));
+  const rows = utilData.map((u: { m: string; op: number; rd: number; bkd: number; zero: number; sp: number }) => {
+    const opHours = u.op ?? 0;
+    const nptHours = (u.rd ?? 0) + (u.bkd ?? 0) + (u.zero ?? 0);
+    const totalHours = opHours + nptHours;
+    const nptPct = totalHours > 0 ? (nptHours / totalHours) * 100 : 0;
+    return {
+      rig: 'Fleet',
+      month: u.m,
+      year: 2025,
+      op_hours: opHours,
+      npt_hours: nptHours,
+      npt_pct: Math.round(nptPct * 100) / 100, // round to 2 decimals
+      npt_type: null,
+      allowable_npt: null,
+      working_days: null,
+      comment: null,
+    };
+  });
   const { error } = await sb.from('utilization').insert(rows);
   if (error) throw error;
 }
@@ -188,20 +232,21 @@ async function seedUtilization() {
 // 6. Well Tracking
 // ─────────────────────────────────────────────────────────────────────────────
 async function seedWellTracking() {
-  const rows = wellTracking.map((w) => ({
-    rig: w.rig,
-    well_name: w.wellName,
-    field: w.field ?? null,
-    spud_date: w.spudDate ?? null,
-    td_date: w.tdDate ?? null,
-    budget_days: w.budgetDays ?? null,
-    actual_days: w.actualDays ?? null,
-    depth_target: w.depthTarget ?? null,
-    depth_actual: w.depthActual ?? null,
-    status: w.status ?? null,
-    rig_move_date: w.rigMoveDate ?? null,
-    contracting_co: w.contractingCo ?? null,
-    remarks: w.remarks ?? null,
+  const rows = wellTracking.map((w: { rig: string; well: string; field?: string; rigMoveDate?: string; spud?: string; releaseDate?: string; tTD?: number; cTD?: number; afeD?: number; actD?: number; contractingCo?: string; status?: string; year?: number; month?: string }) => ({
+    rig: normalizeRigName(w.rig),
+    well_name: w.well,
+    field: w.field || null,
+    rig_move_date: w.rigMoveDate || null,
+    spud_date: w.spud || null,
+    release_date: w.releaseDate || null,
+    total_depth: w.tTD ?? null,
+    current_depth: w.cTD ?? null,
+    afe_days: w.afeD ?? null,
+    actual_days: w.actD ?? null,
+    contracting_co: w.contractingCo || null,
+    status: w.status || null,
+    year: w.year ?? 2025,
+    month: w.month || null,
   }));
   const { error } = await sb.from('well_tracking').insert(rows);
   if (error) throw error;
@@ -211,103 +256,66 @@ async function seedWellTracking() {
 // 7. NPT Billing (per rig, per month)
 // ─────────────────────────────────────────────────────────────────────────────
 async function seedNptBilling() {
-  const rows: object[] = [];
-  for (const entry of nptBillingData) {
-    MONTHS.forEach((month, idx) => {
-      rows.push({
-        rig: entry.rig,
-        month,
-        year: 2025,
-        opr_rate: entry.oprRate?.[idx] ?? null,
-        reduce_rate: entry.reduceRate?.[idx] ?? null,
-        repair_rate: entry.repairRate?.[idx] ?? null,
-        zero_rate: entry.zeroRate?.[idx] ?? null,
-        special_rate: entry.specialRate?.[idx] ?? null,
-        rig_move_reduce: entry.rigMoveReduce?.[idx] ?? null,
-        rig_move: entry.rigMove?.[idx] ?? null,
-        a_maint: entry.aMaint?.[idx] ?? null,
-        a_maint_zero: entry.aMaintZero?.[idx] ?? null,
-      });
-    });
-  }
-  // Insert in batches of 100
-  for (let i = 0; i < rows.length; i += 100) {
-    const { error } = await sb.from('npt_billing').insert(rows.slice(i, i + 100));
-    if (error) throw error;
-  }
+  const rows = nptBillingData.map((entry: { rig: string; month: string; year: number; oprRate: number; reduceRate: number; repairRate: number; zeroRate: number; specialRate: number; rigMoveReduce: number; rigMove: number; aMaint: number; aMaintZero: number }) => ({
+    rig: entry.rig,
+    month: entry.month,
+    year: entry.year ?? 2025,
+    opr_rate_hrs: entry.oprRate ?? null,
+    reduce_rate_hrs: entry.reduceRate ?? null,
+    repair_rate_hrs: entry.repairRate ?? null,
+    zero_rate_hrs: entry.zeroRate ?? null,
+    special_rate_hrs: entry.specialRate ?? null,
+    rig_move_reduce: entry.rigMoveReduce ?? null,
+    rig_move_hrs: entry.rigMove ?? null,
+    a_maint_hrs: entry.aMaint ?? null,
+    a_maint_zero_hrs: entry.aMaintZero ?? null,
+  }));
+  const { error } = await sb.from('npt_billing').insert(rows);
+  if (error) throw error;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 8. Fuel Consumption (per rig, per month)
 // ─────────────────────────────────────────────────────────────────────────────
 async function seedFuelConsumption() {
-  const rows: object[] = [];
-  for (const entry of fuelData) {
-    MONTHS.forEach((month, idx) => {
-      const rigEngine = entry.rigEngine?.[idx] ?? 0;
-      const campEngine = entry.campEngine?.[idx] ?? 0;
-      const invoiceClient = entry.invoiceClient?.[idx] ?? 0;
-      const otherSite = entry.otherSite?.[idx] ?? 0;
-      const vehicles = entry.vehicles?.[idx] ?? 0;
-      const totalConsumed = rigEngine + campEngine + invoiceClient + otherSite + vehicles;
-      const openingStock = entry.openingStock?.[idx] ?? 0;
-      const received = entry.received?.[idx] ?? 0;
-
-      rows.push({
-        rig: entry.rig,
-        month,
-        year: 2025,
-        opening_stock: openingStock,
-        received,
-        rig_engine: rigEngine,
-        camp_engine: campEngine,
-        invoice_client: invoiceClient,
-        other_site: otherSite,
-        vehicles,
-        total_consumed: totalConsumed,
-        closing_balance: openingStock + received - totalConsumed,
-        po1: entry.po1 ?? null,
-        po2: entry.po2 ?? null,
-        po3: entry.po3 ?? null,
-      });
-    });
-  }
-  for (let i = 0; i < rows.length; i += 100) {
-    const { error } = await sb.from('fuel_consumption').insert(rows.slice(i, i + 100));
-    if (error) throw error;
-  }
+  const rows = fuelData.map((entry: { rig: string; year: number; month: string; openingStock: number; received: number; rigEngine: number; campEngine: number; invoiceClient: number; otherSite: number; vehicles: number; consumed: number; closingBalance: number; po1: string; po2: string; po3: string }) => ({
+    rig: entry.rig,
+    month: entry.month,
+    year: entry.year ?? 2025,
+    opening_stock: entry.openingStock ?? 0,
+    received: entry.received ?? 0,
+    rig_engine: entry.rigEngine ?? 0,
+    camp_engine: entry.campEngine ?? 0,
+    invoice_client: entry.invoiceClient ?? 0,
+    other_site: entry.otherSite ?? 0,
+    vehicles: entry.vehicles ?? 0,
+    total_consumed: entry.consumed ?? 0,
+    closing_balance: entry.closingBalance ?? 0,
+    po1: entry.po1 || null,
+    po2: entry.po2 || null,
+    po3: entry.po3 || null,
+  }));
+  const { error } = await sb.from('fuel_consumption').insert(rows);
+  if (error) throw error;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 9. Revenue (per rig, per month)
 // ─────────────────────────────────────────────────────────────────────────────
 async function seedRevenue() {
-  const rows: object[] = [];
-  for (const entry of revenueData) {
-    MONTHS.forEach((month, idx) => {
-      const opRev = entry.opRevenue?.[idx] ?? 0;
-      const rdRev = entry.rdRevenue?.[idx] ?? 0;
-      const spRev = entry.spRevenue?.[idx] ?? 0;
-      const rmRev = entry.rigMoveRevenue?.[idx] ?? 0;
-      const otherRev = entry.otherRevenue?.[idx] ?? 0;
-
-      rows.push({
-        rig: entry.rig,
-        month,
-        year: 2025,
-        op_revenue: opRev,
-        rd_revenue: rdRev,
-        sp_revenue: spRev,
-        rig_move_revenue: rmRev,
-        other_revenue: otherRev,
-        total_revenue: opRev + rdRev + spRev + rmRev + otherRev,
-      });
-    });
-  }
-  for (let i = 0; i < rows.length; i += 100) {
-    const { error } = await sb.from('revenue').insert(rows.slice(i, i + 100));
-    if (error) throw error;
-  }
+  const rows = revenueData.map((entry: { rig: string; month: string; year: number; actual: number; fuel: number; budgeted: number; nptRepair: number; nptZero: number; comments?: string }) => ({
+    rig: entry.rig,
+    month: entry.month,
+    year: entry.year ?? 2025,
+    actual: entry.actual ?? null,
+    fuel: entry.fuel ?? null,
+    budgeted: entry.budgeted ?? null,
+    npt_repair: entry.nptRepair ?? 0,
+    npt_zero: entry.nptZero ?? 0,
+    comments: entry.comments ?? null,
+  }));
+  const { error } = await sb.from('revenue').insert(rows);
+  if (error) throw error;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -316,17 +324,16 @@ async function seedRevenue() {
 async function seedCrmScores() {
   const rows: object[] = [];
   for (const entry of crmMonthlyData) {
-    MONTHS.forEach((month, idx) => {
+    // scores is an object like { Jan: 100, Feb: 100, ... }
+    const scores = entry.scores as Record<string, number>;
+    for (const month of MONTHS) {
       rows.push({
         rig: entry.rig,
         month,
-        year: 2025,
-        score: entry.scores?.[idx] ?? null,
-        category: entry.category ?? null,
-        client: entry.client ?? null,
-        notes: null,
+        year: entry.year ?? 2025,
+        score: scores?.[month] ?? null,
       });
-    });
+    }
   }
   for (let i = 0; i < rows.length; i += 100) {
     const { error } = await sb.from('crm_scores').insert(rows.slice(i, i + 100));
@@ -338,21 +345,24 @@ async function seedCrmScores() {
 // 11. Billing Accruals
 // ─────────────────────────────────────────────────────────────────────────────
 async function seedBillingAccruals() {
-  const rows = billingAccrualsData.map((b) => ({
+  const rows = billingAccrualsData.map((b: { rig: string; wbs?: string; well?: string; network?: number; oppHrs?: number; reduceHrs?: number; bkdHrs?: number; zeroHrs?: number; specialRate?: number; stacked?: number; rigMove?: number; totalHrs?: number; rigMoveAmt?: number; fieldName?: string; area?: string; date?: string; remarks?: string }) => ({
     rig: b.rig,
-    month: b.month ?? 'Jan',
-    year: b.year ?? 2025,
     wbs: b.wbs ?? null,
-    network: b.network ?? null,
-    op_hours: b.opHours ?? null,
-    rd_hours: b.rdHours ?? null,
-    sp_hours: b.spHours ?? null,
-    sk_hours: b.skHours ?? null,
-    zr_hours: b.zrHours ?? null,
-    bkd_hours: b.bkdHours ?? null,
-    rig_move_amt: b.rigMoveAmt ?? null,
+    well_name: b.well ?? null,
+    network: b.network?.toString() ?? null,
+    opp_hrs: b.oppHrs ?? 0,
+    reduce_hrs: b.reduceHrs ?? 0,
+    bkd_hrs: b.bkdHrs ?? 0,
+    zero_hrs: b.zeroHrs ?? 0,
+    special_rate: b.specialRate ?? 0,
+    stacked_hrs: b.stacked ?? 0,
+    rig_move_hrs: b.rigMove ?? 0,
+    total_hrs: b.totalHrs ?? ((b.oppHrs ?? 0) + (b.reduceHrs ?? 0) + (b.bkdHrs ?? 0) + (b.zeroHrs ?? 0) + (b.stacked ?? 0) + (b.rigMove ?? 0)),
+    rig_move_amt: b.rigMoveAmt ?? 0,
     field_name: b.fieldName ?? null,
     area: b.area ?? null,
+    billing_date: b.date ?? null,
+    remarks: b.remarks ?? null,
   }));
   const { error } = await sb.from('billing_accruals').insert(rows);
   if (error) throw error;

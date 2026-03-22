@@ -29,12 +29,12 @@ export function Topbar({page}: {page: string}){
         <span className="bc-par">{par}</span>
         <span className="bc-sep"> / </span>
         <span className="bc-cur">{cur}</span>
-        {isEntry&&<span style={{marginLeft:12,background:"#DBEAFE",color:"#1D4ED8",fontSize:11,fontWeight:700,padding:"5px 12px",borderRadius:100}}>DATA ENTRY</span>}
+        {isEntry&&<span style={{marginLeft:10,background:"#DBEAFE",color:"#1D4ED8",fontSize:9,fontWeight:700,padding:"4px 10px",borderRadius:100,textTransform:"uppercase",letterSpacing:".5px"}}>Entry</span>}
       </div>
       <div className="tb-right">
-        <span style={{background:"#F8FAFC",color:"#475569",borderRadius:100,padding:"7px 18px",fontSize:13,fontWeight:600, border:"1px solid #E2E8F0"}}>PDO Contract</span>
-        <span style={{background:"#ECFDF5",color:"#047857",borderRadius:100,padding:"7px 18px",fontSize:13,fontWeight:700, border:"1px solid #A7F3D0"}}>● Live</span>
-        <div style={{width:38,height:38,borderRadius:"50%",background:"linear-gradient(135deg, #0EA5E9, #06B6D4)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:14,fontWeight:700,boxShadow:"0 4px 14px rgba(14,165,233,0.25)",letterSpacing:".5px"}}>RM</div>
+        <span style={{background:"#F8FAFC",color:"#475569",borderRadius:100,padding:"5px 12px",fontSize:11,fontWeight:600,border:"1px solid #E2E8F0"}}>PDO</span>
+        <span style={{background:"#ECFDF5",color:"#047857",borderRadius:100,padding:"5px 12px",fontSize:11,fontWeight:700,border:"1px solid #A7F3D0"}}>● Live</span>
+        <div style={{width:32,height:32,borderRadius:"50%",background:"linear-gradient(135deg, #3D7A89, #2D5A66)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:11,fontWeight:700,boxShadow:"0 2px 8px rgba(61,122,137,0.25)"}}>RM</div>
       </div>
     </div>
   );

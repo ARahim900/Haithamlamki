@@ -57,7 +57,7 @@ export function OperationsViz(){
                     <td style={{color:"#0085CA",fontWeight:700,fontSize:11}}>{r.well}</td>
                     <td style={{color:"#777",fontSize:11}}>{r.field}</td>
                     <td style={{fontSize:11,color:"#777"}}>{r.spud}</td>
-                    <td><Bdg c={r.phase==="Drilling"?"g":r.phase==="Rig Move"?"t":"b"}>{r.phase}</Bdg></td>
+                    <td><Bdg c={r.status==="Drilling"?"g":r.status==="Rig Move"?"t":"b"}>{r.status}</Bdg></td>
                     <td style={{fontFamily:"monospace"}}>{r.tTD.toLocaleString()}</td>
                     <td style={{fontFamily:"monospace",fontWeight:700}}>{r.cTD.toLocaleString()}</td>
                     <td>

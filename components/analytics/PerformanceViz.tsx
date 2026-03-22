@@ -89,7 +89,7 @@ export function PerformanceViz(){
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
                     <div className="prog-track"><div className="prog-fill" style={{width:prog+"%",background:prog>80?"#07788D":"#0085CA"}}/></div>
                     <span style={{fontSize:10,color:"#07788D",fontWeight:900,width:36}}>{prog}%</span>
-                    <Bdg c={w.phase==="Drilling"?"g":w.phase==="Rig Move"?"t":"b"}>{w.phase}</Bdg>
+                    <Bdg c={w.status==="Drilling"?"g":w.status==="Rig Move"?"t":"b"}>{w.status}</Bdg>
                   </div>
                 </div>
               );

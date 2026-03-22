@@ -1,8 +1,10 @@
 'use client';
 import React, { useState, useMemo } from 'react';
 import { FA, FD, FM, FDr, FieldLegend, Bdg } from '@/components/Shared';
-import { Trash2, Plus, Clock, AlertTriangle, Droplets, Gauge, ChevronDown, ChevronUp } from 'lucide-react';
-import { RIGS, NPT_SYSTEMS, RATE_TYPES } from '@/lib/data';
+import { Trash2, Plus, Clock, AlertTriangle, Droplets, Gauge, ChevronDown, ChevronUp, Edit2 } from 'lucide-react';
+import { useDdorReports } from '@/hooks/useDb';
+import type { DdorReport } from '@/lib/db';
+import { RIGS, RATE_TYPES, NPT_SYSTEMS } from '@/lib/data';
 
 /* ── activity code config ── */
 const ACTIVITY_CODES = [

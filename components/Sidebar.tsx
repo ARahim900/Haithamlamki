@@ -7,40 +7,45 @@ export const NAV_ANALYTICS=[
   {id:"viz-performance",lbl:"Performance Analytics",ico:"📈"},
 ];
 export const NAV_OPS=[
-  {id:"viz-operations",lbl:"Operations Analytics",ico:"⚙"},
-  {id:"accruals",lbl:"Billing Accruals",ico:"📑",who:"Engineer (HQ)"},
-  {id:"revenue",lbl:"Revenue",ico:"💵",who:"Engineer (HQ)"},
-  {id:"welltrack",lbl:"Well Tracking",ico:"🎯",who:"Engineer (HQ)"},
-  {id:"nptbill",lbl:"NPT Billing",ico:"🔴",who:"Engineer (HQ)"},
-  {id:"util",lbl:"Utilization",ico:"🟢",who:"Engineer (HQ)"},
-  {id:"fuel",lbl:"Fuel Tracking",ico:"⛽",who:"Engineer"},
-  {id:"rigmove",lbl:"Rig Move",ico:"🚚",who:"Rig Move Engineer"},
+  {id:"viz-operations",lbl:"Operations Analytics",ico:"⚙️"},
+  {id:"accruals",lbl:"Billing Accruals",ico:"📑"},
+  {id:"revenue",lbl:"Revenue",ico:"💵"},
+  {id:"welltrack",lbl:"Well Tracking",ico:"🎯"},
+  {id:"nptbill",lbl:"NPT Billing",ico:"🔴"},
+  {id:"util",lbl:"Utilization",ico:"🟢"},
+  {id:"fuel",lbl:"Fuel Tracking",ico:"⛽"},
+  {id:"rigmove",lbl:"Rig Move",ico:"🚚"},
 ];
 export const NAV_ENTRY=[
-  {id:"ddor",lbl:"DDOR Entry",ico:"📋",who:"Tool Pusher"},
-  {id:"ahead",lbl:"72hr Ahead Plan",ico:"📅",who:"Tool Pusher / Engineer"},
-  {id:"ytd",lbl:"YTD / NPT Details",ico:"⚠",who:"Tool Pusher"},
-  {id:"billing",lbl:"Billing Ticket",ico:"🧾",who:"Engineer"},
-  {id:"crm",lbl:"Customer Satisfaction",ico:"⭐",who:"Quality Manager"},
+  {id:"ddor",lbl:"DDOR Entry",ico:"📋"},
+  {id:"ahead",lbl:"72hr Ahead Plan",ico:"📅"},
+  {id:"ytd",lbl:"YTD / NPT Details",ico:"⚠️"},
+  {id:"billing",lbl:"Billing Ticket",ico:"🧾"},
+  {id:"crm",lbl:"Customer Satisfaction",ico:"⭐"},
 ];
 
+type Section = 'analytics' | 'ops' | 'entry' | null;
+
 export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: string) => void, col: boolean, setCol: React.Dispatch<React.SetStateAction<boolean>>}){
-  const [openA,setOpenA]=useState(true);
-  const [openO,setOpenO]=useState(false);
-  const [openE,setOpenE]=useState(false);
+  const [openSection, setOpenSection] = useState<Section>('analytics');
+
+  const toggleSection = (section: Section) => {
+    setOpenSection(prev => prev === section ? null : section);
+  };
+
   return (
     <div className={"sb"+(col?" col":"")}>
       <div className="sb-logo" onClick={()=>setCol(c=>!c)}>
-        <div className="logo-box">⚙</div>
-        <div className="logo-txt"><div className="l1">ABRAJ MIS</div><div className="l2">Rig Operations Platform</div></div>
+        <div className="logo-box" style={{fontWeight:900,fontSize:11,letterSpacing:'-0.5px',color:'#fff'}}>A</div>
+        <div className="logo-txt"><div className="l1">ABRAJ</div><div className="l2">أبراج لخدمات الطاقة</div></div>
       </div>
       <nav>
         {/* Analytics */}
         {!col&&<div className="sec-lbl">Analytics</div>}
-        {!col&&<div className="ni" onClick={()=>setOpenA(a=>!a)}>
-          <span className="ni-icon">📊</span><span className="ni-lbl">Dashboards</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:12,opacity:.6}}>{openA?"▾":"▸"}</span>
+        {!col&&<div className="ni" onClick={()=>toggleSection('analytics')}>
+          <span className="ni-icon">📊</span><span className="ni-lbl">Dashboards</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:10,opacity:.5}}>{openSection==='analytics'?"▾":"▸"}</span>
         </div>}
-        {(openA||col)&&<div className={col?"":"ni-kids"}>
+        {(openSection==='analytics'||col)&&<div className={col?"":"ni-kids"}>
           {NAV_ANALYTICS.map(i=>(
             <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>setPage(i.id)} title={col?i.lbl:""}>
               <span className="ni-icon">{i.ico}</span>
@@ -50,10 +55,10 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
         </div>}
         {/* Operations */}
         {!col&&<div className="sec-lbl">Operations</div>}
-        {!col&&<div className="ni" onClick={()=>setOpenO(o=>!o)}>
-          <span className="ni-icon">⚙</span><span className="ni-lbl">Rig Ops</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:12,opacity:.6}}>{openO?"▾":"▸"}</span>
+        {!col&&<div className="ni" onClick={()=>toggleSection('ops')}>
+          <span className="ni-icon">⚙️</span><span className="ni-lbl">Rig Ops</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:10,opacity:.5}}>{openSection==='ops'?"▾":"▸"}</span>
         </div>}
-        {(openO||col)&&<div className={col?"":"ni-kids"}>
+        {(openSection==='ops'||col)&&<div className={col?"":"ni-kids"}>
           {NAV_OPS.map(i=>(
             <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>setPage(i.id)} title={col?i.lbl:""}>
               <span className="ni-icon">{i.ico}</span>
@@ -63,10 +68,10 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
         </div>}
         {/* Data Entry */}
         {!col&&<div className="sec-lbl">Data Entry</div>}
-        {!col&&<div className="ni" onClick={()=>setOpenE(a=>!a)}>
-          <span className="ni-icon">📝</span><span className="ni-lbl">Entry Forms</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:12,opacity:.6}}>{openE?"▾":"▸"}</span>
+        {!col&&<div className="ni" onClick={()=>toggleSection('entry')}>
+          <span className="ni-icon">📝</span><span className="ni-lbl">Entry Forms</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:10,opacity:.5}}>{openSection==='entry'?"▾":"▸"}</span>
         </div>}
-        {(openE||col)&&<div className={col?"":"ni-kids"}>
+        {(openSection==='entry'||col)&&<div className={col?"":"ni-kids"}>
           {NAV_ENTRY.map(i=>(
             <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>setPage(i.id)} title={col?i.lbl:""}>
               <span className="ni-icon">{i.ico}</span>
@@ -76,7 +81,7 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
         </div>}
       </nav>
       <div className="sb-foot" onClick={()=>setCol(c=>!c)}>
-        <span style={{fontSize:14}}>{col?"▶":"◀"}</span><span>Collapse</span>
+        <span style={{fontSize:12}}>{col?"▶":"◀"}</span>{!col&&<span>Collapse</span>}
       </div>
     </div>
   );

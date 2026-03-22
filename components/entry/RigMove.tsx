@@ -13,29 +13,47 @@ export function RigMove() {
   const [addForm, setAddForm] = useState({
     rig: '', move_from: '', move_to: '', move_type: 'Intra-field',
     start_date: '', end_date: '', budget_days: '', actual_days: '',
-    budget_cost: '', actual_cost: '', revenue_income: '', remarks: '', status: 'In Progress'
+    budget_cost: '', actual_cost: '', client_income: '', distance_km: '', mover_company: '', remarks: '', status: 'In Progress'
   });
   
   // Edit Modal State
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({
     rig: '', move_from: '', move_to: '', move_type: 'Intra-field',
     start_date: '', end_date: '', budget_days: '', actual_days: '',
-    budget_cost: '', actual_cost: '', revenue_income: '', remarks: '', status: 'In Progress'
+    budget_cost: '', actual_cost: '', client_income: '', distance_km: '', mover_company: '', remarks: '', status: 'In Progress'
   });
   
   // Delete Modal State
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   
+  const toNumOrNull = (v: string) => v === '' ? null : Number(v);
+  const toStrOrNull = (v: string) => v === '' ? null : v;
+
   const handleAddSubmit = async () => {
-    await insert(addForm);
+    await insert({
+      rig: addForm.rig,
+      move_from: toStrOrNull(addForm.move_from),
+      move_to: toStrOrNull(addForm.move_to),
+      budget_days: toNumOrNull(addForm.budget_days),
+      actual_days: toNumOrNull(addForm.actual_days),
+      budget_cost: toNumOrNull(addForm.budget_cost),
+      actual_cost: toNumOrNull(addForm.actual_cost),
+      client_income: toNumOrNull(addForm.client_income),
+      distance_km: toStrOrNull(addForm.distance_km),
+      mover_company: toStrOrNull(addForm.mover_company),
+      start_date: toStrOrNull(addForm.start_date),
+      end_date: toStrOrNull(addForm.end_date),
+      status: toStrOrNull(addForm.status),
+      remarks: toStrOrNull(addForm.remarks),
+    });
     setShowAddModal(false);
     setAddForm({
       rig: '', move_from: '', move_to: '', move_type: 'Intra-field',
       start_date: '', end_date: '', budget_days: '', actual_days: '',
-      budget_cost: '', actual_cost: '', revenue_income: '', remarks: '', status: 'In Progress'
+      budget_cost: '', actual_cost: '', client_income: '', distance_km: '', mover_company: '', remarks: '', status: 'In Progress'
     });
     refetch();
   };
@@ -48,14 +66,29 @@ export function RigMove() {
   
   const handleEditSubmit = async () => {
     if (editingId) {
-      await update(editingId, editForm);
+      await update(editingId, {
+        rig: editForm.rig,
+        move_from: toStrOrNull(editForm.move_from),
+        move_to: toStrOrNull(editForm.move_to),
+        budget_days: toNumOrNull(String(editForm.budget_days)),
+        actual_days: toNumOrNull(String(editForm.actual_days)),
+        budget_cost: toNumOrNull(String(editForm.budget_cost)),
+        actual_cost: toNumOrNull(String(editForm.actual_cost)),
+        client_income: toNumOrNull(String(editForm.client_income)),
+        distance_km: toStrOrNull(editForm.distance_km),
+        mover_company: toStrOrNull(editForm.mover_company),
+        start_date: toStrOrNull(editForm.start_date),
+        end_date: toStrOrNull(editForm.end_date),
+        status: toStrOrNull(editForm.status),
+        remarks: toStrOrNull(editForm.remarks),
+      });
       setShowEditModal(false);
       setEditingId(null);
       refetch();
     }
   };
   
-  const handleDeleteClick = (id: string) => {
+  const handleDeleteClick = (id: number) => {
     setDeletingId(id);
     setShowDeleteModal(true);
   };
@@ -104,10 +137,12 @@ export function RigMove() {
           <FM l="Actual Days" v={addForm.actual_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, actual_days: e.target.value })} />
           <FM l="Budget Cost ($)" v={addForm.budget_cost} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, budget_cost: e.target.value })} />
           <FM l="Actual Cost ($)" v={addForm.actual_cost} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, actual_cost: e.target.value })} />
-          <FM l="Client Contract Income ($)" v={addForm.revenue_income} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, revenue_income: e.target.value })} />
+          <FM l="Client Contract Income ($)" v={addForm.client_income} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, client_income: e.target.value })} />
         </div>
 
-        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <FM l="Distance (km)" v={addForm.distance_km} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, distance_km: e.target.value })} />
+          <FM l="Mover Company" v={addForm.mover_company} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, mover_company: e.target.value })} />
           <FD l="Status" v={addForm.status} opts={['In Progress', 'Completed', 'On Hold']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, status: e.target.value })} />
         </div>
 
@@ -129,18 +164,18 @@ export function RigMove() {
             </thead>
             <tbody>
               {moveData.map((r, i) => {
-                const dayVar = r.actualDays - r.budgetDays;
-                const costVar = r.actualCost - r.budgetCost;
+                const dayVar = (r.actual_days ?? 0) - (r.budget_days ?? 0);
+                const costVar = (r.actual_cost ?? 0) - (r.budget_cost ?? 0);
                 return (
                   <tr key={i}>
                     <td><strong>{r.rig}</strong></td>
-                    <td style={{ fontSize: 13, color: '#64748B' }}>{r.from}</td>
-                    <td style={{ fontSize: 13, color: '#64748B' }}>{r.to}</td>
-                    <td className="tb-num">{r.budgetDays}d</td>
-                    <td className="tb-num" style={{ fontWeight: 700 }}>{r.actualDays}d</td>
+                    <td style={{ fontSize: 13, color: '#64748B' }}>{r.move_from}</td>
+                    <td style={{ fontSize: 13, color: '#64748B' }}>{r.move_to}</td>
+                    <td className="tb-num">{r.budget_days ?? 0}d</td>
+                    <td className="tb-num" style={{ fontWeight: 700 }}>{r.actual_days ?? 0}d</td>
                     <td className="tb-num" style={{ fontWeight: 800, color: dayVar > 0 ? '#DC2626' : '#16A34A' }}>{dayVar > 0 ? '+' : ''}{dayVar}d</td>
-                    <td className="tb-num">${r.budgetCost.toLocaleString()}</td>
-                    <td className="tb-num" style={{ fontWeight: 700 }}>${r.actualCost.toLocaleString()}</td>
+                    <td className="tb-num">${(r.budget_cost ?? 0).toLocaleString()}</td>
+                    <td className="tb-num" style={{ fontWeight: 700 }}>${(r.actual_cost ?? 0).toLocaleString()}</td>
                     <td className="tb-num" style={{ fontWeight: 800, color: costVar > 0 ? '#DC2626' : '#16A34A' }}>{costVar > 0 ? '+' : ''}${Math.abs(costVar).toLocaleString()}</td>
                     <td><span className={'bdg ' + (r.status === 'Completed' ? 'g' : 't')}>{r.status}</span></td>
                     <td className="flex gap-2">

@@ -26,30 +26,30 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
       <div className="g2">
         <div className="card">
           <div className="card-hdr">Revenue vs Budget ($M) — YTD</div>
-          <div className="chart-wrap" style={{height:200}}>
-            <ResponsiveContainer width="100%" height={200}>
+          <div className="chart-wrap" style={{height:160}}>
+            <ResponsiveContainer width="100%" height={160}>
               <AreaChart data={revData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
-                <XAxis dataKey="m" tick={{fontSize:11, fill: "#888"}} stroke="#eaeaea"/>
-                <YAxis tick={{fontSize:11, fill: "#888"}} stroke="#eaeaea" domain={[2.5,4.5]}/>
-                <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
-                <Legend align="center" verticalAlign="bottom" wrapperStyle={{fontSize:11, paddingTop: 10}}/>
-                <Area type="monotone" dataKey="bud" stroke="#0085CA" fill="#0085CA10" strokeDasharray="4 4" strokeWidth={1.5} name="Budget ($M)"/>
-                <Area type="monotone" dataKey="act" stroke="#07788D" fill="#07788D12" strokeWidth={2.5} name="Actual ($M)"/>
+                <XAxis dataKey="m" tick={{fontSize:10, fill: "#888"}} stroke="#eaeaea"/>
+                <YAxis tick={{fontSize:10, fill: "#888"}} stroke="#eaeaea" domain={[2.5,4.5]} width={30}/>
+                <Tooltip contentStyle={{borderRadius:6,fontSize:10}}/>
+                <Legend align="center" verticalAlign="bottom" wrapperStyle={{fontSize:10, paddingTop: 6}}/>
+                <Area type="monotone" dataKey="bud" stroke="#0085CA" fill="#0085CA10" strokeDasharray="4 4" strokeWidth={1.5} name="Budget"/>
+                <Area type="monotone" dataKey="act" stroke="#07788D" fill="#07788D12" strokeWidth={2} name="Actual"/>
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
         <div className="card">
           <div className="card-hdr">NPT by System — MTD</div>
-          <div className="chart-wrap" style={{height:200}}>
-            <ResponsiveContainer width="100%" height={200}>
+          <div className="chart-wrap" style={{height:160}}>
+            <ResponsiveContainer width="100%" height={160}>
               <PieChart>
-                <Pie data={nptPie} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={3} dataKey="v" nameKey="n">
+                <Pie data={nptPie} cx="50%" cy="50%" innerRadius={35} outerRadius={60} paddingAngle={2} dataKey="v" nameKey="n">
                   {nptPie.map((d,i)=><Cell key={i} fill={d.c}/>)}
                 </Pie>
-                <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
-                <Legend align="center" verticalAlign="bottom" iconSize={8} wrapperStyle={{fontSize:11, paddingTop: 10}}/>
+                <Tooltip contentStyle={{borderRadius:6,fontSize:10}}/>
+                <Legend align="center" verticalAlign="bottom" iconSize={6} wrapperStyle={{fontSize:10, paddingTop: 4}}/>
               </PieChart>
             </ResponsiveContainer>
           </div>
