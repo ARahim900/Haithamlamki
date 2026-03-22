@@ -15,8 +15,8 @@ export function KPI({l,v,s,cls,trend}: {l: string, v: string | number, s?: strin
 export function FieldLegend(){
   return (
     <div className="legend">
-      <span style={{fontSize:11,fontWeight:900,color:"#555"}}>Field types:</span>
-      {[["#FFF9C4","#E5C900","Auto-calculated"],["#FFF3E0","#FF9800","Dropdown"],["#E8F5E9","#4CAF50","Manual input"],["#E3F2FD","#2196F3","Drafted from report"]].map(([bg,bd,lb])=>(
+      <span style={{fontSize:11,fontWeight:700,color:"#64748B"}}>Field types:</span>
+      {[["#F8FAFC","#E2E8F0","Auto-calculated"],["#FFFFFF","#CBD5E1","Dropdown"],["#FFFFFF","#CBD5E1","Manual input"],["#F1F5F9","#E2E8F0","Drafted from report"]].map(([bg,bd,lb])=>(
         <div key={lb} className="leg-i"><div className="leg-d" style={{background:bg,border:"1.5px solid "+bd}}/>{lb}</div>
       ))}
     </div>

@@ -348,7 +348,7 @@ export function DDOR() {
                         </div>
                       </td>
                       <td style={{ padding: '8px 10px' }}>
-                        <select className="f-dd" style={{ padding: '8px 8px', fontSize: 12, minWidth: 60, background: row.rate === 'OP' ? '#D1FAE5' : row.rate === 'RD' ? '#FEF3C7' : '#FEE2E2', border: `1.5px solid ${row.rate === 'OP' ? '#86EFAC' : row.rate === 'RD' ? '#FDE047' : '#FCA5A5'}`, color: row.rate === 'OP' ? '#047857' : row.rate === 'RD' ? '#92400E' : '#B91C1C' }} value={row.rate} onChange={(e) => updateRow(row.id, 'rate', e.target.value)}>
+                        <select className="f-dd" style={{ padding: '8px 8px', fontSize: 12, minWidth: 60, background: row.rate === 'OP' ? '#ECFDF5' : row.rate === 'RD' ? '#FFFBEB' : '#FEF2F2', border: `1.5px solid ${row.rate === 'OP' ? '#A7F3D0' : row.rate === 'RD' ? '#FDE68A' : '#FECACA'}`, color: row.rate === 'OP' ? '#059669' : row.rate === 'RD' ? '#D97706' : '#DC2626' }} value={row.rate} onChange={(e) => updateRow(row.id, 'rate', e.target.value)}>
                           {RATE_TYPES.map(r => <option key={r} value={r}>{r}</option>)}
                         </select>
                       </td>

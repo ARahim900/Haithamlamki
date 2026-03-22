@@ -113,33 +113,34 @@ body { background: #F1F5F9; color: #0F172A; overflow: hidden; }
 .kpi-s.up { color: var(--color-chart-4); } .kpi-s.dn { color: var(--color-chart-bar); }
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   BADGES — Using chart color palette
+   BADGES — Professional Status Colors (Industry Standard)
    ══════════════════════════════════════════════════════════════════════════════ */
 .bdg { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 100px; font-size: 10px; font-weight: 700; white-space: nowrap; line-height: 1.2; letter-spacing: .2px; }
-.bdg.t { background: #E0F2F4; color: #2D7A89; } /* Abraj Teal */
-.bdg.b { background: var(--color-chart-bg-blue); color: #2563EB; } /* Blue */
-.bdg.g { background: var(--color-chart-bg-green); color: #047857; } /* Green */
-.bdg.w { background: var(--color-chart-bg-orange); color: #B45309; } /* Amber/Orange */
-.bdg.r { background: var(--color-chart-bg-red); color: #B91C1C; } /* Red */
-.bdg.gr { background: #F1F5F9; color: #475569; } /* Gray */
-.bdg.p { background: var(--color-chart-bg-purple); color: #4E4456; } /* Deep Purple */
+.bdg.t { background: #E0F2F4; color: #2D7A89; } /* Abraj Teal - Brand */
+.bdg.b { background: #EFF6FF; color: #1D4ED8; } /* Blue - Info/Scheduled */
+.bdg.g { background: #ECFDF5; color: #059669; } /* Green - Complete/Operating */
+.bdg.w { background: #FFFBEB; color: #D97706; } /* Amber - In Progress/Warning */
+.bdg.r { background: #FEF2F2; color: #DC2626; } /* Red - Hold/Critical/NPT */
+.bdg.gr { background: #F8FAFC; color: #64748B; } /* Gray - Waiting/Inactive */
+.bdg.p { background: #FAF5FF; color: #7C3AED; } /* Purple - Special */
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   FIELD TYPES — Using chart background colors
+   FIELD TYPES — Professional Neutral Palette
+   Clean, understated design for industrial applications
    ══════════════════════════════════════════════════════════════════════════════ */
-.f-auto { background: var(--color-chart-bg-yellow); border: 1px solid #FDE047; border-radius: 8px; padding: 8px 12px; font-size: var(--font-size-sm); color: #854D0E; font-family: inherit; width: 100%; cursor: not-allowed; font-weight: 600; }
-.f-dd { background: var(--color-chart-bg-orange); border: 1.5px solid #FDBA74; border-radius: 8px; padding: 8px 12px; font-size: var(--font-size-sm); color: #9A3412; font-family: inherit; width: 100%; cursor: pointer; outline: none; transition: border-color .2s; font-weight: 600; appearance: none; }
-.f-dd:focus { border-color: #EA580C; box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1); }
-.f-man { background: var(--color-chart-bg-green); border: 1.5px solid #86EFAC; border-radius: 8px; padding: 8px 12px; font-size: var(--font-size-sm); color: #166534; font-family: inherit; width: 100%; outline: none; transition: all .2s; font-weight: 600; }
-.f-man:focus { border-color: #22C55E; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
-.f-draft { background: var(--color-chart-bg-blue); border: 1.5px solid #93C5FD; border-radius: 8px; padding: 8px 12px; font-size: var(--font-size-sm); color: #1E3A8A; font-family: inherit; width: 100%; outline: none; transition: all .2s; font-weight: 600; }
-.f-draft:focus { border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-.f-lbl { font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: .5px; display: flex; align-items: center; margin-bottom: 6px; line-height: var(--line-height-tight); }
+.f-auto { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 12px; font-size: var(--font-size-sm); color: #334155; font-family: inherit; width: 100%; cursor: not-allowed; font-weight: 600; }
+.f-dd { background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 8px 12px; font-size: var(--font-size-sm); color: #1E293B; font-family: inherit; width: 100%; cursor: pointer; outline: none; transition: border-color .2s; font-weight: 600; appearance: none; }
+.f-dd:focus { border-color: #2D7A89; box-shadow: 0 0 0 3px rgba(45, 122, 137, 0.1); }
+.f-man { background: #FFFFFF; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 8px 12px; font-size: var(--font-size-sm); color: #1E293B; font-family: inherit; width: 100%; outline: none; transition: all .2s; font-weight: 600; }
+.f-man:focus { border-color: #2D7A89; box-shadow: 0 0 0 3px rgba(45, 122, 137, 0.1); }
+.f-draft { background: #F1F5F9; border: 1.5px solid #E2E8F0; border-radius: 8px; padding: 8px 12px; font-size: var(--font-size-sm); color: #475569; font-family: inherit; width: 100%; outline: none; transition: all .2s; font-weight: 600; }
+.f-draft:focus { border-color: #94A3B8; box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1); }
+.f-lbl { font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: .5px; display: flex; align-items: center; margin-bottom: 6px; line-height: var(--line-height-tight); }
 
-/* field type tags — Using chart background colors */
-.ftag { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 6px; margin-left: 10px; letter-spacing: .5px; }
-.ftag-a { background: var(--color-chart-bg-yellow); color: #854D0E; } .ftag-d { background: var(--color-chart-bg-orange); color: #9A3412; }
-.ftag-m { background: var(--color-chart-bg-green); color: #166534; } .ftag-f { background: var(--color-chart-bg-blue); color: #1E3A8A; }
+/* field type tags — Subtle, professional indicators */
+.ftag { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-left: 8px; letter-spacing: .3px; }
+.ftag-a { background: #F1F5F9; color: #64748B; } .ftag-d { background: #FFF7ED; color: #C2410C; }
+.ftag-m { background: #F0FDF4; color: #15803D; } .ftag-f { background: #EFF6FF; color: #1D4ED8; }
 
 /* ── GRID HELPERS ── */
 .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-bottom: 16px; }
@@ -197,8 +198,8 @@ tr:hover td { background: #F8FAFC; cursor: default; transition: background .15s 
    DDOR HEADER — Uses Deep Purple with Teal accent
    ══════════════════════════════════════════════════════════════════════════════ */
 .ddor-hdr { background: linear-gradient(135deg, #2D7A89, #1E5A66); color: #fff; border-radius: 16px 16px 0 0; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; font-size: var(--font-size-lg); font-weight: 800; letter-spacing: -.2px; }
-.ddor-rates { display: grid; grid-template-columns: repeat(6, 1fr); background: var(--color-chart-bg-yellow); border-bottom: 1px solid #FDE047; font-weight: 700; }
-.dr-cell { padding: 10px 14px; border-right: 1px solid #FDE047; }
+.ddor-rates { display: grid; grid-template-columns: repeat(6, 1fr); background: #F8FAFC; border-bottom: 1px solid #E2E8F0; font-weight: 700; }
+.dr-cell { padding: 10px 14px; border-right: 1px solid #E2E8F0; }
 .dr-cell:last-child { border-right: none; }
 
 /* ══════════════════════════════════════════════════════════════════════════════

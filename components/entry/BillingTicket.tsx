@@ -159,8 +159,8 @@ export function BillingTicket() {
         <div className="ddor-rates">
           {Object.entries(dailyRates).map(([k, v]) => (
             <div key={k} className="dr-cell">
-              <div style={{ fontSize: 11, color: '#92400E', fontWeight: 800 }}>{k} RATE</div>
-              <div style={{ fontSize: 16, fontWeight: 900, color: '#854D0E' }}>${v.toLocaleString()}/day</div>
+              <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700 }}>{k} RATE</div>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#1E293B' }}>${v.toLocaleString()}/day</div>
             </div>
           ))}
         </div>
