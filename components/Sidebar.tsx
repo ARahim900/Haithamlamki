@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 export const NAV_ANALYTICS=[
   {id:"home",lbl:"Fleet Dashboard",ico:"📊"},
@@ -36,8 +37,11 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
   return (
     <div className={"sb"+(col?" col":"")}>
       <div className="sb-logo" onClick={()=>setCol(c=>!c)}>
-        <div className="logo-box" style={{fontWeight:900,fontSize:11,letterSpacing:'-0.5px',color:'#fff'}}>A</div>
-        <div className="logo-txt"><div className="l1">ABRAJ</div><div className="l2">أبراج لخدمات الطاقة</div></div>
+        {col ? (
+          <div className="logo-box" style={{fontWeight:900,fontSize:14,letterSpacing:'-0.5px'}}>A</div>
+        ) : (
+          <Image src="/abraj-logo.jpeg" alt="Abraj Energy Services" width={160} height={45} className="logo-img" priority />
+        )}
       </div>
       <nav>
         {/* Analytics */}
