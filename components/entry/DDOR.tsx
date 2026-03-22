@@ -143,21 +143,43 @@ export function DDOR() {
           <FieldLegend />
         </div>
 
-        <div style={{ padding: '14px 20px' }} className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <FD l="Rig" v="Rig 108" opts={RIGS.slice(0, 15)} />
-          <FDr l="Well Name" v="Thamoud 91" />
-          <FDr l="WBS #" v="WBS-2025-THM-108" />
-          <FDr l="Network / Area" v="NET-1042 / North" />
-          <FM l="Report Date" v="15-Jun-2025" type="text" />
+        <div style={{ padding: '14px 20px' }} className="grid grid-cols-2 md:grid-cols-12 gap-3">
+          <div className="md:col-span-2">
+            <FD l="Rig" v="Rig 108" opts={RIGS} />
+          </div>
+          <div className="md:col-span-2">
+            <FDr l="Well Name" v="Thamoud 91" />
+          </div>
+          <div className="md:col-span-3">
+            <FDr l="WBS #" v="WBS-2025-THM-108" />
+          </div>
+          <div className="md:col-span-3">
+            <FDr l="Network / Area" v="NET-1042 / North" />
+          </div>
+          <div className="md:col-span-2">
+            <FM l="Report Date" v="15-Jun-2025" type="text" />
+          </div>
         </div>
 
-        <div style={{ padding: '0 20px 14px' }} className="grid grid-cols-3 md:grid-cols-6 gap-3">
-          <FD l="Rig Status" v="Drilling" opts={['Drilling', 'Tripping', 'Casing', 'Completion', 'Rig Move', 'Standby']} />
-          <FM l="Current Depth (ft)" v="12,450" />
-          <FM l="Previous Depth (ft)" v="12,000" />
-          <FA l="Footage Drilled (ft)" v="450" />
-          <FA l="Days on Well" v="25" />
-          <FD l="Current Phase" v='8-1/2" Hole' opts={['26" Hole', '16" Hole', '12-1/4" Hole', '8-1/2" Hole', '6" Hole', 'Completion']} />
+        <div style={{ padding: '0 20px 14px' }} className="grid grid-cols-3 md:grid-cols-12 gap-3">
+          <div className="md:col-span-2">
+            <FD l="Rig Status" v="Drilling" opts={['Drilling', 'Tripping', 'Casing', 'Completion', 'Rig Move', 'Standby']} />
+          </div>
+          <div className="md:col-span-2">
+            <FM l="Current Depth (ft)" v="12,450" />
+          </div>
+          <div className="md:col-span-2">
+            <FM l="Previous Depth (ft)" v="12,000" />
+          </div>
+          <div className="md:col-span-2">
+            <FA l="Footage Drilled (ft)" v="450" />
+          </div>
+          <div className="md:col-span-2">
+            <FA l="Days on Well" v="25" />
+          </div>
+          <div className="md:col-span-2">
+            <FD l="Current Phase" v='8-1/2" Hole' opts={['26" Hole', '16" Hole', '12-1/4" Hole', '8-1/2" Hole', '6" Hole', 'Completion']} />
+          </div>
         </div>
 
         {/* crew / personnel strip */}

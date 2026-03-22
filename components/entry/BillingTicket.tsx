@@ -126,17 +126,31 @@ export function BillingTicket() {
           <FieldLegend />
         </div>
 
-        <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <FA l="Rig" v={selectedRig} />
-          <FDr l="Well Name" v={currentTicket?.well_name || 'Pending...'} />
-          <FDr l="WBS #" v={currentTicket?.wbs || 'Pending...'} />
-          <FA l="Billing Period" v={`${selectedMonth} ${selectedYear}`} />
+        <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="md:col-span-3">
+            <FA l="Rig" v={selectedRig} />
+          </div>
+          <div className="md:col-span-3">
+            <FDr l="Well Name" v={currentTicket?.well_name || 'Pending...'} />
+          </div>
+          <div className="md:col-span-3">
+            <FDr l="WBS #" v={currentTicket?.wbs || 'Pending...'} />
+          </div>
+          <div className="md:col-span-3">
+            <FA l="Billing Period" v={`${selectedMonth} ${selectedYear}`} />
+          </div>
         </div>
 
-        <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FDr l="Rig Move Date" v={currentTicket?.rig_move_date || '-'} />
-          <FDr l="Spud Date" v={currentTicket?.spud_date || '-'} />
-          <FM l="Release Date" v={releaseDate || currentTicket?.release_date || ''} ph="Pending..." type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReleaseDate(e.target.value)} />
+        <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="md:col-span-4">
+            <FDr l="Rig Move Date" v={currentTicket?.rig_move_date || '-'} />
+          </div>
+          <div className="md:col-span-4">
+            <FDr l="Spud Date" v={currentTicket?.spud_date || '-'} />
+          </div>
+          <div className="md:col-span-4">
+            <FM l="Release Date" v={releaseDate || currentTicket?.release_date || ''} ph="Pending..." type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReleaseDate(e.target.value)} />
+          </div>
         </div>
       </div>
 

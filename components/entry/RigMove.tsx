@@ -120,30 +120,58 @@ export function RigMove() {
           <FieldLegend />
         </div>
 
-        <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <FD l="Rig" v={addForm.rig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, rig: e.target.value })} />
-          <FM l="Move From (Well/Location)" v={addForm.move_from} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, move_from: e.target.value })} />
-          <FM l="Move To (Well/Location)" v={addForm.move_to} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, move_to: e.target.value })} />
-          <FD l="Move Type" v={addForm.move_type} opts={['Intra-field', 'Inter-field', 'Pad to Pad']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, move_type: e.target.value })} />
+        <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="md:col-span-3">
+            <FD l="Rig" v={addForm.rig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, rig: e.target.value })} />
+          </div>
+          <div className="md:col-span-3">
+            <FM l="Move From (Well/Location)" v={addForm.move_from} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, move_from: e.target.value })} />
+          </div>
+          <div className="md:col-span-3">
+            <FM l="Move To (Well/Location)" v={addForm.move_to} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, move_to: e.target.value })} />
+          </div>
+          <div className="md:col-span-3">
+            <FD l="Move Type" v={addForm.move_type} opts={['Intra-field', 'Inter-field', 'Pad to Pad']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, move_type: e.target.value })} />
+          </div>
         </div>
 
-        <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FM l="Start Date" v={addForm.start_date} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, start_date: e.target.value })} />
-          <FM l="End Date" v={addForm.end_date} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, end_date: e.target.value })} />
-          <FM l="Budget Days" v={addForm.budget_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, budget_days: e.target.value })} />
+        <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="md:col-span-3">
+            <FM l="Start Date" v={addForm.start_date} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, start_date: e.target.value })} />
+          </div>
+          <div className="md:col-span-3">
+            <FM l="End Date" v={addForm.end_date} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, end_date: e.target.value })} />
+          </div>
+          <div className="md:col-span-3">
+            <FM l="Budget Days" v={addForm.budget_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, budget_days: e.target.value })} />
+          </div>
+          <div className="md:col-span-3">
+            <FM l="Actual Days" v={addForm.actual_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, actual_days: e.target.value })} />
+          </div>
         </div>
 
-        <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <FM l="Actual Days" v={addForm.actual_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, actual_days: e.target.value })} />
-          <FM l="Budget Cost ($)" v={addForm.budget_cost} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, budget_cost: e.target.value })} />
-          <FM l="Actual Cost ($)" v={addForm.actual_cost} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, actual_cost: e.target.value })} />
-          <FM l="Client Contract Income ($)" v={addForm.client_income} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, client_income: e.target.value })} />
+        <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="md:col-span-3">
+            <FM l="Budget Cost ($)" v={addForm.budget_cost} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, budget_cost: e.target.value })} />
+          </div>
+          <div className="md:col-span-3">
+            <FM l="Actual Cost ($)" v={addForm.actual_cost} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, actual_cost: e.target.value })} />
+          </div>
+          <div className="md:col-span-3">
+            <FM l="Client Contract Income ($)" v={addForm.client_income} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, client_income: e.target.value })} />
+          </div>
+          <div className="md:col-span-3">
+            <FM l="Distance (km)" v={addForm.distance_km} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, distance_km: e.target.value })} />
+          </div>
         </div>
 
-        <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <FM l="Distance (km)" v={addForm.distance_km} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, distance_km: e.target.value })} />
-          <FM l="Mover Company" v={addForm.mover_company} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, mover_company: e.target.value })} />
-          <FD l="Status" v={addForm.status} opts={['In Progress', 'Completed', 'On Hold']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, status: e.target.value })} />
+        <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="md:col-span-4">
+            <FM l="Mover Company" v={addForm.mover_company} type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, mover_company: e.target.value })} />
+          </div>
+          <div className="md:col-span-4">
+            <FD l="Status" v={addForm.status} opts={['In Progress', 'Completed', 'On Hold']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, status: e.target.value })} />
+          </div>
         </div>
 
         <div className="p-4">
