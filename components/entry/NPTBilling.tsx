@@ -5,23 +5,21 @@ import { useNptBilling } from '@/hooks/useDb';
 import { RIGS, MONTHS } from '@/lib/data';
 
 export function NPTBilling() {
-  const { data: nptBillingData, loading, error, refetch, update } = useNptBilling();
+  const { data: nptBillingData, loading, error, refetch } = useNptBilling();
   const [selectedMonth, setSelectedMonth] = useState('Jun');
   const [selectedYear, setSelectedYear] = useState('2025');
 
+  // Guard against undefined data
+  const safeData = nptBillingData ?? [];
+
   // Filter by month/year
-  const filteredData = nptBillingData.filter(r => r.month === selectedMonth && r.year === Number(selectedYear));
+  const filteredData = safeData.filter(r => r.month === selectedMonth && r.year === Number(selectedYear));
 
   // Calculate aggregates
   const totalOp = filteredData.reduce((s, r) => s + (r.opr_rate_hrs ?? 0), 0);
   const totalRd = filteredData.reduce((s, r) => s + (r.reduce_rate_hrs ?? 0), 0);
   const totalRepair = filteredData.reduce((s, r) => s + (r.repair_rate_hrs ?? 0), 0);
   const mismatchCount = filteredData.filter(r => r.mismatch).length;
-
-  const handleUpdate = async (id: number, field: string, value: number) => {
-    await update(id, { [field]: value });
-    refetch();
-  };
 
   if (loading) return <div className="p-8 text-center">Loading NPT billing data...</div>;
   if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;

@@ -33,13 +33,14 @@ function createDefaultDays(month: string, year: string): DayEntry[] {
 }
 
 export function BillingTicket() {
-  const { data: tickets, loading, error, refetch, insert } = useBillingTickets();
+  const { data: tickets, loading, error, refetch, insert, update } = useBillingTickets();
   const [selectedRig, setSelectedRig] = useState('Rig 103');
   const [selectedMonth, setSelectedMonth] = useState('Jun');
   const [selectedYear, setSelectedYear] = useState('2025');
+  const [releaseDate, setReleaseDate] = useState('');
 
   // Find current ticket
-  const currentTicket = tickets.find(t => t.rig === selectedRig && t.billing_period === `${selectedMonth} ${selectedYear}`);
+  const currentTicket = (tickets ?? []).find(t => t.rig === selectedRig && t.billing_period === `${selectedMonth} ${selectedYear}`);
 
   // Use default days - memoized
   const baseDays = useMemo(() => createDefaultDays(selectedMonth, selectedYear), [selectedMonth, selectedYear]);
@@ -78,18 +79,27 @@ export function BillingTicket() {
   const totalRevenue = days.reduce((s, d) => s + (d.hrs / 24) * dailyRates[d.rate], 0);
 
   const handleSave = async () => {
-    if (!currentTicket) {
-      await insert({
-        rig: selectedRig,
-        well_name: null,
-        wbs: null,
-        billing_period: `${selectedMonth} ${selectedYear}`,
-        rig_move_date: null,
-        spud_date: null,
-        release_date: null,
-      });
+    try {
+      if (!currentTicket) {
+        await insert({
+          rig: selectedRig,
+          well_name: null,
+          wbs: null,
+          billing_period: `${selectedMonth} ${selectedYear}`,
+          rig_move_date: null,
+          spud_date: null,
+          release_date: releaseDate || null,
+        });
+      } else {
+        await update(currentTicket.id, {
+          release_date: releaseDate || null,
+        });
+      }
+      await refetch();
+    } catch (err) {
+      console.error('Failed to save billing ticket:', err);
+      alert('Failed to save billing ticket. Please try again.');
     }
-    refetch();
   };
 
   if (loading) return <div className="p-8 text-center">Loading billing data...</div>;
@@ -102,7 +112,7 @@ export function BillingTicket() {
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold">Billing Ticket</span>
             <span className="bdg b">Sheet 4</span>
-            <FD v={selectedRig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleRigChange(e.target.value)} />
+            <FD v={selectedRig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleRigChange(e.target.value)} />
           </div>
           <div className="flex items-center gap-2">
             <FD v={selectedMonth} opts={MONTHS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleMonthChange(e.target.value)} />
@@ -126,7 +136,7 @@ export function BillingTicket() {
         <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
           <FDr l="Rig Move Date" v={currentTicket?.rig_move_date || '-'} />
           <FDr l="Spud Date" v={currentTicket?.spud_date || '-'} />
-          <FM l="Release Date" v={currentTicket?.release_date || ''} ph="Pending..." />
+          <FM l="Release Date" v={releaseDate || currentTicket?.release_date || ''} ph="Pending..." type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReleaseDate(e.target.value)} />
         </div>
       </div>
 

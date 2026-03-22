@@ -121,7 +121,7 @@ export function RigMove() {
         </div>
 
         <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <FD l="Rig" v={addForm.rig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, rig: e.target.value })} />
+          <FD l="Rig" v={addForm.rig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, rig: e.target.value })} />
           <FM l="Move From (Well/Location)" v={addForm.move_from} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, move_from: e.target.value })} />
           <FM l="Move To (Well/Location)" v={addForm.move_to} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, move_to: e.target.value })} />
           <FD l="Move Type" v={addForm.move_type} opts={['Intra-field', 'Inter-field', 'Pad to Pad']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, move_type: e.target.value })} />
@@ -200,7 +200,7 @@ export function RigMove() {
             </div>
             <div className="modal-body">
               <div className="grid grid-cols-2 gap-4">
-                <FD l="Rig" v={addForm.rig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, rig: e.target.value })} />
+                <FD l="Rig" v={addForm.rig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, rig: e.target.value })} />
                 <FD l="Move Type" v={addForm.move_type} opts={['Intra-field', 'Inter-field', 'Pad to Pad']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, move_type: e.target.value })} />
                 <FM l="Move From" v={addForm.move_from} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, move_from: e.target.value })} />
                 <FM l="Move To" v={addForm.move_to} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, move_to: e.target.value })} />
@@ -237,7 +237,7 @@ export function RigMove() {
             </div>
             <div className="modal-body">
               <div className="grid grid-cols-2 gap-4">
-                <FD l="Rig" v={editForm.rig || ''} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEditForm({ ...editForm, rig: e.target.value })} />
+                <FD l="Rig" v={editForm.rig || ''} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEditForm({ ...editForm, rig: e.target.value })} />
                 <FD l="Move Type" v={editForm.move_type || 'Intra-field'} opts={['Intra-field', 'Inter-field', 'Pad to Pad']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEditForm({ ...editForm, move_type: e.target.value })} />
                 <FM l="Move From" v={editForm.move_from || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, move_from: e.target.value })} />
                 <FM l="Move To" v={editForm.move_to || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, move_to: e.target.value })} />

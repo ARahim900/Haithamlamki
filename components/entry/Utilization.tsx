@@ -15,8 +15,9 @@ export function Utilization() {
   // Calculate aggregates
   const totalOpHours = filteredData.reduce((s, r) => s + (r.op_hours ?? 0), 0);
   const totalNptHours = filteredData.reduce((s, r) => s + (r.npt_hours ?? 0), 0);
-  const avgUtilization = filteredData.length > 0
-    ? (100 - (totalNptHours / (totalOpHours + totalNptHours) * 100)).toFixed(1)
+  const totalHours = totalOpHours + totalNptHours;
+  const avgUtilization = filteredData.length > 0 && totalHours > 0
+    ? (100 - (totalNptHours / totalHours * 100)).toFixed(1)
     : '0';
   const rigsAboveTarget = filteredData.filter(r => (r.npt_pct ?? 0) <= 3).length;
 

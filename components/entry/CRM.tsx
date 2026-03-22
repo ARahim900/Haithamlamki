@@ -5,11 +5,14 @@ import { useCrmScores } from '@/hooks/useDb';
 import { RIGS, MONTHS } from '@/lib/data';
 
 export function CRM() {
-  const { data: crmData, loading, error, refetch, update } = useCrmScores();
+  const { data: crmData, loading, error, refetch } = useCrmScores();
   const [selectedYear, setSelectedYear] = useState('2025');
 
+  // Guard against undefined data
+  const safeData = crmData ?? [];
+
   // Filter by year and group by rig
-  const yearData = crmData.filter(r => r.year === Number(selectedYear));
+  const yearData = safeData.filter(r => r.year === Number(selectedYear));
 
   // Build grid: rig -> month -> score
   const rigMap = new Map<string, Map<string, number>>();
@@ -19,7 +22,7 @@ export function CRM() {
   });
 
   // Convert to array for rendering
-  const crmGrid = RIGS.slice(0, 15).map(rig => {
+  const crmGrid = RIGS.map(rig => {
     const monthScores = rigMap.get(rig) || new Map();
     const scores = MONTHS.map(m => monthScores.get(m) ?? 0);
     const filledScores = scores.filter(s => s > 0);
@@ -36,14 +39,6 @@ export function CRM() {
   const best = crmGrid.length > 0 ? crmGrid.reduce((a, b) => a.avg > b.avg ? a : b) : { rig: '-', avg: 0 };
   const worst = crmGrid.length > 0 ? crmGrid.reduce((a, b) => a.avg < b.avg ? a : b) : { rig: '-', avg: 0 };
   const above90 = crmGrid.filter(r => r.avg >= 90).length;
-
-  const handleScoreUpdate = async (rig: string, month: string, score: number) => {
-    const existing = yearData.find(r => r.rig === rig && r.month === month);
-    if (existing) {
-      await update(existing.id, { score });
-      refetch();
-    }
-  };
 
   if (loading) return <div className="p-8 text-center">Loading CRM data...</div>;
   if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;

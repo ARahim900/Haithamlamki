@@ -29,28 +29,48 @@ export function BillingAccruals() {
   const totalRM = filteredData.reduce((s, r) => s + (r.rig_move_amt ?? 0), 0);
 
   const handleAddSubmit = async () => {
-    await insert({
-      rig: form.rig,
-      wbs: form.wbs || null,
-      well_name: form.well_name || null,
-      network: form.network || null,
-      field_name: form.field_name || null,
-      area: form.area || null,
-      opp_hrs: form.opp_hrs ? Number(form.opp_hrs) : null,
-      reduce_hrs: form.reduce_hrs ? Number(form.reduce_hrs) : null,
-      bkd_hrs: form.bkd_hrs ? Number(form.bkd_hrs) : null,
-      zero_hrs: form.zero_hrs ? Number(form.zero_hrs) : null,
-      special_rate: form.special_rate ? Number(form.special_rate) : null,
-      stacked_hrs: form.stacked_hrs ? Number(form.stacked_hrs) : null,
-      rig_move_hrs: form.rig_move_hrs ? Number(form.rig_move_hrs) : null,
-      rig_move_amt: form.rig_move_amt ? Number(form.rig_move_amt) : null,
-      total_hrs: 744,
-      billing_date: `${selectedYear}-${String(MONTHS.indexOf(selectedMonth) + 1).padStart(2, '0')}-01`,
-      remarks: null,
-    });
-    setShowAddModal(false);
-    setForm({ rig: '', wbs: '', well_name: '', network: '', field_name: '', area: '', opp_hrs: '', reduce_hrs: '', bkd_hrs: '', zero_hrs: '', special_rate: '', stacked_hrs: '', rig_move_hrs: '', rig_move_amt: '' });
-    refetch();
+    if (!form.rig) {
+      alert('Please select a rig');
+      return;
+    }
+    try {
+      await insert({
+        rig: form.rig,
+        wbs: form.wbs || null,
+        well_name: form.well_name || null,
+        network: form.network || null,
+        field_name: form.field_name || null,
+        area: form.area || null,
+        opp_hrs: form.opp_hrs ? Number(form.opp_hrs) : null,
+        reduce_hrs: form.reduce_hrs ? Number(form.reduce_hrs) : null,
+        bkd_hrs: form.bkd_hrs ? Number(form.bkd_hrs) : null,
+        zero_hrs: form.zero_hrs ? Number(form.zero_hrs) : null,
+        special_rate: form.special_rate ? Number(form.special_rate) : null,
+        stacked_hrs: form.stacked_hrs ? Number(form.stacked_hrs) : null,
+        rig_move_hrs: form.rig_move_hrs ? Number(form.rig_move_hrs) : null,
+        rig_move_amt: form.rig_move_amt ? Number(form.rig_move_amt) : null,
+        total_hrs: 744,
+        billing_date: `${selectedYear}-${String(MONTHS.indexOf(selectedMonth) + 1).padStart(2, '0')}-01`,
+        remarks: null,
+      });
+      setShowAddModal(false);
+      setForm({ rig: '', wbs: '', well_name: '', network: '', field_name: '', area: '', opp_hrs: '', reduce_hrs: '', bkd_hrs: '', zero_hrs: '', special_rate: '', stacked_hrs: '', rig_move_hrs: '', rig_move_amt: '' });
+      await refetch();
+    } catch (err) {
+      console.error('Failed to add accrual:', err);
+      alert('Failed to add billing accrual. Please try again.');
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this entry?')) return;
+    try {
+      await remove(id);
+      await refetch();
+    } catch (err) {
+      console.error('Failed to delete accrual:', err);
+      alert('Failed to delete entry. Please try again.');
+    }
   };
 
   if (loading) return <div className="p-8 text-center">Loading accruals data...</div>;
@@ -108,8 +128,8 @@ export function BillingAccruals() {
               </tr>
             </thead>
             <tbody>
-              {filteredData.map((r, i) => (
-                <tr key={i}>
+              {filteredData.map((r) => (
+                <tr key={r.id}>
                   <td><strong>{r.rig}</strong></td>
                   <td style={{ fontSize: 11, fontFamily: 'monospace', color: '#0284C7' }}>{r.wbs || '-'}</td>
                   <td style={{ fontSize: 11, fontFamily: 'monospace', color: '#64748B' }}>{r.network || '-'}</td>
@@ -127,7 +147,7 @@ export function BillingAccruals() {
                   </td>
                   <td className="tb-num" style={{ fontWeight: 800 }}>{r.total_hrs ?? 744}h</td>
                   <td>
-                    <button className="btn btn-d btn-xs" onClick={() => { remove(r.id); refetch(); }}>×</button>
+                    <button className="btn btn-d btn-xs" onClick={() => handleDelete(r.id)}>×</button>
                   </td>
                 </tr>
               ))}
@@ -163,7 +183,7 @@ export function BillingAccruals() {
             </div>
             <div className="modal-body">
               <div className="grid grid-cols-2 gap-4">
-                <FD l="Rig" v={form.rig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
+                <FD l="Rig" v={form.rig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
                 <FM l="WBS #" v={form.wbs} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, wbs: e.target.value })} />
                 <FM l="Well Name" v={form.well_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, well_name: e.target.value })} />
                 <FM l="Network" v={form.network} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, network: e.target.value })} />

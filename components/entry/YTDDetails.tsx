@@ -8,7 +8,7 @@ import { Trash2 } from 'lucide-react';
 const NPT_SYSTEMS = ['Drawworks', 'Mud Pumps', 'Top Drive', 'Electrical', 'BOP', 'MWD/LWD', 'Drill String', 'Contractual'];
 
 export function YTDDetails() {
-  const { data: nptData, loading, error, refetch, insert, update, remove } = useNptEvents();
+  const { data: nptData, loading, error, refetch, insert, remove } = useNptEvents();
   const [filter, setFilter] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
   const [form, setForm] = useState({
@@ -16,42 +16,67 @@ export function YTDDetails() {
     part_equipment: '', root_cause: '', corrective_action: '', future_action: '', action_party: '', contractual_process: ''
   });
 
-  const filtered = filter === 'All' ? nptData : nptData.filter(r => r.npt_type === filter);
+  // Guard against undefined data
+  const safeNptData = nptData ?? [];
+  const filtered = filter === 'All' ? safeNptData : safeNptData.filter(r => r.npt_type === filter);
   const totalHrs = filtered.reduce((s, r) => s + (r.hours ?? 0), 0);
 
   const handleAddSubmit = async () => {
-    await insert({
-      rig: form.rig,
-      event_date: form.event_date,
-      year: new Date(form.event_date).getFullYear(),
-      month: new Date(form.event_date).toLocaleString('en', { month: 'short' }),
-      npt_type: form.npt_type,
-      hours: form.hours ? Number(form.hours) : null,
-      system_category: form.system_category || null,
-      parent_equipment: null,
-      part_equipment: form.part_equipment || null,
-      contractual_process: form.contractual_process || null,
-      dept_responsibility: null,
-      immediate_cause: null,
-      root_cause: form.root_cause || null,
-      corrective_action: form.corrective_action || null,
-      future_action: form.future_action || null,
-      action_party: form.action_party || null,
-      notification_number: null,
-    });
-    setShowAddModal(false);
-    setForm({ rig: '', event_date: '', npt_type: 'Abraj', hours: '', system_category: '', part_equipment: '', root_cause: '', corrective_action: '', future_action: '', action_party: '', contractual_process: '' });
-    refetch();
-  };
+    // Validate required fields
+    if (!form.rig) {
+      alert('Please select a rig');
+      return;
+    }
+    if (!form.event_date) {
+      alert('Please select a date');
+      return;
+    }
 
-  const updateRow = async (id: number, field: string, value: string | number) => {
-    await update(id, { [field]: value });
-    refetch();
+    // Validate date
+    const eventDate = new Date(form.event_date);
+    if (isNaN(eventDate.getTime())) {
+      alert('Invalid date. Please select a valid date.');
+      return;
+    }
+
+    try {
+      await insert({
+        rig: form.rig,
+        event_date: form.event_date,
+        year: eventDate.getFullYear(),
+        month: eventDate.toLocaleString('en', { month: 'short' }),
+        npt_type: form.npt_type,
+        hours: form.hours ? Number(form.hours) : null,
+        system_category: form.system_category || null,
+        parent_equipment: null,
+        part_equipment: form.part_equipment || null,
+        contractual_process: form.contractual_process || null,
+        dept_responsibility: null,
+        immediate_cause: null,
+        root_cause: form.root_cause || null,
+        corrective_action: form.corrective_action || null,
+        future_action: form.future_action || null,
+        action_party: form.action_party || null,
+        notification_number: null,
+      });
+      setShowAddModal(false);
+      setForm({ rig: '', event_date: '', npt_type: 'Abraj', hours: '', system_category: '', part_equipment: '', root_cause: '', corrective_action: '', future_action: '', action_party: '', contractual_process: '' });
+      await refetch();
+    } catch (err) {
+      console.error('Failed to add NPT event:', err);
+      alert('Failed to add NPT event. Please try again.');
+    }
   };
 
   const removeRow = async (id: number) => {
-    await remove(id);
-    refetch();
+    if (!confirm('Are you sure you want to delete this NPT event?')) return;
+    try {
+      await remove(id);
+      await refetch();
+    } catch (err) {
+      console.error('Failed to delete NPT event:', err);
+      alert('Failed to delete event. Please try again.');
+    }
   };
 
   if (loading) return <div className="p-8 text-center">Loading NPT data...</div>;
@@ -148,7 +173,7 @@ export function YTDDetails() {
             </div>
             <div className="modal-body">
               <div className="grid grid-cols-2 gap-4">
-                <FD l="Rig" v={form.rig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
+                <FD l="Rig" v={form.rig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
                 <FM l="Date" v={form.event_date} type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, event_date: e.target.value })} />
                 <FD l="NPT Type" v={form.npt_type} opts={['Abraj', 'Contractual']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, npt_type: e.target.value })} />
                 <FM l="Duration (hrs)" v={form.hours} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, hours: e.target.value })} />

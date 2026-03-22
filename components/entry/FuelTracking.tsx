@@ -25,7 +25,7 @@ export function FuelTracking() {
     invoice_client: currentRecord?.invoice_client ?? 0,
   });
 
-  // Update form when record changes
+  // Update form when record changes - use stable primitive dependency
   React.useEffect(() => {
     if (currentRecord) {
       setForm({
@@ -37,37 +37,57 @@ export function FuelTracking() {
         other_site: currentRecord.other_site ?? 0,
         invoice_client: currentRecord.invoice_client ?? 0,
       });
+    } else {
+      setForm({
+        opening_stock: 0,
+        received: 0,
+        rig_engine: 0,
+        camp_engine: 0,
+        vehicles: 0,
+        other_site: 0,
+        invoice_client: 0,
+      });
     }
-  }, [currentRecord]);
+  }, [currentRecord?.id, selectedRig, selectedMonth, selectedYear]);
 
   const totalConsumed = (form.rig_engine ?? 0) + (form.camp_engine ?? 0) + (form.vehicles ?? 0) + (form.other_site ?? 0);
   const closingBalance = (form.opening_stock ?? 0) + (form.received ?? 0) - totalConsumed;
 
   const handleSave = async () => {
-    const payload = {
-      rig: selectedRig,
-      year: Number(selectedYear),
-      month: selectedMonth,
-      opening_stock: form.opening_stock,
-      received: form.received,
-      rig_engine: form.rig_engine,
-      camp_engine: form.camp_engine,
-      vehicles: form.vehicles,
-      other_site: form.other_site,
-      invoice_client: form.invoice_client,
-      total_consumed: totalConsumed,
-      closing_balance: closingBalance,
-      po1: null,
-      po2: null,
-      po3: null,
-    };
+    try {
+      const payload = {
+        rig: selectedRig,
+        year: Number(selectedYear),
+        month: selectedMonth,
+        opening_stock: form.opening_stock,
+        received: form.received,
+        rig_engine: form.rig_engine,
+        camp_engine: form.camp_engine,
+        vehicles: form.vehicles,
+        other_site: form.other_site,
+        invoice_client: form.invoice_client,
+        total_consumed: totalConsumed,
+        closing_balance: closingBalance,
+        po1: null,
+        po2: null,
+        po3: null,
+      };
 
-    if (currentRecord) {
-      await update(currentRecord.id, payload);
-    } else {
-      await insert(payload);
+      if (currentRecord) {
+        await update(currentRecord.id, payload);
+      } else {
+        await insert(payload);
+      }
+      await refetch();
+    } catch (err) {
+      console.error('Failed to save fuel data:', err);
+      alert('Failed to save fuel tracking data. Please try again.');
     }
-    refetch();
+  };
+
+  // TODO: Implement draft saving functionality
+  const handleSaveDraft = () => {
+    alert('Draft saving coming soon');
   };
 
   if (loading) return <div className="p-8 text-center">Loading fuel data...</div>;
@@ -79,12 +99,12 @@ export function FuelTracking() {
         <div className="card-hdr">
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold">Fuel Tracking</span>
-            <FD v={selectedRig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedRig(e.target.value)} />
+            <FD v={selectedRig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedRig(e.target.value)} />
             <FD v={selectedMonth} opts={MONTHS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedMonth(e.target.value)} />
             <FD v={selectedYear} opts={['2024', '2025']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedYear(e.target.value)} />
           </div>
           <div className="flex items-center gap-2">
-            <button className="btn btn-o btn-xs">Save Draft</button>
+            <button className="btn btn-o btn-xs" onClick={handleSaveDraft}>Save Draft</button>
             <button className="btn btn-p btn-xs" onClick={handleSave}>Submit</button>
           </div>
         </div>

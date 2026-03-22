@@ -17,35 +17,43 @@ export function WellTracking() {
     total_depth: '', current_depth: '', afe_days: '', actual_days: '', contracting_co: '', status: 'In Progress'
   });
 
-  const filteredWells = wellData.filter(w => w.rig === selectedRig);
+  // Guard against undefined data
+  const safeWellData = wellData ?? [];
+  const filteredWells = safeWellData.filter(w => w.rig === selectedRig);
   const currentWell = filteredWells[0];
 
   const progress = currentWell && currentWell.total_depth ?
     ((currentWell.current_depth ?? 0) / currentWell.total_depth * 100).toFixed(1) : '0';
 
   const handleAddSubmit = async () => {
-    await insert({
-      rig: form.rig || selectedRig,
-      well_name: form.well_name,
-      field: form.field || null,
-      rig_move_date: form.rig_move_date || null,
-      spud_date: form.spud_date || null,
-      release_date: form.release_date || null,
-      total_depth: form.total_depth ? Number(form.total_depth) : null,
-      current_depth: form.current_depth ? Number(form.current_depth) : null,
-      afe_days: form.afe_days ? Number(form.afe_days) : null,
-      actual_days: form.actual_days ? Number(form.actual_days) : null,
-      contracting_co: form.contracting_co || null,
-      status: form.status || null,
-      year: new Date().getFullYear(),
-      month: new Date().toLocaleString('en', { month: 'short' }),
-    });
-    setShowAddModal(false);
-    setForm({ rig: '', well_name: '', field: '', rig_move_date: '', spud_date: '', release_date: '', total_depth: '', current_depth: '', afe_days: '', actual_days: '', contracting_co: '', status: 'In Progress' });
-    refetch();
+    try {
+      const now = new Date();
+      await insert({
+        rig: form.rig || selectedRig,
+        well_name: form.well_name,
+        field: form.field || null,
+        rig_move_date: form.rig_move_date || null,
+        spud_date: form.spud_date || null,
+        release_date: form.release_date || null,
+        total_depth: form.total_depth ? Number(form.total_depth) : null,
+        current_depth: form.current_depth ? Number(form.current_depth) : null,
+        afe_days: form.afe_days ? Number(form.afe_days) : null,
+        actual_days: form.actual_days ? Number(form.actual_days) : null,
+        contracting_co: form.contracting_co || null,
+        status: form.status || null,
+        year: now.getFullYear(),
+        month: now.toLocaleString('en', { month: 'short' }),
+      });
+      setShowAddModal(false);
+      setForm({ rig: '', well_name: '', field: '', rig_move_date: '', spud_date: '', release_date: '', total_depth: '', current_depth: '', afe_days: '', actual_days: '', contracting_co: '', status: 'In Progress' });
+      await refetch();
+    } catch (err) {
+      console.error('Failed to add well:', err);
+      alert('Failed to add well. Please try again.');
+    }
   };
 
-  const handleEditClick = (well: typeof wellData[0]) => {
+  const handleEditClick = (well: typeof safeWellData[0]) => {
     setEditingId(well.id);
     setForm({
       rig: well.rig,
@@ -54,10 +62,10 @@ export function WellTracking() {
       rig_move_date: well.rig_move_date || '',
       spud_date: well.spud_date || '',
       release_date: well.release_date || '',
-      total_depth: String(well.total_depth || ''),
-      current_depth: String(well.current_depth || ''),
-      afe_days: String(well.afe_days || ''),
-      actual_days: String(well.actual_days || ''),
+      total_depth: well.total_depth == null ? '' : String(well.total_depth),
+      current_depth: well.current_depth == null ? '' : String(well.current_depth),
+      afe_days: well.afe_days == null ? '' : String(well.afe_days),
+      actual_days: well.actual_days == null ? '' : String(well.actual_days),
       contracting_co: well.contracting_co || '',
       status: well.status || 'In Progress',
     });
@@ -66,23 +74,39 @@ export function WellTracking() {
 
   const handleEditSubmit = async () => {
     if (!editingId) return;
-    await update(editingId, {
-      rig: form.rig,
-      well_name: form.well_name,
-      field: form.field || null,
-      rig_move_date: form.rig_move_date || null,
-      spud_date: form.spud_date || null,
-      release_date: form.release_date || null,
-      total_depth: form.total_depth ? Number(form.total_depth) : null,
-      current_depth: form.current_depth ? Number(form.current_depth) : null,
-      afe_days: form.afe_days ? Number(form.afe_days) : null,
-      actual_days: form.actual_days ? Number(form.actual_days) : null,
-      contracting_co: form.contracting_co || null,
-      status: form.status || null,
-    });
-    setShowEditModal(false);
-    setEditingId(null);
-    refetch();
+    try {
+      await update(editingId, {
+        rig: form.rig,
+        well_name: form.well_name,
+        field: form.field || null,
+        rig_move_date: form.rig_move_date || null,
+        spud_date: form.spud_date || null,
+        release_date: form.release_date || null,
+        total_depth: form.total_depth ? Number(form.total_depth) : null,
+        current_depth: form.current_depth ? Number(form.current_depth) : null,
+        afe_days: form.afe_days ? Number(form.afe_days) : null,
+        actual_days: form.actual_days ? Number(form.actual_days) : null,
+        contracting_co: form.contracting_co || null,
+        status: form.status || null,
+      });
+      setShowEditModal(false);
+      setEditingId(null);
+      await refetch();
+    } catch (err) {
+      console.error('Failed to update well:', err);
+      alert('Failed to update well. Please try again.');
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this well?')) return;
+    try {
+      await remove(id);
+      await refetch();
+    } catch (err) {
+      console.error('Failed to delete well:', err);
+      alert('Failed to delete well. Please try again.');
+    }
   };
 
   if (loading) return <div className="p-8 text-center">Loading well data...</div>;
@@ -94,7 +118,7 @@ export function WellTracking() {
         <div className="card-hdr">
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold">Well Tracking</span>
-            <FD v={selectedRig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedRig(e.target.value)} />
+            <FD v={selectedRig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedRig(e.target.value)} />
             {currentWell && <Bdg c="b">{currentWell.well_name}</Bdg>}
           </div>
           <div className="flex items-center gap-2">
@@ -135,10 +159,10 @@ export function WellTracking() {
               </tr>
             </thead>
             <tbody>
-              {filteredWells.map((w, i) => {
+              {filteredWells.map((w) => {
                 const prog = w.total_depth ? ((w.current_depth ?? 0) / w.total_depth * 100).toFixed(1) : '0';
                 return (
-                  <tr key={i}>
+                  <tr key={w.id}>
                     <td><strong>{w.well_name}</strong></td>
                     <td>{w.field || '-'}</td>
                     <td className="tb-num">{(w.total_depth ?? 0).toLocaleString()} ft</td>
@@ -147,7 +171,7 @@ export function WellTracking() {
                     <td><Bdg c={w.status === 'Completed' ? 'g' : w.status === 'In Progress' ? 'b' : 'gr'}>{w.status || '-'}</Bdg></td>
                     <td className="flex gap-2">
                       <button className="btn btn-t btn-xs" onClick={() => handleEditClick(w)}>Edit</button>
-                      <button className="btn btn-d btn-xs" onClick={() => { remove(w.id); refetch(); }}>Delete</button>
+                      <button className="btn btn-d btn-xs" onClick={() => handleDelete(w.id)}>Delete</button>
                     </td>
                   </tr>
                 );
@@ -170,7 +194,7 @@ export function WellTracking() {
             </div>
             <div className="modal-body">
               <div className="grid grid-cols-2 gap-4">
-                <FD l="Rig" v={form.rig || selectedRig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
+                <FD l="Rig" v={form.rig || selectedRig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
                 <FM l="Well Name" v={form.well_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, well_name: e.target.value })} />
                 <FM l="Field" v={form.field} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, field: e.target.value })} />
                 <FD l="Status" v={form.status} opts={['In Progress', 'Completed', 'Suspended']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, status: e.target.value })} />
@@ -198,7 +222,7 @@ export function WellTracking() {
             </div>
             <div className="modal-body">
               <div className="grid grid-cols-2 gap-4">
-                <FD l="Rig" v={form.rig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
+                <FD l="Rig" v={form.rig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
                 <FM l="Well Name" v={form.well_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, well_name: e.target.value })} />
                 <FM l="Field" v={form.field} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, field: e.target.value })} />
                 <FD l="Status" v={form.status} opts={['In Progress', 'Completed', 'Suspended']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, status: e.target.value })} />

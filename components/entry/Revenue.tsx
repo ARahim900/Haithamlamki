@@ -7,12 +7,15 @@ import { RIGS, MONTHS } from '@/lib/data';
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export function Revenue() {
-  const { data: revenueData, loading, error, refetch, update } = useRevenue();
+  const { data: revenueData, loading, error, refetch } = useRevenue();
   const [selectedMonth, setSelectedMonth] = useState('Jun');
   const [selectedYear, setSelectedYear] = useState('2025');
 
+  // Guard against undefined data
+  const safeData = revenueData ?? [];
+
   // Filter by month/year
-  const filteredData = revenueData.filter(r => r.month === selectedMonth && r.year === Number(selectedYear));
+  const filteredData = safeData.filter(r => r.month === selectedMonth && r.year === Number(selectedYear));
 
   const totalActual = filteredData.reduce((s, r) => s + (r.actual ?? 0), 0);
   const totalBudget = filteredData.reduce((s, r) => s + (r.budgeted ?? 0), 0);
@@ -21,11 +24,6 @@ export function Revenue() {
 
   const monthIdx = MONTHS.indexOf(selectedMonth);
   const fullMonthName = monthIdx >= 0 ? MONTH_NAMES[monthIdx] : selectedMonth;
-
-  const handleUpdate = async (id: number, field: string, value: number) => {
-    await update(id, { [field]: value });
-    refetch();
-  };
 
   if (loading) return <div className="p-8 text-center">Loading revenue data...</div>;
   if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;
