@@ -1,86 +1,221 @@
 'use client';
-import React from 'react';
-import { FA, FD, FM, FieldLegend } from '@/components/Shared';
+import React, { useState } from 'react';
+import { FA, FD, FM, FieldLegend, Bdg } from '@/components/Shared';
+import { useWellTracking } from '@/hooks/useDb';
+import { RIGS } from '@/lib/data';
 
 export function WellTracking() {
+  const { data: wellData, loading, error, refetch, insert, update, remove } = useWellTracking();
+  const [selectedRig, setSelectedRig] = useState('Rig 302');
+
+  // Modal states
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [form, setForm] = useState({
+    rig: '', well_name: '', field: '', rig_move_date: '', spud_date: '', release_date: '',
+    total_depth: '', current_depth: '', afe_days: '', actual_days: '', contracting_co: '', status: 'In Progress'
+  });
+
+  const filteredWells = wellData.filter(w => w.rig === selectedRig);
+  const currentWell = filteredWells[0];
+
+  const progress = currentWell && currentWell.total_depth ?
+    ((currentWell.current_depth ?? 0) / currentWell.total_depth * 100).toFixed(1) : '0';
+
+  const handleAddSubmit = async () => {
+    await insert({
+      rig: form.rig || selectedRig,
+      well_name: form.well_name,
+      field: form.field || null,
+      rig_move_date: form.rig_move_date || null,
+      spud_date: form.spud_date || null,
+      release_date: form.release_date || null,
+      total_depth: form.total_depth ? Number(form.total_depth) : null,
+      current_depth: form.current_depth ? Number(form.current_depth) : null,
+      afe_days: form.afe_days ? Number(form.afe_days) : null,
+      actual_days: form.actual_days ? Number(form.actual_days) : null,
+      contracting_co: form.contracting_co || null,
+      status: form.status || null,
+      year: new Date().getFullYear(),
+      month: new Date().toLocaleString('en', { month: 'short' }),
+    });
+    setShowAddModal(false);
+    setForm({ rig: '', well_name: '', field: '', rig_move_date: '', spud_date: '', release_date: '', total_depth: '', current_depth: '', afe_days: '', actual_days: '', contracting_co: '', status: 'In Progress' });
+    refetch();
+  };
+
+  const handleEditClick = (well: typeof wellData[0]) => {
+    setEditingId(well.id);
+    setForm({
+      rig: well.rig,
+      well_name: well.well_name,
+      field: well.field || '',
+      rig_move_date: well.rig_move_date || '',
+      spud_date: well.spud_date || '',
+      release_date: well.release_date || '',
+      total_depth: String(well.total_depth || ''),
+      current_depth: String(well.current_depth || ''),
+      afe_days: String(well.afe_days || ''),
+      actual_days: String(well.actual_days || ''),
+      contracting_co: well.contracting_co || '',
+      status: well.status || 'In Progress',
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditSubmit = async () => {
+    if (!editingId) return;
+    await update(editingId, {
+      rig: form.rig,
+      well_name: form.well_name,
+      field: form.field || null,
+      rig_move_date: form.rig_move_date || null,
+      spud_date: form.spud_date || null,
+      release_date: form.release_date || null,
+      total_depth: form.total_depth ? Number(form.total_depth) : null,
+      current_depth: form.current_depth ? Number(form.current_depth) : null,
+      afe_days: form.afe_days ? Number(form.afe_days) : null,
+      actual_days: form.actual_days ? Number(form.actual_days) : null,
+      contracting_co: form.contracting_co || null,
+      status: form.status || null,
+    });
+    setShowEditModal(false);
+    setEditingId(null);
+    refetch();
+  };
+
+  if (loading) return <div className="p-8 text-center">Loading well data...</div>;
+  if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;
+
   return (
     <div className="flex flex-col gap-4">
       <div className="card">
         <div className="card-hdr">
           <div className="flex items-center gap-3">
-            <span className="text-lg font-bold">Well Tracking Entry</span>
-            <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">Rig 302</span>
-            <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded">Well: Yibal-201</span>
+            <span className="text-lg font-bold">Well Tracking</span>
+            <FD v={selectedRig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedRig(e.target.value)} />
+            {currentWell && <Bdg c="b">{currentWell.well_name}</Bdg>}
           </div>
           <div className="flex items-center gap-2">
-            <button className="btn btn-o btn-xs">Save Draft</button>
-            <button className="btn btn-p btn-xs">Update Well Status</button>
+            <button className="btn btn-o btn-xs" onClick={() => { setForm({ ...form, rig: selectedRig }); setShowAddModal(true); }}>+ Add Well</button>
           </div>
         </div>
-        
+
         <div className="p-4 border-b border-gray-100">
           <FieldLegend />
         </div>
 
-        <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FM l="Well Name" v="Yibal-201" />
-          <FD l="Well Type" v="Development" />
-          <FD l="Current Phase" v="Drilling 8.5''" />
-          <FM l="Target Depth (ft)" v="14,500" />
-          <FM l="Current Depth (ft)" v="11,200" />
-          <FA l="Progress (%)" v="77.2%" />
-          <FM l="Spud Date" v="25-Sep-2023" />
-          <FA l="Days on Well" v="18" />
-          <FM l="AFE Budget ($)" v="1,200,000" />
-        </div>
+        {currentWell ? (
+          <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <FA l="Well Name" v={currentWell.well_name} />
+            <FA l="Field" v={currentWell.field || '-'} />
+            <FA l="Status" v={currentWell.status || '-'} />
+            <FA l="Target Depth (ft)" v={(currentWell.total_depth ?? 0).toLocaleString()} />
+            <FA l="Current Depth (ft)" v={(currentWell.current_depth ?? 0).toLocaleString()} />
+            <FA l="Progress (%)" v={`${progress}%`} />
+            <FA l="Spud Date" v={currentWell.spud_date || '-'} />
+            <FA l="AFE Days" v={String(currentWell.afe_days ?? '-')} />
+            <FA l="Actual Days" v={String(currentWell.actual_days ?? '-')} />
+          </div>
+        ) : (
+          <div className="p-8 text-center text-gray-500">No wells found for {selectedRig}. Add a new well to get started.</div>
+        )}
       </div>
 
       <div className="card">
-        <div className="card-hdr">Section Progress</div>
-        <div className="p-4">
-          <table className="w-full text-left border-collapse">
+        <div className="card-hdr">All Wells — {selectedRig}</div>
+        <div className="tw">
+          <table>
             <thead>
-              <tr className="bg-gray-50 text-xs uppercase text-gray-500 border-b border-gray-200">
-                <th className="p-2 font-semibold">Hole Size</th>
-                <th className="p-2 font-semibold">Casing Size</th>
-                <th className="p-2 font-semibold">Planned Depth (ft)</th>
-                <th className="p-2 font-semibold">Actual Depth (ft)</th>
-                <th className="p-2 font-semibold">Status</th>
+              <tr>
+                {['Well Name', 'Field', 'Total Depth', 'Current Depth', 'Progress', 'Status', 'Actions'].map(h => (
+                  <th key={h} className="th">{h}</th>
+                ))}
               </tr>
             </thead>
-            <tbody className="text-sm">
-              <tr className="border-b border-gray-100">
-                <td className="p-2">24&quot;</td>
-                <td className="p-2">20&quot;</td>
-                <td className="p-2">1,500</td>
-                <td className="p-2"><FM v="1,520" /></td>
-                <td className="p-2"><span className="text-green-600 font-bold">Completed</span></td>
-              </tr>
-              <tr className="border-b border-gray-100">
-                <td className="p-2">16&quot;</td>
-                <td className="p-2">13 3/8&quot;</td>
-                <td className="p-2">4,500</td>
-                <td className="p-2"><FM v="4,550" /></td>
-                <td className="p-2"><span className="text-green-600 font-bold">Completed</span></td>
-              </tr>
-              <tr className="border-b border-gray-100">
-                <td className="p-2">12 1/4&quot;</td>
-                <td className="p-2">9 5/8&quot;</td>
-                <td className="p-2">10,000</td>
-                <td className="p-2"><FM v="10,100" /></td>
-                <td className="p-2"><span className="text-green-600 font-bold">Completed</span></td>
-              </tr>
-              <tr className="border-b border-gray-100">
-                <td className="p-2">8 1/2&quot;</td>
-                <td className="p-2">7&quot;</td>
-                <td className="p-2">14,500</td>
-                <td className="p-2"><FM v="11,200" /></td>
-                <td className="p-2"><span className="text-blue-600 font-bold">In Progress</span></td>
-              </tr>
+            <tbody>
+              {filteredWells.map((w, i) => {
+                const prog = w.total_depth ? ((w.current_depth ?? 0) / w.total_depth * 100).toFixed(1) : '0';
+                return (
+                  <tr key={i}>
+                    <td><strong>{w.well_name}</strong></td>
+                    <td>{w.field || '-'}</td>
+                    <td className="tb-num">{(w.total_depth ?? 0).toLocaleString()} ft</td>
+                    <td className="tb-num">{(w.current_depth ?? 0).toLocaleString()} ft</td>
+                    <td className="tb-num" style={{ fontWeight: 700, color: Number(prog) >= 100 ? '#047857' : '#0284C7' }}>{prog}%</td>
+                    <td><Bdg c={w.status === 'Completed' ? 'g' : w.status === 'In Progress' ? 'b' : 'gr'}>{w.status || '-'}</Bdg></td>
+                    <td className="flex gap-2">
+                      <button className="btn btn-t btn-xs" onClick={() => handleEditClick(w)}>Edit</button>
+                      <button className="btn btn-d btn-xs" onClick={() => { remove(w.id); refetch(); }}>Delete</button>
+                    </td>
+                  </tr>
+                );
+              })}
+              {filteredWells.length === 0 && (
+                <tr><td colSpan={7} className="text-center text-gray-400 py-8">No wells for this rig</td></tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Add Modal */}
+      {showAddModal && (
+        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-hdr">
+              <span className="modal-title">Add New Well</span>
+              <button className="modal-close" onClick={() => setShowAddModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="grid grid-cols-2 gap-4">
+                <FD l="Rig" v={form.rig || selectedRig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
+                <FM l="Well Name" v={form.well_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, well_name: e.target.value })} />
+                <FM l="Field" v={form.field} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, field: e.target.value })} />
+                <FD l="Status" v={form.status} opts={['In Progress', 'Completed', 'Suspended']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, status: e.target.value })} />
+                <FM l="Total Depth (ft)" v={form.total_depth} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, total_depth: e.target.value })} />
+                <FM l="Current Depth (ft)" v={form.current_depth} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, current_depth: e.target.value })} />
+                <FM l="Spud Date" v={form.spud_date} type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, spud_date: e.target.value })} />
+                <FM l="AFE Days" v={form.afe_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, afe_days: e.target.value })} />
+              </div>
+            </div>
+            <div className="modal-foot">
+              <button className="btn btn-o" onClick={() => setShowAddModal(false)}>Cancel</button>
+              <button className="btn btn-t" onClick={handleAddSubmit}>Save Well</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-hdr">
+              <span className="modal-title">Edit Well</span>
+              <button className="modal-close" onClick={() => setShowEditModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="grid grid-cols-2 gap-4">
+                <FD l="Rig" v={form.rig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
+                <FM l="Well Name" v={form.well_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, well_name: e.target.value })} />
+                <FM l="Field" v={form.field} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, field: e.target.value })} />
+                <FD l="Status" v={form.status} opts={['In Progress', 'Completed', 'Suspended']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, status: e.target.value })} />
+                <FM l="Total Depth (ft)" v={form.total_depth} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, total_depth: e.target.value })} />
+                <FM l="Current Depth (ft)" v={form.current_depth} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, current_depth: e.target.value })} />
+                <FM l="Spud Date" v={form.spud_date} type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, spud_date: e.target.value })} />
+                <FM l="AFE Days" v={form.afe_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, afe_days: e.target.value })} />
+                <FM l="Actual Days" v={form.actual_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, actual_days: e.target.value })} />
+              </div>
+            </div>
+            <div className="modal-foot">
+              <button className="btn btn-o" onClick={() => setShowEditModal(false)}>Cancel</button>
+              <button className="btn btn-t" onClick={handleEditSubmit}>Update Well</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

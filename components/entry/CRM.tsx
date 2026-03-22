@@ -1,40 +1,52 @@
 'use client';
-import React, { useMemo } from 'react';
-import { FM, FieldLegend, KPI, Bdg } from '@/components/Shared';
+import React, { useState } from 'react';
+import { FM, FD, FieldLegend, KPI, Bdg } from '@/components/Shared';
+import { useCrmScores } from '@/hooks/useDb';
 import { RIGS, MONTHS } from '@/lib/data';
 
-// Deterministic seeded RNG to avoid hydration mismatches
-function seededRandom(seed: number) {
-  let s = seed;
-  return () => {
-    s = (s * 16807 + 0) % 2147483647;
-    return (s - 1) / 2147483646;
-  };
-}
-
-function generateCrmGrid(rigs: string[]) {
-  const rng = seededRandom(42);
-  return rigs.map((rig, ri) => {
-    const scores = MONTHS.map((_, mi) => {
-      const base = 85 - ri * 0.5 + mi * 0.3;
-      return Math.min(100, Math.max(60, Math.round(base + (rng() - 0.5) * 10)));
-    });
-    const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-    return { rig, scores, avg };
-  });
-}
-
 export function CRM() {
-  const crmGrid = useMemo(() => generateCrmGrid(RIGS), []);
+  const { data: crmData, loading, error, refetch, update } = useCrmScores();
+  const [selectedYear, setSelectedYear] = useState('2025');
 
-  const monthAvgs = MONTHS.map((_, mi) =>
-    Math.round(crmGrid.reduce((s, r) => s + r.scores[mi], 0) / crmGrid.length)
-  );
+  // Filter by year and group by rig
+  const yearData = crmData.filter(r => r.year === Number(selectedYear));
 
-  const fleetAvg = Math.round(crmGrid.reduce((s, r) => s + r.avg, 0) / crmGrid.length);
-  const best = crmGrid.reduce((a, b) => a.avg > b.avg ? a : b);
-  const worst = crmGrid.reduce((a, b) => a.avg < b.avg ? a : b);
+  // Build grid: rig -> month -> score
+  const rigMap = new Map<string, Map<string, number>>();
+  yearData.forEach(r => {
+    if (!rigMap.has(r.rig)) rigMap.set(r.rig, new Map());
+    rigMap.get(r.rig)!.set(r.month, r.score ?? 0);
+  });
+
+  // Convert to array for rendering
+  const crmGrid = RIGS.slice(0, 15).map(rig => {
+    const monthScores = rigMap.get(rig) || new Map();
+    const scores = MONTHS.map(m => monthScores.get(m) ?? 0);
+    const filledScores = scores.filter(s => s > 0);
+    const avg = filledScores.length > 0 ? Math.round(filledScores.reduce((a, b) => a + b, 0) / filledScores.length) : 0;
+    return { rig, scores, avg };
+  }).filter(r => r.avg > 0 || yearData.some(d => d.rig === r.rig));
+
+  const monthAvgs = MONTHS.map((_, mi) => {
+    const monthScores = crmGrid.map(r => r.scores[mi]).filter(s => s > 0);
+    return monthScores.length > 0 ? Math.round(monthScores.reduce((a, b) => a + b, 0) / monthScores.length) : 0;
+  });
+
+  const fleetAvg = crmGrid.length > 0 ? Math.round(crmGrid.reduce((s, r) => s + r.avg, 0) / crmGrid.length) : 0;
+  const best = crmGrid.length > 0 ? crmGrid.reduce((a, b) => a.avg > b.avg ? a : b) : { rig: '-', avg: 0 };
+  const worst = crmGrid.length > 0 ? crmGrid.reduce((a, b) => a.avg < b.avg ? a : b) : { rig: '-', avg: 0 };
   const above90 = crmGrid.filter(r => r.avg >= 90).length;
+
+  const handleScoreUpdate = async (rig: string, month: string, score: number) => {
+    const existing = yearData.find(r => r.rig === rig && r.month === month);
+    if (existing) {
+      await update(existing.id, { score });
+      refetch();
+    }
+  };
+
+  if (loading) return <div className="p-8 text-center">Loading CRM data...</div>;
+  if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;
 
   return (
     <div className="flex flex-col gap-4">
@@ -45,6 +57,7 @@ export function CRM() {
             <span className="bdg p">Sheet 11</span>
           </div>
           <div className="flex items-center gap-2">
+            <FD v={selectedYear} opts={['2024', '2025']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedYear(e.target.value)} />
             <button className="btn btn-o btn-xs">Export</button>
           </div>
         </div>
@@ -58,14 +71,14 @@ export function CRM() {
         <KPI l="Fleet Average" v={fleetAvg + '%'} s={'PDO target: 90%'} cls={fleetAvg >= 90 ? 'g' : 'w'} />
         <KPI l="Best Performer" v={best.avg + '%'} s={best.rig} cls="g" trend="up" />
         <KPI l="Needs Attention" v={worst.avg + '%'} s={worst.rig} cls="r" trend="dn" />
-        <KPI l="Above 90% Target" v={above90 + '/' + crmGrid.length} s={`${Math.round((above90 / crmGrid.length) * 100)}% of fleet`} cls="b" />
+        <KPI l="Above 90% Target" v={above90 + '/' + crmGrid.length} s={crmGrid.length > 0 ? `${Math.round((above90 / crmGrid.length) * 100)}% of fleet` : '-'} cls="b" />
       </div>
 
       <div className="card">
         <div className="card-hdr">
-          CSAT by Rig — 2025 (0-100%)
+          CSAT by Rig — {selectedYear} (0-100%)
           <span style={{ fontSize: 12, color: '#64748B' }}>
-            {RIGS.length} units tracked across 12 months
+            {crmGrid.length} units tracked across 12 months
           </span>
         </div>
         <div className="tw" style={{ overflowX: 'auto' }}>
@@ -83,10 +96,12 @@ export function CRM() {
                   <td style={{ position: 'sticky', left: 0, background: '#fff', zIndex: 1, fontWeight: 700, fontSize: 13 }}>{r.rig}</td>
                   {r.scores.map((s, si) => (
                     <td key={si} style={{ textAlign: 'center', padding: '8px 4px' }}>
-                      <FM
-                        v={String(s)}
-                        onChange={() => {}}
-                      />
+                      <span style={{
+                        fontWeight: 700,
+                        color: s >= 90 ? '#047857' : s >= 80 ? '#D97706' : s > 0 ? '#DC2626' : '#CBD5E1'
+                      }}>
+                        {s > 0 ? `${s}%` : '-'}
+                      </span>
                     </td>
                   ))}
                   <td style={{
@@ -96,26 +111,31 @@ export function CRM() {
                     background: '#F0F9FF',
                     color: r.avg >= 90 ? '#047857' : r.avg >= 80 ? '#D97706' : '#DC2626'
                   }}>
-                    {r.avg}%
+                    {r.avg > 0 ? `${r.avg}%` : '-'}
                   </td>
                 </tr>
               ))}
-              <tr style={{ background: '#F8FAFC', fontWeight: 800 }}>
-                <td style={{ position: 'sticky', left: 0, background: '#F8FAFC', fontWeight: 900, zIndex: 1 }}>MONTHLY AVG</td>
-                {monthAvgs.map((a, i) => (
-                  <td key={i} style={{
-                    textAlign: 'center',
-                    fontWeight: 900,
-                    color: a >= 90 ? '#047857' : a >= 80 ? '#D97706' : '#DC2626',
-                    padding: '12px 4px'
-                  }}>
-                    {a}%
+              {crmGrid.length === 0 && (
+                <tr><td colSpan={14} className="text-center text-gray-400 py-8">No CRM data for {selectedYear}</td></tr>
+              )}
+              {crmGrid.length > 0 && (
+                <tr style={{ background: '#F8FAFC', fontWeight: 800 }}>
+                  <td style={{ position: 'sticky', left: 0, background: '#F8FAFC', fontWeight: 900, zIndex: 1 }}>MONTHLY AVG</td>
+                  {monthAvgs.map((a, i) => (
+                    <td key={i} style={{
+                      textAlign: 'center',
+                      fontWeight: 900,
+                      color: a >= 90 ? '#047857' : a >= 80 ? '#D97706' : a > 0 ? '#DC2626' : '#CBD5E1',
+                      padding: '12px 4px'
+                    }}>
+                      {a > 0 ? `${a}%` : '-'}
+                    </td>
+                  ))}
+                  <td style={{ textAlign: 'center', fontWeight: 900, fontSize: 16, background: '#EFF6FF', color: '#1D4ED8' }}>
+                    {fleetAvg}%
                   </td>
-                ))}
-                <td style={{ textAlign: 'center', fontWeight: 900, fontSize: 16, background: '#EFF6FF', color: '#1D4ED8' }}>
-                  {fleetAvg}%
-                </td>
-              </tr>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -128,21 +148,21 @@ export function CRM() {
             <div style={{ fontSize: 13, fontWeight: 700, color: '#047857', marginBottom: 8 }}>Excellent (90-100%)</div>
             <div style={{ fontSize: 28, fontWeight: 900, color: '#047857' }}>{crmGrid.filter(r => r.avg >= 90).length} rigs</div>
             <div style={{ marginTop: 8, fontSize: 12, color: '#64748B' }}>
-              {crmGrid.filter(r => r.avg >= 90).map(r => r.rig).join(', ')}
+              {crmGrid.filter(r => r.avg >= 90).map(r => r.rig).join(', ') || 'None'}
             </div>
           </div>
           <div style={{ padding: 20, borderRadius: 16, background: '#FFFBEB', border: '1px solid #FDE68A' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#B45309', marginBottom: 8 }}>Acceptable (80-89%)</div>
             <div style={{ fontSize: 28, fontWeight: 900, color: '#B45309' }}>{crmGrid.filter(r => r.avg >= 80 && r.avg < 90).length} rigs</div>
             <div style={{ marginTop: 8, fontSize: 12, color: '#64748B' }}>
-              {crmGrid.filter(r => r.avg >= 80 && r.avg < 90).map(r => r.rig).join(', ')}
+              {crmGrid.filter(r => r.avg >= 80 && r.avg < 90).map(r => r.rig).join(', ') || 'None'}
             </div>
           </div>
           <div style={{ padding: 20, borderRadius: 16, background: '#FEF2F2', border: '1px solid #FECACA' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#DC2626', marginBottom: 8 }}>Below Target (&lt;80%)</div>
-            <div style={{ fontSize: 28, fontWeight: 900, color: '#DC2626' }}>{crmGrid.filter(r => r.avg < 80).length} rigs</div>
+            <div style={{ fontSize: 28, fontWeight: 900, color: '#DC2626' }}>{crmGrid.filter(r => r.avg > 0 && r.avg < 80).length} rigs</div>
             <div style={{ marginTop: 8, fontSize: 12, color: '#64748B' }}>
-              {crmGrid.filter(r => r.avg < 80).map(r => r.rig).join(', ') || 'None'}
+              {crmGrid.filter(r => r.avg > 0 && r.avg < 80).map(r => r.rig).join(', ') || 'None'}
             </div>
           </div>
         </div>

@@ -1,6 +1,8 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { FA, FD, FM, FDr, FieldLegend } from '@/components/Shared';
+import { useBillingTickets } from '@/hooks/useDb';
+import { RIGS, MONTHS } from '@/lib/data';
 
 const dailyRates = { OP: 18500, RD: 9250, BKD: 0, SP: 14000, ZR: 0, SK: 4500 };
 type RateKey = keyof typeof dailyRates;
@@ -12,23 +14,86 @@ const rateColors: Record<RateKey, string> = {
   OP: 'g', RD: 'w', BKD: 'r', SP: 'b', ZR: 'gr', SK: 'p',
 };
 
-const initialDays = Array.from({ length: 10 }, (_, i) => ({
-  day: i + 1,
-  date: `${String(i + 1).padStart(2, '0')}-Jun-2025`,
-  rate: (i < 8 ? 'OP' : i === 8 ? 'RD' : 'OP') as RateKey,
-  hrs: 24,
-  remarks: i === 8 ? 'Reduced rate — waiting on cement' : 'Normal drilling operations',
-}));
+interface DayEntry {
+  day: number;
+  date: string;
+  rate: RateKey;
+  hrs: number;
+  remarks: string;
+}
+
+function createDefaultDays(month: string, year: string): DayEntry[] {
+  return Array.from({ length: 10 }, (_, i) => ({
+    day: i + 1,
+    date: `${String(i + 1).padStart(2, '0')}-${month}-${year}`,
+    rate: (i < 8 ? 'OP' : i === 8 ? 'RD' : 'OP') as RateKey,
+    hrs: 24,
+    remarks: i === 8 ? 'Reduced rate - waiting on cement' : 'Normal operations',
+  }));
+}
 
 export function BillingTicket() {
-  const [days, setDays] = useState(initialDays);
+  const { data: tickets, loading, error, refetch, insert } = useBillingTickets();
+  const [selectedRig, setSelectedRig] = useState('Rig 103');
+  const [selectedMonth, setSelectedMonth] = useState('Jun');
+  const [selectedYear, setSelectedYear] = useState('2025');
+
+  // Find current ticket
+  const currentTicket = tickets.find(t => t.rig === selectedRig && t.billing_period === `${selectedMonth} ${selectedYear}`);
+
+  // Use default days - memoized
+  const baseDays = useMemo(() => createDefaultDays(selectedMonth, selectedYear), [selectedMonth, selectedYear]);
+
+  // Local editable state
+  const [days, setDays] = useState<DayEntry[]>(baseDays);
+
+  // Simple key for resetting - change selection clears edits
+  const selectionKey = `${selectedRig}-${selectedMonth}-${selectedYear}`;
+  const [lastKey, setLastKey] = useState(selectionKey);
+
+  // Reset days when selection changes (using event handler pattern)
+  const handleRigChange = (rig: string) => {
+    setSelectedRig(rig);
+    setDays(createDefaultDays(selectedMonth, selectedYear));
+    setLastKey(`${rig}-${selectedMonth}-${selectedYear}`);
+  };
+
+  const handleMonthChange = (month: string) => {
+    setSelectedMonth(month);
+    setDays(createDefaultDays(month, selectedYear));
+    setLastKey(`${selectedRig}-${month}-${selectedYear}`);
+  };
+
+  const handleYearChange = (year: string) => {
+    setSelectedYear(year);
+    setDays(createDefaultDays(selectedMonth, year));
+    setLastKey(`${selectedRig}-${selectedMonth}-${year}`);
+  };
 
   const updateDay = (idx: number, field: string, value: string) => {
-    setDays(days.map((d, i) => i === idx ? { ...d, [field]: value } : d));
+    setDays(prev => prev.map((d, i) => i === idx ? { ...d, [field]: field === 'rate' ? value as RateKey : value } : d));
   };
 
   const totalByRate = (rate: RateKey) => days.filter(d => d.rate === rate).reduce((s, d) => s + d.hrs, 0);
   const totalRevenue = days.reduce((s, d) => s + (d.hrs / 24) * dailyRates[d.rate], 0);
+
+  const handleSave = async () => {
+    if (!currentTicket) {
+      await insert({
+        rig: selectedRig,
+        well_name: null,
+        wbs: null,
+        billing_period: `${selectedMonth} ${selectedYear}`,
+        rig_move_date: null,
+        spud_date: null,
+        release_date: null,
+      });
+    }
+    refetch();
+  };
+
+  if (loading) return <div className="p-8 text-center">Loading billing data...</div>;
+  if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;
 
   return (
     <div className="flex flex-col gap-4">
@@ -37,11 +102,13 @@ export function BillingTicket() {
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold">Billing Ticket</span>
             <span className="bdg b">Sheet 4</span>
-            <span className="bdg gr">Rig 103</span>
+            <FD v={selectedRig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleRigChange(e.target.value)} />
           </div>
           <div className="flex items-center gap-2">
+            <FD v={selectedMonth} opts={MONTHS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleMonthChange(e.target.value)} />
+            <FD v={selectedYear} opts={['2024', '2025']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleYearChange(e.target.value)} />
             <button className="btn btn-o btn-xs">Save Draft</button>
-            <button className="btn btn-g btn-xs">Submit for Billing</button>
+            <button className="btn btn-g btn-xs" onClick={handleSave}>Submit for Billing</button>
           </div>
         </div>
 
@@ -50,16 +117,16 @@ export function BillingTicket() {
         </div>
 
         <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <FD l="Rig" v="Rig 103" />
-          <FDr l="Well Name" v="HAJAL NE 20H1" />
-          <FDr l="WBS #" v="WBS-2025-NWT-103" />
-          <FM l="Billing Period" v="Jun 2025" />
+          <FA l="Rig" v={selectedRig} />
+          <FDr l="Well Name" v={currentTicket?.well_name || 'Pending...'} />
+          <FDr l="WBS #" v={currentTicket?.wbs || 'Pending...'} />
+          <FA l="Billing Period" v={`${selectedMonth} ${selectedYear}`} />
         </div>
 
         <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FDr l="Rig Move Date" v="28-Apr-2025" />
-          <FDr l="Spud Date" v="14-May-2025" />
-          <FM l="Release Date" v="" ph="Pending..." />
+          <FDr l="Rig Move Date" v={currentTicket?.rig_move_date || '-'} />
+          <FDr l="Spud Date" v={currentTicket?.spud_date || '-'} />
+          <FM l="Release Date" v={currentTicket?.release_date || ''} ph="Pending..." />
         </div>
       </div>
 

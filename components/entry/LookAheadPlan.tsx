@@ -1,40 +1,57 @@
 'use client';
 import React, { useState } from 'react';
 import { FD, FM, FieldLegend } from '@/components/Shared';
+import { useLookAheadTasks } from '@/hooks/useDb';
+import { RIGS } from '@/lib/data';
 
 const HSE_CONTROLS = ['PTW', 'Isolation', 'JSA/SOP', 'Lift Plan', 'MOC', 'Out of Sight', 'Self-Verification', 'Fall Protection'];
-
 const DEPT_OPTIONS = ['Drilling', 'Mechanical', 'Electrical', 'HSE', 'Logistics'];
 const DAY_OPTIONS = ['Day 1', 'Day 2', 'Day 3', 'Day 1-2', 'Day 2-3', 'Day 1-3'];
 
-const initialTasks = [
-  { id: 1, dept: 'Drilling', task: 'Run 9-5/8" casing to 10,100ft', sop: 'SOP-DRL-042', day: 'Day 1', checks: [true, false, true, false, false, false, true, false] },
-  { id: 2, dept: 'Drilling', task: 'Cement 9-5/8" casing — 2-stage', sop: 'SOP-DRL-055', day: 'Day 1', checks: [true, true, true, false, false, false, true, false] },
-  { id: 3, dept: 'Mechanical', task: 'Top drive PM — 500hr service', sop: 'SOP-MNT-018', day: 'Day 2', checks: [true, true, true, false, true, false, true, false] },
-  { id: 4, dept: 'Electrical', task: 'SCR panel inspection and thermal scan', sop: 'SOP-ELE-009', day: 'Day 2', checks: [true, true, true, false, false, false, true, false] },
-  { id: 5, dept: 'Drilling', task: 'Drill 8-1/2" hole section to 14,500ft', sop: 'SOP-DRL-033', day: 'Day 2-3', checks: [true, false, true, false, false, false, true, true] },
-  { id: 6, dept: 'Mechanical', task: 'Crane load test and certification', sop: 'SOP-MNT-025', day: 'Day 3', checks: [true, true, true, true, true, false, true, true] },
-];
-
 export function LookAheadPlan() {
-  const [tasks, setTasks] = useState(initialTasks);
+  const { data: tasksData, loading, error, refetch, insert, update, remove } = useLookAheadTasks();
+  const [selectedRig, setSelectedRig] = useState('Rig 108');
 
-  const toggleCheck = (taskId: number, checkIdx: number) => {
-    setTasks(tasks.map(t =>
-      t.id === taskId ? { ...t, checks: t.checks.map((c, i) => i === checkIdx ? !c : c) } : t
-    ));
+  const filteredTasks = tasksData.filter(t => t.rig === selectedRig);
+
+  const toggleCheck = async (taskId: number, field: string, currentValue: boolean) => {
+    await update(taskId, { [field]: !currentValue });
+    refetch();
   };
 
-  const updateTask = (taskId: number, field: string, value: string) => {
-    setTasks(tasks.map(t => t.id === taskId ? { ...t, [field]: value } : t));
+  const updateTask = async (taskId: number, field: string, value: string) => {
+    await update(taskId, { [field]: value });
+    refetch();
   };
 
-  const addTask = () => {
-    setTasks([...tasks, {
-      id: Date.now(), dept: '', task: '', sop: '', day: 'Day 1',
-      checks: new Array(HSE_CONTROLS.length).fill(false)
-    }]);
+  const addTask = async () => {
+    await insert({
+      rig: selectedRig,
+      well: null,
+      report_date: new Date().toISOString().split('T')[0],
+      dept: '',
+      task: '',
+      sop_ref: '',
+      day_slot: 'Day 1',
+      ptw: false,
+      isolation: false,
+      jsa_sop: false,
+      lift_plan: false,
+      moc: false,
+      out_of_sight: false,
+      self_verify: false,
+      fall_protection: false,
+    });
+    refetch();
   };
+
+  const deleteTask = async (id: number) => {
+    await remove(id);
+    refetch();
+  };
+
+  if (loading) return <div className="p-8 text-center">Loading tasks...</div>;
+  if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;
 
   return (
     <div className="flex flex-col gap-4">
@@ -43,7 +60,7 @@ export function LookAheadPlan() {
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold">72-Hour Look-Ahead Plan</span>
             <span className="bdg t">Sheet 2</span>
-            <span className="bdg gr">Rig 108</span>
+            <FD v={selectedRig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedRig(e.target.value)} />
           </div>
           <div className="flex items-center gap-2">
             <button className="btn btn-o btn-xs">Save Draft</button>
@@ -56,9 +73,8 @@ export function LookAheadPlan() {
         </div>
 
         <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <FD l="Rig" v="Rig 108" />
-          <FM l="Period Start" v="15-Jun-2025" />
-          <FM l="Period End" v="17-Jun-2025" />
+          <FM l="Period Start" v="" type="date" ph="Select start date" />
+          <FM l="Period End" v="" type="date" ph="Select end date" />
           <FD l="Status" v="Draft" opts={['Draft', 'Submitted', 'Approved']} />
         </div>
       </div>
@@ -79,17 +95,18 @@ export function LookAheadPlan() {
                 {HSE_CONTROLS.map(c => (
                   <th key={c} className="th" style={{ minWidth: 50, textAlign: 'center', fontSize: 10 }}>{c}</th>
                 ))}
+                <th className="th" style={{ minWidth: 60 }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {tasks.map(t => (
+              {filteredTasks.map(t => (
                 <tr key={t.id}>
                   <td style={{ padding: '8px 10px' }}>
                     <select
                       className="f-dd"
                       style={{ padding: '6px 8px', fontSize: 12, minWidth: 70 }}
-                      value={t.day}
-                      onChange={(e) => updateTask(t.id, 'day', e.target.value)}
+                      value={t.day_slot || 'Day 1'}
+                      onChange={(e) => updateTask(t.id, 'day_slot', e.target.value)}
                     >
                       {DAY_OPTIONS.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
@@ -98,7 +115,7 @@ export function LookAheadPlan() {
                     <select
                       className="f-dd"
                       style={{ padding: '6px 8px', fontSize: 12, minWidth: 90 }}
-                      value={t.dept}
+                      value={t.dept || ''}
                       onChange={(e) => updateTask(t.id, 'dept', e.target.value)}
                     >
                       <option value="">— Select —</option>
@@ -118,32 +135,47 @@ export function LookAheadPlan() {
                     <input
                       className="f-man"
                       style={{ padding: '6px 10px', fontSize: 12, fontFamily: 'monospace' }}
-                      value={t.sop}
-                      onChange={(e) => updateTask(t.id, 'sop', e.target.value)}
+                      value={t.sop_ref || ''}
+                      onChange={(e) => updateTask(t.id, 'sop_ref', e.target.value)}
                       placeholder="SOP-XXX-000"
                     />
                   </td>
-                  {t.checks.map((checked, ci) => (
-                    <td key={ci} style={{ textAlign: 'center' }}>
+                  {[
+                    { field: 'ptw', val: t.ptw },
+                    { field: 'isolation', val: t.isolation },
+                    { field: 'jsa_sop', val: t.jsa_sop },
+                    { field: 'lift_plan', val: t.lift_plan },
+                    { field: 'moc', val: t.moc },
+                    { field: 'out_of_sight', val: t.out_of_sight },
+                    { field: 'self_verify', val: t.self_verify },
+                    { field: 'fall_protection', val: t.fall_protection },
+                  ].map(({ field, val }) => (
+                    <td key={field} style={{ textAlign: 'center' }}>
                       <div
-                        className={'hcb' + (checked ? ' on' : '')}
+                        className={'hcb' + (val ? ' on' : '')}
                         role="checkbox"
                         tabIndex={0}
-                        aria-checked={checked}
-                        onClick={() => toggleCheck(t.id, ci)}
+                        aria-checked={val}
+                        onClick={() => toggleCheck(t.id, field, val)}
                         onKeyDown={(e) => {
                           if (e.key === ' ' || e.key === 'Enter') {
                             e.preventDefault();
-                            toggleCheck(t.id, ci);
+                            toggleCheck(t.id, field, val);
                           }
                         }}
                       >
-                        {checked ? '✓' : ''}
+                        {val ? '✓' : ''}
                       </div>
                     </td>
                   ))}
+                  <td style={{ textAlign: 'center' }}>
+                    <button className="btn btn-d btn-xs" onClick={() => deleteTask(t.id)}>×</button>
+                  </td>
                 </tr>
               ))}
+              {filteredTasks.length === 0 && (
+                <tr><td colSpan={13} className="text-center text-gray-400 py-8">No tasks for this rig. Click &quot;+ Add Task&quot; to create one.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -152,13 +184,13 @@ export function LookAheadPlan() {
       <div className="card">
         <div className="card-hdr">Approval Chain</div>
         <div className="p-4 flex flex-col gap-3">
-          <div className="appr done">
-            <span style={{ fontSize: 20 }}>✓</span>
-            <div><strong>Night Tool Pusher</strong> — Reviewed & Approved<span style={{ marginLeft: 8, fontSize: 12, color: '#64748B' }}>14-Jun-2025 22:00</span></div>
+          <div className="appr">
+            <span style={{ fontSize: 20 }}>⏳</span>
+            <div><strong>Night Tool Pusher</strong> — Pending Review</div>
           </div>
           <div className="appr">
             <span style={{ fontSize: 20 }}>⏳</span>
-            <div><strong>Rig Manager</strong> — Pending Review</div>
+            <div><strong>Rig Manager</strong> — Awaiting NTP Approval</div>
           </div>
           <div className="appr">
             <span style={{ fontSize: 20 }}>⏳</span>

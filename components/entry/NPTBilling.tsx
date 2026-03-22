@@ -1,24 +1,30 @@
 'use client';
-import React, { useMemo } from 'react';
-import { FA, FD, FM, FieldLegend, Bdg } from '@/components/Shared';
+import React, { useState } from 'react';
+import { FA, FD, FM, FieldLegend, Bdg, KPI } from '@/components/Shared';
+import { useNptBilling } from '@/hooks/useDb';
 import { RIGS, MONTHS } from '@/lib/data';
 
-function generateNptBillingRows(rigs: string[]) {
-  return rigs.slice(0, 12).map((rig, i) => {
-    const op = 700 - i * 6;
-    const rd = i % 3 === 0 ? 24 : i % 3 === 1 ? 0 : 12;
-    const repair = (i * 13 + 5) % 16 + 2; // deterministic instead of Math.random()
-    const zero = i % 4 === 0 ? 8 : 0;
-    const sp = i % 5 === 0 ? 24 : 0;
-    const total = op + rd + repair + zero + sp;
-    const eTicket = total + (i % 3 === 2 ? 4 : 0);
-    const mismatch = total !== eTicket;
-    return { rig, month: 'Jun', year: '2025', op, rd, repair, zero, sp, total, eTicket, mismatch };
-  });
-}
-
 export function NPTBilling() {
-  const nptBillingRows = useMemo(() => generateNptBillingRows(RIGS), []);
+  const { data: nptBillingData, loading, error, refetch, update } = useNptBilling();
+  const [selectedMonth, setSelectedMonth] = useState('Jun');
+  const [selectedYear, setSelectedYear] = useState('2025');
+
+  // Filter by month/year
+  const filteredData = nptBillingData.filter(r => r.month === selectedMonth && r.year === Number(selectedYear));
+
+  // Calculate aggregates
+  const totalOp = filteredData.reduce((s, r) => s + (r.opr_rate_hrs ?? 0), 0);
+  const totalRd = filteredData.reduce((s, r) => s + (r.reduce_rate_hrs ?? 0), 0);
+  const totalRepair = filteredData.reduce((s, r) => s + (r.repair_rate_hrs ?? 0), 0);
+  const mismatchCount = filteredData.filter(r => r.mismatch).length;
+
+  const handleUpdate = async (id: number, field: string, value: number) => {
+    await update(id, { [field]: value });
+    refetch();
+  };
+
+  if (loading) return <div className="p-8 text-center">Loading NPT billing data...</div>;
+  if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;
 
   return (
     <div className="flex flex-col gap-4">
@@ -29,8 +35,8 @@ export function NPTBilling() {
             <span className="bdg r">Sheet 8</span>
           </div>
           <div className="flex items-center gap-2">
-            <FD v="Jun" opts={MONTHS} />
-            <FD v="2025" opts={['2024', '2025']} />
+            <FD v={selectedMonth} opts={MONTHS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedMonth(e.target.value)} />
+            <FD v={selectedYear} opts={['2024', '2025']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedYear(e.target.value)} />
             <button className="btn btn-o btn-xs">Export</button>
           </div>
         </div>
@@ -40,36 +46,25 @@ export function NPTBilling() {
         </div>
       </div>
 
-      <div className="alert-warn">
-        <span>⚠</span>
-        <div>
-          <strong>Validation Rule:</strong> Rows where manual input hours do not match E-TICKET hours are highlighted.
-          Currently <strong>{nptBillingRows.filter(r => r.mismatch).length} mismatches</strong> detected.
+      {mismatchCount > 0 && (
+        <div className="alert-warn">
+          <span>⚠</span>
+          <div>
+            <strong>Validation Rule:</strong> Rows where manual input hours do not match E-TICKET hours are highlighted.
+            Currently <strong>{mismatchCount} mismatches</strong> detected.
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="kpi-row">
-        <div className="kpi g">
-          <div className="kpi-l">Total Op Hours</div>
-          <div className="kpi-v">{nptBillingRows.reduce((s, r) => s + r.op, 0).toLocaleString()}h</div>
-        </div>
-        <div className="kpi w">
-          <div className="kpi-l">Total Reduced</div>
-          <div className="kpi-v">{nptBillingRows.reduce((s, r) => s + r.rd, 0)}h</div>
-        </div>
-        <div className="kpi r">
-          <div className="kpi-l">Total Repair/NPT</div>
-          <div className="kpi-v">{nptBillingRows.reduce((s, r) => s + r.repair, 0)}h</div>
-        </div>
-        <div className="kpi b">
-          <div className="kpi-l">Mismatches</div>
-          <div className="kpi-v">{nptBillingRows.filter(r => r.mismatch).length}</div>
-          <div className="kpi-s dn">Needs review</div>
-        </div>
+        <KPI l="Total Op Hours" v={`${totalOp.toLocaleString()}h`} cls="g" />
+        <KPI l="Total Reduced" v={`${totalRd}h`} cls="w" />
+        <KPI l="Total Repair/NPT" v={`${totalRepair}h`} cls="r" />
+        <KPI l="Mismatches" v={String(mismatchCount)} s={mismatchCount > 0 ? 'Needs review' : 'All matched'} cls={mismatchCount > 0 ? 'r' : 'g'} />
       </div>
 
       <div className="card">
-        <div className="card-hdr">Monthly Rate Breakdown — Jun 2025</div>
+        <div className="card-hdr">Monthly Rate Breakdown — {selectedMonth} {selectedYear}</div>
         <div className="tw">
           <table>
             <thead>
@@ -80,37 +75,33 @@ export function NPTBilling() {
               </tr>
             </thead>
             <tbody>
-              {nptBillingRows.map((r, i) => (
-                <tr key={i} style={r.mismatch ? { background: '#FEF9C3' } : {}}>
-                  <td><strong>{r.rig}</strong></td>
-                  <td className="tb-num" style={{ color: '#047857', fontWeight: 700 }}>
-                    <FM v={String(r.op)} />
-                  </td>
-                  <td className="tb-num" style={{ color: r.rd ? '#D97706' : '#CBD5E1' }}>
-                    <FM v={String(r.rd || '-')} />
-                  </td>
-                  <td className="tb-num" style={{ color: '#DC2626', fontWeight: 700 }}>
-                    <FM v={String(r.repair)} />
-                  </td>
-                  <td className="tb-num" style={{ color: r.zero ? '#64748B' : '#CBD5E1' }}>
-                    <FM v={String(r.zero || '-')} />
-                  </td>
-                  <td className="tb-num" style={{ color: r.sp ? '#0284C7' : '#CBD5E1' }}>
-                    <FM v={String(r.sp || '-')} />
-                  </td>
-                  <td className="tb-num" style={{ fontWeight: 800 }}>{r.total}h</td>
-                  <td className="tb-num" style={{ fontWeight: 800 }}>
-                    <FA v={`${r.eTicket}h`} />
-                  </td>
-                  <td style={{ textAlign: 'center' }}>
-                    {r.mismatch ? (
-                      <Bdg c="r">Mismatch</Bdg>
-                    ) : (
-                      <Bdg c="g">OK</Bdg>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {filteredData.map((r, i) => {
+                const manualTotal = (r.opr_rate_hrs ?? 0) + (r.reduce_rate_hrs ?? 0) + (r.repair_rate_hrs ?? 0) + (r.zero_rate_hrs ?? 0) + (r.special_rate_hrs ?? 0);
+                return (
+                  <tr key={i} style={r.mismatch ? { background: '#FEF9C3' } : {}}>
+                    <td><strong>{r.rig}</strong></td>
+                    <td className="tb-num" style={{ color: '#047857', fontWeight: 700 }}>{r.opr_rate_hrs ?? 0}</td>
+                    <td className="tb-num" style={{ color: (r.reduce_rate_hrs ?? 0) ? '#D97706' : '#CBD5E1' }}>{r.reduce_rate_hrs || '-'}</td>
+                    <td className="tb-num" style={{ color: '#DC2626', fontWeight: 700 }}>{r.repair_rate_hrs ?? 0}</td>
+                    <td className="tb-num" style={{ color: (r.zero_rate_hrs ?? 0) ? '#64748B' : '#CBD5E1' }}>{r.zero_rate_hrs || '-'}</td>
+                    <td className="tb-num" style={{ color: (r.special_rate_hrs ?? 0) ? '#0284C7' : '#CBD5E1' }}>{r.special_rate_hrs || '-'}</td>
+                    <td className="tb-num" style={{ fontWeight: 800 }}>{manualTotal}h</td>
+                    <td className="tb-num" style={{ fontWeight: 800 }}>
+                      <FA v={`${r.eticket_total ?? manualTotal}h`} />
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      {r.mismatch ? (
+                        <Bdg c="r">Mismatch</Bdg>
+                      ) : (
+                        <Bdg c="g">OK</Bdg>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+              {filteredData.length === 0 && (
+                <tr><td colSpan={9} className="text-center text-gray-400 py-8">No NPT billing data for {selectedMonth} {selectedYear}</td></tr>
+              )}
             </tbody>
           </table>
         </div>

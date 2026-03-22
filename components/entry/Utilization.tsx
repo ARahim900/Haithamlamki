@@ -1,23 +1,27 @@
 'use client';
-import React, { useMemo } from 'react';
-import { FA, FD, FieldLegend, Bdg } from '@/components/Shared';
+import React, { useState } from 'react';
+import { FA, FD, FieldLegend, Bdg, KPI } from '@/components/Shared';
+import { useUtilization } from '@/hooks/useDb';
 import { RIGS, MONTHS } from '@/lib/data';
 
-function generateUtilRows(rigs: string[]) {
-  return rigs.slice(0, 15).map((rig, i) => {
-    const op = 700 - i * 5 + ((i * 7 + 3) % 20); // deterministic instead of Math.random()
-    const nptHrs = (i * 11 + 5) % 30 + 5; // deterministic
-    const monthHours = 720; // June = 30 days × 24 hours
-    const nptPct = ((nptHrs / monthHours) * 100).toFixed(1);
-    const workDays = ((op) / 24).toFixed(1);
-    const nptType = i % 3 === 0 ? 'Contractual' : 'Abraj';
-    const allowable = nptType === 'Contractual' ? '5%' : '3%';
-    return { rig, year: '2025', month: 'Jun', op, nptHrs, nptPct, workDays, nptType, allowable };
-  });
-}
-
 export function Utilization() {
-  const utilRows = useMemo(() => generateUtilRows(RIGS), []);
+  const { data: utilData, loading, error, refetch } = useUtilization();
+  const [selectedMonth, setSelectedMonth] = useState('Jun');
+  const [selectedYear, setSelectedYear] = useState('2025');
+
+  // Filter data by selected month/year
+  const filteredData = utilData.filter(r => r.month === selectedMonth && r.year === Number(selectedYear));
+
+  // Calculate aggregates
+  const totalOpHours = filteredData.reduce((s, r) => s + (r.op_hours ?? 0), 0);
+  const totalNptHours = filteredData.reduce((s, r) => s + (r.npt_hours ?? 0), 0);
+  const avgUtilization = filteredData.length > 0
+    ? (100 - (totalNptHours / (totalOpHours + totalNptHours) * 100)).toFixed(1)
+    : '0';
+  const rigsAboveTarget = filteredData.filter(r => (r.npt_pct ?? 0) <= 3).length;
+
+  if (loading) return <div className="p-8 text-center">Loading utilization data...</div>;
+  if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;
 
   return (
     <div className="flex flex-col gap-4">
@@ -28,8 +32,8 @@ export function Utilization() {
             <span className="bdg g">Sheet 6</span>
           </div>
           <div className="flex items-center gap-2">
-            <FD v="Jun" opts={MONTHS} />
-            <FD v="2025" opts={['2024', '2025']} />
+            <FD v={selectedMonth} opts={MONTHS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedMonth(e.target.value)} />
+            <FD v={selectedYear} opts={['2024', '2025']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedYear(e.target.value)} />
             <button className="btn btn-o btn-xs">Export</button>
           </div>
         </div>
@@ -47,30 +51,14 @@ export function Utilization() {
       </div>
 
       <div className="kpi-row">
-        <div className="kpi g">
-          <div className="kpi-l">Avg Utilization</div>
-          <div className="kpi-v">91.4%</div>
-          <div className="kpi-s up">+3.2% vs May</div>
-        </div>
-        <div className="kpi b">
-          <div className="kpi-l">Total Op Hours</div>
-          <div className="kpi-v">10,260</div>
-          <div className="kpi-s">15 rigs reporting</div>
-        </div>
-        <div className="kpi r">
-          <div className="kpi-l">Total NPT Hours</div>
-          <div className="kpi-v">142h</div>
-          <div className="kpi-s dn">Target: &lt;5%</div>
-        </div>
-        <div className="kpi w">
-          <div className="kpi-l">Rigs Above Target</div>
-          <div className="kpi-v">12/15</div>
-          <div className="kpi-s">3 need attention</div>
-        </div>
+        <KPI l="Avg Utilization" v={`${avgUtilization}%`} s={filteredData.length > 0 ? `${filteredData.length} rigs reporting` : 'No data'} cls={Number(avgUtilization) >= 90 ? 'g' : 'w'} />
+        <KPI l="Total Op Hours" v={totalOpHours.toLocaleString()} s={`${filteredData.length} rigs`} cls="b" />
+        <KPI l="Total NPT Hours" v={`${totalNptHours}h`} s="Target: <5%" cls="r" />
+        <KPI l="Rigs On Target" v={`${rigsAboveTarget}/${filteredData.length}`} s={filteredData.length > 0 ? `${Math.round((rigsAboveTarget / filteredData.length) * 100)}% meeting target` : '-'} cls="w" />
       </div>
 
       <div className="card">
-        <div className="card-hdr">Monthly Utilization — Jun 2025 (Auto-Calculated)</div>
+        <div className="card-hdr">Monthly Utilization — {selectedMonth} {selectedYear}</div>
         <div className="tw">
           <table>
             <thead>
@@ -81,25 +69,28 @@ export function Utilization() {
               </tr>
             </thead>
             <tbody>
-              {utilRows.map((r, i) => {
-                const overTarget = parseFloat(r.nptPct) > parseFloat(r.allowable);
+              {filteredData.map((r, i) => {
+                const overTarget = (r.npt_pct ?? 0) > 3;
                 return (
                   <tr key={i}>
-                    <td><FA v={r.year} /></td>
+                    <td><FA v={String(r.year)} /></td>
                     <td><FA v={r.month} /></td>
                     <td><strong>{r.rig}</strong></td>
-                    <td className="tb-num" style={{ fontWeight: 700, color: '#047857' }}>{r.op}h</td>
-                    <td className="tb-num" style={{ fontWeight: 700, color: r.nptHrs > 20 ? '#DC2626' : '#64748B' }}>{r.nptHrs}h</td>
-                    <td className="tb-num" style={{ fontWeight: 800, color: overTarget ? '#DC2626' : '#16A34A' }}>{r.nptPct}%</td>
-                    <td><Bdg c={r.nptType === 'Contractual' ? 'w' : 'r'}>{r.nptType}</Bdg></td>
-                    <td className="tb-num">{r.allowable}</td>
+                    <td className="tb-num" style={{ fontWeight: 700, color: '#047857' }}>{r.op_hours ?? 0}h</td>
+                    <td className="tb-num" style={{ fontWeight: 700, color: (r.npt_hours ?? 0) > 20 ? '#DC2626' : '#64748B' }}>{r.npt_hours ?? 0}h</td>
+                    <td className="tb-num" style={{ fontWeight: 800, color: overTarget ? '#DC2626' : '#16A34A' }}>{(r.npt_pct ?? 0).toFixed(1)}%</td>
+                    <td><Bdg c={r.npt_type === 'Contractual' ? 'w' : 'r'}>{r.npt_type || '-'}</Bdg></td>
+                    <td className="tb-num">{r.allowable_npt || '3%'}</td>
                     <td>
                       <Bdg c={overTarget ? 'r' : 'g'}>{overTarget ? 'Over Target' : 'On Target'}</Bdg>
                     </td>
-                    <td className="tb-num" style={{ fontWeight: 700 }}>{r.workDays}d</td>
+                    <td className="tb-num" style={{ fontWeight: 700 }}>{(r.working_days ?? 0).toFixed(1)}d</td>
                   </tr>
                 );
               })}
+              {filteredData.length === 0 && (
+                <tr><td colSpan={10} className="text-center text-gray-400 py-8">No utilization data for {selectedMonth} {selectedYear}</td></tr>
+              )}
             </tbody>
           </table>
         </div>

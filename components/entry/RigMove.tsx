@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { FA, FD, FM, FieldLegend } from '@/components/Shared';
+import { FD, FM, FieldLegend } from '@/components/Shared';
 import { useRigMoves } from '@/hooks/useDb';
 import { RIGS } from '@/lib/data';
 
@@ -189,6 +189,99 @@ export function RigMove() {
           </table>
         </div>
       </div>
+
+      {/* Add Modal */}
+      {showAddModal && (
+        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-hdr">
+              <span className="modal-title">Add New Rig Move</span>
+              <button className="modal-close" onClick={() => setShowAddModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="grid grid-cols-2 gap-4">
+                <FD l="Rig" v={addForm.rig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, rig: e.target.value })} />
+                <FD l="Move Type" v={addForm.move_type} opts={['Intra-field', 'Inter-field', 'Pad to Pad']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, move_type: e.target.value })} />
+                <FM l="Move From" v={addForm.move_from} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, move_from: e.target.value })} />
+                <FM l="Move To" v={addForm.move_to} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, move_to: e.target.value })} />
+                <FM l="Start Date" v={addForm.start_date} type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, start_date: e.target.value })} />
+                <FM l="End Date" v={addForm.end_date} type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, end_date: e.target.value })} />
+                <FM l="Budget Days" v={addForm.budget_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, budget_days: e.target.value })} />
+                <FM l="Actual Days" v={addForm.actual_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, actual_days: e.target.value })} />
+                <FM l="Budget Cost ($)" v={addForm.budget_cost} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, budget_cost: e.target.value })} />
+                <FM l="Actual Cost ($)" v={addForm.actual_cost} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, actual_cost: e.target.value })} />
+                <FM l="Client Income ($)" v={addForm.client_income} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, client_income: e.target.value })} />
+                <FM l="Distance (km)" v={addForm.distance_km} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, distance_km: e.target.value })} />
+                <FM l="Mover Company" v={addForm.mover_company} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddForm({ ...addForm, mover_company: e.target.value })} />
+                <FD l="Status" v={addForm.status} opts={['In Progress', 'Completed', 'On Hold']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, status: e.target.value })} />
+              </div>
+              <div className="mt-4">
+                <FM l="Remarks" v={addForm.remarks} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setAddForm({ ...addForm, remarks: e.target.value })} rows={2} />
+              </div>
+            </div>
+            <div className="modal-foot">
+              <button className="btn btn-o" onClick={() => setShowAddModal(false)}>Cancel</button>
+              <button className="btn btn-t" onClick={handleAddSubmit}>Save Move</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-hdr">
+              <span className="modal-title">Edit Rig Move</span>
+              <button className="modal-close" onClick={() => setShowEditModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="grid grid-cols-2 gap-4">
+                <FD l="Rig" v={editForm.rig || ''} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEditForm({ ...editForm, rig: e.target.value })} />
+                <FD l="Move Type" v={editForm.move_type || 'Intra-field'} opts={['Intra-field', 'Inter-field', 'Pad to Pad']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEditForm({ ...editForm, move_type: e.target.value })} />
+                <FM l="Move From" v={editForm.move_from || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, move_from: e.target.value })} />
+                <FM l="Move To" v={editForm.move_to || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, move_to: e.target.value })} />
+                <FM l="Start Date" v={editForm.start_date || ''} type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, start_date: e.target.value })} />
+                <FM l="End Date" v={editForm.end_date || ''} type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, end_date: e.target.value })} />
+                <FM l="Budget Days" v={String(editForm.budget_days || '')} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, budget_days: e.target.value })} />
+                <FM l="Actual Days" v={String(editForm.actual_days || '')} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, actual_days: e.target.value })} />
+                <FM l="Budget Cost ($)" v={String(editForm.budget_cost || '')} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, budget_cost: e.target.value })} />
+                <FM l="Actual Cost ($)" v={String(editForm.actual_cost || '')} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, actual_cost: e.target.value })} />
+                <FM l="Client Income ($)" v={String(editForm.client_income || '')} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, client_income: e.target.value })} />
+                <FM l="Distance (km)" v={editForm.distance_km || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, distance_km: e.target.value })} />
+                <FM l="Mover Company" v={editForm.mover_company || ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, mover_company: e.target.value })} />
+                <FD l="Status" v={editForm.status || 'In Progress'} opts={['In Progress', 'Completed', 'On Hold']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEditForm({ ...editForm, status: e.target.value })} />
+              </div>
+              <div className="mt-4">
+                <FM l="Remarks" v={editForm.remarks || ''} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditForm({ ...editForm, remarks: e.target.value })} rows={2} />
+              </div>
+            </div>
+            <div className="modal-foot">
+              <button className="btn btn-o" onClick={() => setShowEditModal(false)}>Cancel</button>
+              <button className="btn btn-t" onClick={handleEditSubmit}>Update Move</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
+          <div className="modal modal-sm" onClick={e => e.stopPropagation()}>
+            <div className="modal-hdr">
+              <span className="modal-title">Confirm Delete</span>
+              <button className="modal-close" onClick={() => setShowDeleteModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p className="text-center text-gray-600">Are you sure you want to delete this rig move record? This action cannot be undone.</p>
+            </div>
+            <div className="modal-foot">
+              <button className="btn btn-o" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+              <button className="btn btn-d" onClick={handleDeleteConfirm}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

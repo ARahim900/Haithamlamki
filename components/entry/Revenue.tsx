@@ -1,34 +1,34 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { FD, FM, FieldLegend, KPI } from '@/components/Shared';
+import { useRevenue } from '@/hooks/useDb';
 import { RIGS, MONTHS } from '@/lib/data';
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-function generateRevenueRows(rigs: string[]) {
-  return rigs.slice(0, 12).map((rig, i) => {
-    // Deterministic pseudo-random using index-based formulas
-    const actual = Math.round(520000 - i * 12000 + ((i * 17 + 7) % 30) * 1000);
-    const budget = Math.round(510000 - i * 8000);
-    const fuel = Math.round(18000 + ((i * 11 + 3) % 8) * 1000);
-    const nptLoss = Math.round(((i * 19 + 5) % 25) * 1000);
-    const zeroLoss = i % 4 === 0 ? Math.round(((i * 13 + 2) % 15) * 1000) : 0;
-    return { rig, actual, budget, fuel, nptLoss, zeroLoss, comment: '' };
-  });
-}
-
 export function Revenue() {
+  const { data: revenueData, loading, error, refetch, update } = useRevenue();
   const [selectedMonth, setSelectedMonth] = useState('Jun');
   const [selectedYear, setSelectedYear] = useState('2025');
-  const [revenueRows] = useState(() => generateRevenueRows(RIGS));
 
-  const totalActual = revenueRows.reduce((s, r) => s + r.actual, 0);
-  const totalBudget = revenueRows.reduce((s, r) => s + r.budget, 0);
-  const totalFuel = revenueRows.reduce((s, r) => s + r.fuel, 0);
-  const totalNPT = revenueRows.reduce((s, r) => s + r.nptLoss, 0);
+  // Filter by month/year
+  const filteredData = revenueData.filter(r => r.month === selectedMonth && r.year === Number(selectedYear));
+
+  const totalActual = filteredData.reduce((s, r) => s + (r.actual ?? 0), 0);
+  const totalBudget = filteredData.reduce((s, r) => s + (r.budgeted ?? 0), 0);
+  const totalFuel = filteredData.reduce((s, r) => s + (r.fuel ?? 0), 0);
+  const totalNPT = filteredData.reduce((s, r) => s + (r.npt_repair ?? 0) + (r.npt_zero ?? 0), 0);
 
   const monthIdx = MONTHS.indexOf(selectedMonth);
   const fullMonthName = monthIdx >= 0 ? MONTH_NAMES[monthIdx] : selectedMonth;
+
+  const handleUpdate = async (id: number, field: string, value: number) => {
+    await update(id, { [field]: value });
+    refetch();
+  };
+
+  if (loading) return <div className="p-8 text-center">Loading revenue data...</div>;
+  if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;
 
   return (
     <div className="flex flex-col gap-4">
@@ -39,8 +39,8 @@ export function Revenue() {
             <span className="bdg g">Sheet 10</span>
           </div>
           <div className="flex items-center gap-2">
-            <FD v={selectedMonth} opts={MONTHS} onChange={(e: any) => setSelectedMonth(e.target.value)} />
-            <FD v={selectedYear} opts={['2024', '2025']} onChange={(e: any) => setSelectedYear(e.target.value)} />
+            <FD v={selectedMonth} opts={MONTHS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedMonth(e.target.value)} />
+            <FD v={selectedYear} opts={['2024', '2025']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedYear(e.target.value)} />
             <button className="btn btn-o btn-xs">Export</button>
           </div>
         </div>
@@ -57,7 +57,7 @@ export function Revenue() {
 
       <div className="kpi-row">
         <KPI l="Total Actual Revenue" v={'$' + (totalActual / 1e6).toFixed(2) + 'M'} s={'vs $' + (totalBudget / 1e6).toFixed(2) + 'M budget'} cls="g" trend={totalActual > totalBudget ? 'up' : 'dn'} />
-        <KPI l="Total Fuel Costs" v={'$' + (totalFuel / 1e3).toFixed(0) + 'K'} s="12 rigs" cls="w" />
+        <KPI l="Total Fuel Costs" v={'$' + (totalFuel / 1e3).toFixed(0) + 'K'} s={`${filteredData.length} rigs`} cls="w" />
         <KPI l="NPT Revenue Loss" v={'$' + (totalNPT / 1e3).toFixed(0) + 'K'} s="Repair + Zero rate" cls="r" trend="dn" />
         <KPI l="Net After Fuel" v={'$' + ((totalActual - totalFuel) / 1e6).toFixed(2) + 'M'} cls="b" />
       </div>
@@ -68,53 +68,50 @@ export function Revenue() {
           <table>
             <thead>
               <tr>
-                {['Rig', 'Actual Revenue ($)', 'Budget Revenue ($)', 'Var', 'Fuel Cost ($)', 'NPT Loss ($)', 'Zero Loss ($)', 'Comments'].map(h => (
+                {['Rig', 'Actual Revenue ($)', 'Budget Revenue ($)', 'Var', 'Fuel Cost ($)', 'NPT Repair ($)', 'NPT Zero ($)', 'Comments'].map(h => (
                   <th key={h} className="th">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {revenueRows.map((r, i) => {
-                const revVar = r.actual - r.budget;
+              {filteredData.map((r, i) => {
+                const revVar = (r.actual ?? 0) - (r.budgeted ?? 0);
                 return (
                   <tr key={i}>
                     <td><strong>{r.rig}</strong></td>
-                    <td className="tb-num">
-                      <FM v={r.actual.toLocaleString()} />
-                    </td>
-                    <td className="tb-num">
-                      <FM v={r.budget.toLocaleString()} />
-                    </td>
+                    <td className="tb-num">{(r.actual ?? 0).toLocaleString()}</td>
+                    <td className="tb-num">{(r.budgeted ?? 0).toLocaleString()}</td>
                     <td className="tb-num" style={{ fontWeight: 800, color: revVar >= 0 ? '#16A34A' : '#DC2626' }}>
                       {revVar >= 0 ? '+' : ''}{revVar.toLocaleString()}
                     </td>
-                    <td className="tb-num">
-                      <FM v={r.fuel.toLocaleString()} />
+                    <td className="tb-num">{(r.fuel ?? 0).toLocaleString()}</td>
+                    <td className="tb-num" style={{ color: (r.npt_repair ?? 0) > 15000 ? '#DC2626' : '#64748B' }}>
+                      {(r.npt_repair ?? 0).toLocaleString()}
                     </td>
-                    <td className="tb-num" style={{ color: r.nptLoss > 15000 ? '#DC2626' : '#64748B' }}>
-                      <FM v={r.nptLoss.toLocaleString()} />
+                    <td className="tb-num" style={{ color: (r.npt_zero ?? 0) ? '#D97706' : '#CBD5E1' }}>
+                      {(r.npt_zero ?? 0) ? (r.npt_zero ?? 0).toLocaleString() : '-'}
                     </td>
-                    <td className="tb-num" style={{ color: r.zeroLoss ? '#D97706' : '#CBD5E1' }}>
-                      <FM v={r.zeroLoss ? r.zeroLoss.toLocaleString() : '-'} />
-                    </td>
-                    <td>
-                      <FM v={r.comment} ph="Add comments..." />
-                    </td>
+                    <td style={{ fontSize: 12, color: '#64748B' }}>{r.comments || '-'}</td>
                   </tr>
                 );
               })}
-              <tr style={{ background: '#F0FDF4', fontWeight: 800 }}>
-                <td style={{ fontWeight: 800 }}>TOTAL</td>
-                <td className="tb-num" style={{ fontWeight: 900, color: '#047857' }}>${totalActual.toLocaleString()}</td>
-                <td className="tb-num">${totalBudget.toLocaleString()}</td>
-                <td className="tb-num" style={{ fontWeight: 900, color: totalActual - totalBudget >= 0 ? '#16A34A' : '#DC2626' }}>
-                  {totalActual - totalBudget >= 0 ? '+' : ''}${(totalActual - totalBudget).toLocaleString()}
-                </td>
-                <td className="tb-num">${totalFuel.toLocaleString()}</td>
-                <td className="tb-num" style={{ color: '#DC2626' }}>${totalNPT.toLocaleString()}</td>
-                <td className="tb-num">${revenueRows.reduce((s, r) => s + r.zeroLoss, 0).toLocaleString()}</td>
-                <td></td>
-              </tr>
+              {filteredData.length === 0 && (
+                <tr><td colSpan={8} className="text-center text-gray-400 py-8">No revenue data for {fullMonthName} {selectedYear}</td></tr>
+              )}
+              {filteredData.length > 0 && (
+                <tr style={{ background: '#F0FDF4', fontWeight: 800 }}>
+                  <td style={{ fontWeight: 800 }}>TOTAL</td>
+                  <td className="tb-num" style={{ fontWeight: 900, color: '#047857' }}>${totalActual.toLocaleString()}</td>
+                  <td className="tb-num">${totalBudget.toLocaleString()}</td>
+                  <td className="tb-num" style={{ fontWeight: 900, color: totalActual - totalBudget >= 0 ? '#16A34A' : '#DC2626' }}>
+                    {totalActual - totalBudget >= 0 ? '+' : ''}${(totalActual - totalBudget).toLocaleString()}
+                  </td>
+                  <td className="tb-num">${totalFuel.toLocaleString()}</td>
+                  <td className="tb-num" style={{ color: '#DC2626' }}>${filteredData.reduce((s, r) => s + (r.npt_repair ?? 0), 0).toLocaleString()}</td>
+                  <td className="tb-num">${filteredData.reduce((s, r) => s + (r.npt_zero ?? 0), 0).toLocaleString()}</td>
+                  <td></td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

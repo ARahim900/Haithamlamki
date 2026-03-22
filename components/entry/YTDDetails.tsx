@@ -1,33 +1,61 @@
 'use client';
 import React, { useState } from 'react';
 import { FA, FD, FM, FieldLegend, Bdg } from '@/components/Shared';
+import { useNptEvents } from '@/hooks/useDb';
+import { RIGS } from '@/lib/data';
 import { Trash2 } from 'lucide-react';
 
-const initialNPT = [
-  { id: 1, rig: 'Rig 108', date: '05-Jun-2025', type: 'Abraj', hrs: 4.5, system: 'Top Drive', equip: 'Main motor bearing', rootCause: 'Bearing fatigue — exceeded 3000hr service interval', corrective: 'Replaced main motor bearing assembly', future: 'Reduce PM interval from 3000hr to 2500hr', resp: 'Maint. Supervisor' },
-  { id: 2, rig: 'Rig 104', date: '08-Jun-2025', type: 'Abraj', hrs: 6.0, system: 'Mud Pumps', equip: 'Pump #2 liner', rootCause: 'Liner washout due to abrasive mud', corrective: 'Replaced liner and piston assembly', future: 'Switch to ceramic liners for abrasive sections', resp: 'Drilling Engr.' },
-  { id: 3, rig: 'Rig 107', date: '12-Jun-2025', type: 'Contractual', hrs: 3.0, system: 'Contractual', equip: '', rootCause: '', corrective: '', future: '', resp: 'Client Rep', contractual: 'Waiting on cement crew — delayed mobilization from client side' },
-  { id: 4, rig: 'Rig 103', date: '15-Jun-2025', type: 'Abraj', hrs: 2.5, system: 'Electrical', equip: 'SCR cabinet #3', rootCause: 'Thyristor failure due to power surge', corrective: 'Replaced SCR thyristor stack', future: 'Install surge protection on SCR inputs', resp: 'Electrical Engr.' },
-];
+const NPT_SYSTEMS = ['Drawworks', 'Mud Pumps', 'Top Drive', 'Electrical', 'BOP', 'MWD/LWD', 'Drill String', 'Contractual'];
 
 export function YTDDetails() {
-  const [rows, setRows] = useState(initialNPT);
+  const { data: nptData, loading, error, refetch, insert, update, remove } = useNptEvents();
   const [filter, setFilter] = useState('All');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [form, setForm] = useState({
+    rig: '', event_date: '', npt_type: 'Abraj', hours: '', system_category: '',
+    part_equipment: '', root_cause: '', corrective_action: '', future_action: '', action_party: '', contractual_process: ''
+  });
 
-  const updateRow = (id: number, field: string, value: string | number) => {
-    setRows(rows.map(r => r.id === id ? { ...r, [field]: value } : r));
+  const filtered = filter === 'All' ? nptData : nptData.filter(r => r.npt_type === filter);
+  const totalHrs = filtered.reduce((s, r) => s + (r.hours ?? 0), 0);
+
+  const handleAddSubmit = async () => {
+    await insert({
+      rig: form.rig,
+      event_date: form.event_date,
+      year: new Date(form.event_date).getFullYear(),
+      month: new Date(form.event_date).toLocaleString('en', { month: 'short' }),
+      npt_type: form.npt_type,
+      hours: form.hours ? Number(form.hours) : null,
+      system_category: form.system_category || null,
+      parent_equipment: null,
+      part_equipment: form.part_equipment || null,
+      contractual_process: form.contractual_process || null,
+      dept_responsibility: null,
+      immediate_cause: null,
+      root_cause: form.root_cause || null,
+      corrective_action: form.corrective_action || null,
+      future_action: form.future_action || null,
+      action_party: form.action_party || null,
+      notification_number: null,
+    });
+    setShowAddModal(false);
+    setForm({ rig: '', event_date: '', npt_type: 'Abraj', hours: '', system_category: '', part_equipment: '', root_cause: '', corrective_action: '', future_action: '', action_party: '', contractual_process: '' });
+    refetch();
   };
 
-  const addRow = () => {
-    setRows([...rows, { id: Date.now(), rig: '', date: '', type: 'Abraj', hrs: 0, system: '', equip: '', rootCause: '', corrective: '', future: '', resp: '' }]);
+  const updateRow = async (id: number, field: string, value: string | number) => {
+    await update(id, { [field]: value });
+    refetch();
   };
 
-  const removeRow = (id: number) => {
-    setRows(rows.filter(r => r.id !== id));
+  const removeRow = async (id: number) => {
+    await remove(id);
+    refetch();
   };
 
-  const filtered = filter === 'All' ? rows : rows.filter(r => r.type === filter);
-  const totalHrs = filtered.reduce((s, r) => s + r.hrs, 0);
+  if (loading) return <div className="p-8 text-center">Loading NPT data...</div>;
+  if (error) return <div className="p-8 text-center text-red-500">Error: {error}</div>;
 
   return (
     <div className="flex flex-col gap-4">
@@ -39,7 +67,7 @@ export function YTDDetails() {
           </div>
           <div className="flex items-center gap-2">
             <button className="btn btn-o btn-xs">Export YTD</button>
-            <button onClick={addRow} className="btn btn-t btn-xs">+ Add NPT Event</button>
+            <button onClick={() => setShowAddModal(true)} className="btn btn-t btn-xs">+ Add NPT Event</button>
           </div>
         </div>
 
@@ -69,48 +97,84 @@ export function YTDDetails() {
         <span>ℹ</span>
         <div>
           <strong>Conditional Logic:</strong> If NPT type = &quot;Contractual,&quot; equipment failure fields are disabled and contractual process field appears.
-          If type = &quot;Abraj,&quot; the reverse applies.
         </div>
       </div>
 
-      {filtered.map(r => (
-        <div key={r.id} className="card">
-          <div className="card-hdr">
-            <div className="flex items-center gap-3">
-              <strong>{r.rig || 'New Entry'}</strong>
-              <Bdg c={r.type === 'Abraj' ? 'r' : 'w'}>{r.type}</Bdg>
-              <span style={{ fontSize: 13, color: '#64748B' }}>{r.date}</span>
-              <Bdg c="gr">{r.hrs}h</Bdg>
-            </div>
-            <button onClick={() => removeRow(r.id)} className="text-red-400 hover:text-red-600 p-1">
-              <Trash2 size={18} />
-            </button>
-          </div>
-
-          <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-            <FD l="Rig" v={r.rig} onChange={(e: any) => updateRow(r.id, 'rig', e.target.value)} />
-            <FM l="Date" v={r.date} onChange={(e: any) => updateRow(r.id, 'date', e.target.value)} />
-            <FD l="NPT Type" v={r.type} opts={['Abraj', 'Contractual']} onChange={(e: any) => updateRow(r.id, 'type', e.target.value)} />
-            <FM l="Duration (hrs)" v={String(r.hrs)} type="number" onChange={(e: any) => updateRow(r.id, 'hrs', parseFloat(e.target.value) || 0)} />
-          </div>
-
-          {r.type === 'Abraj' ? (
-            <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FD l="System / Category" v={r.system} opts={['Drawworks', 'Mud Pumps', 'Top Drive', 'Electrical', 'BOP', 'MWD/LWD', 'Drill String']} onChange={(e: any) => updateRow(r.id, 'system', e.target.value)} />
-              <FM l="Equipment Failed" v={r.equip || ''} onChange={(e: any) => updateRow(r.id, 'equip', e.target.value)} />
-              <FM l="Root Cause" v={r.rootCause || ''} rows={2} onChange={(e: any) => updateRow(r.id, 'rootCause', e.target.value)} />
-              <FM l="Corrective Action" v={r.corrective || ''} rows={2} onChange={(e: any) => updateRow(r.id, 'corrective', e.target.value)} />
-              <FM l="Future Improvement" v={r.future || ''} onChange={(e: any) => updateRow(r.id, 'future', e.target.value)} />
-              <FD l="Responsible Party" v={r.resp || ''} opts={['Maint. Supervisor', 'Drilling Engr.', 'Electrical Engr.', 'Rig Manager']} onChange={(e: any) => updateRow(r.id, 'resp', e.target.value)} />
-            </div>
-          ) : (
-            <div className="p-4 grid grid-cols-1 gap-4">
-              <FM l="Contractual Process Description" v={(r as typeof r & { contractual?: string }).contractual || ''} rows={3} onChange={(e: any) => updateRow(r.id, 'contractual', e.target.value)} />
-              <FD l="Responsible Party" v={r.resp || ''} opts={['Client Rep', 'WSL', 'Third Party']} onChange={(e: any) => updateRow(r.id, 'resp', e.target.value)} />
-            </div>
-          )}
+      {/* NPT Events Table */}
+      <div className="card">
+        <div className="card-hdr">NPT Events</div>
+        <div className="tw">
+          <table>
+            <thead>
+              <tr>
+                {['Rig', 'Date', 'Type', 'Hours', 'System', 'Root Cause', 'Actions'].map(h => (
+                  <th key={h} className="th">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((r) => (
+                <tr key={r.id}>
+                  <td><strong>{r.rig}</strong></td>
+                  <td style={{ fontSize: 13, color: '#64748B' }}>{r.event_date}</td>
+                  <td><Bdg c={r.npt_type === 'Abraj' ? 'r' : 'w'}>{r.npt_type || '-'}</Bdg></td>
+                  <td className="tb-num" style={{ fontWeight: 700, color: '#DC2626' }}>{r.hours ?? 0}h</td>
+                  <td>{r.system_category || '-'}</td>
+                  <td style={{ fontSize: 12, color: '#64748B', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {r.root_cause || r.contractual_process || '-'}
+                  </td>
+                  <td className="flex gap-2">
+                    <button onClick={() => removeRow(r.id)} className="btn btn-d btn-xs">
+                      <Trash2 size={14} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {filtered.length === 0 && (
+                <tr><td colSpan={7} className="text-center text-gray-400 py-8">No NPT events found</td></tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      ))}
+      </div>
+
+      {/* Add Modal */}
+      {showAddModal && (
+        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-hdr">
+              <span className="modal-title">Add NPT Event</span>
+              <button className="modal-close" onClick={() => setShowAddModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="grid grid-cols-2 gap-4">
+                <FD l="Rig" v={form.rig} opts={RIGS.slice(0, 15)} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
+                <FM l="Date" v={form.event_date} type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, event_date: e.target.value })} />
+                <FD l="NPT Type" v={form.npt_type} opts={['Abraj', 'Contractual']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, npt_type: e.target.value })} />
+                <FM l="Duration (hrs)" v={form.hours} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, hours: e.target.value })} />
+                {form.npt_type === 'Abraj' && (
+                  <>
+                    <FD l="System / Category" v={form.system_category} opts={NPT_SYSTEMS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, system_category: e.target.value })} />
+                    <FM l="Equipment Failed" v={form.part_equipment} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, part_equipment: e.target.value })} />
+                    <FM l="Root Cause" v={form.root_cause} rows={2} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, root_cause: e.target.value })} />
+                    <FM l="Corrective Action" v={form.corrective_action} rows={2} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, corrective_action: e.target.value })} />
+                  </>
+                )}
+                {form.npt_type === 'Contractual' && (
+                  <div className="col-span-2">
+                    <FM l="Contractual Process Description" v={form.contractual_process} rows={3} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, contractual_process: e.target.value })} />
+                  </div>
+                )}
+                <FD l="Responsible Party" v={form.action_party} opts={['Maint. Supervisor', 'Drilling Engr.', 'Electrical Engr.', 'Rig Manager', 'Client Rep', 'WSL']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, action_party: e.target.value })} />
+              </div>
+            </div>
+            <div className="modal-foot">
+              <button className="btn btn-o" onClick={() => setShowAddModal(false)}>Cancel</button>
+              <button className="btn btn-t" onClick={handleAddSubmit}>Save Event</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
