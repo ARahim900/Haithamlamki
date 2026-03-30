@@ -138,7 +138,7 @@ export function DDOR() {
         </div>
 
         {/* well info bar */}
-        <div style={{ padding: '10px 20px', borderBottom: '1px solid #E5E7EB' }}>
+        <div style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border)' }}>
           <FieldLegend />
         </div>
 
@@ -182,8 +182,8 @@ export function DDOR() {
         </div>
 
         {/* crew / personnel strip */}
-        <div style={{ padding: '10px 20px', background: '#F7F8FA', borderTop: '1px solid #E5E7EB', display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: '#5F6B7A' }}>
+        <div style={{ padding: '10px 20px', background: 'var(--color-card-header)', borderTop: '1px solid var(--color-border)', display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--color-text-secondary)' }}>
             Crew:
           </div>
           {[
@@ -193,21 +193,21 @@ export function DDOR() {
             ['WSL', 'John Peters'],
           ].map(([role, name]) => (
             <div key={role} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ fontSize: 10, fontWeight: 600, color: '#8993A4', textTransform: 'uppercase' }}>{role}:</span>
-              <span style={{ fontSize: 12, fontWeight: 500, color: '#3D4554' }}>{name}</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>{role}:</span>
+              <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-text-primary)' }}>{name}</span>
             </div>
           ))}
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ fontSize: 10, fontWeight: 600, color: '#8993A4', textTransform: 'uppercase' }}>POB:</span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#2D7A89' }}>42</span>
+            <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>POB:</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-primary)' }}>42</span>
           </div>
         </div>
       </div>
 
       {/* ══════ TABS ══════ */}
       <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: 0 }}>
-        <div style={{ padding: '8px 20px', borderBottom: '1px solid #E5E7EB', background: '#F7F8FA' }}>
-          <div style={{ display: 'inline-flex', background: '#ECEEF1', borderRadius: 6, padding: 3, gap: 2 }}>
+        <div style={{ padding: '8px 20px', borderBottom: '1px solid var(--color-border)', background: 'var(--color-card-header)' }}>
+          <div style={{ display: 'inline-flex', background: 'var(--color-border-light)', borderRadius: 6, padding: 3, gap: 2 }}>
             {TABS.map(t => {
               const isActive = tab === t.key;
               return (
@@ -220,11 +220,11 @@ export function DDOR() {
                     fontSize: 13, fontWeight: isActive ? 600 : 500, cursor: 'pointer',
                     fontFamily: 'inherit', transition: 'all .15s ease',
                     background: isActive
-                      ? (t.alert ? '#C53030' : '#fff')
+                      ? (t.alert ? 'var(--color-negative)' : '#fff')
                       : 'transparent',
                     color: isActive
-                      ? (t.alert ? '#fff' : '#1A1D23')
-                      : '#8993A4',
+                      ? (t.alert ? '#fff' : 'var(--color-text-primary)')
+                      : 'var(--color-text-muted)',
                     boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.06)' : 'none',
                   }}
                 >
@@ -235,11 +235,11 @@ export function DDOR() {
                   {t.count !== undefined && (
                     <span style={{
                       background: isActive
-                        ? (t.alert ? 'rgba(255,255,255,0.25)' : '#E8F4F6')
-                        : (t.alert ? '#FAECEC' : '#ECEEF1'),
+                        ? (t.alert ? 'rgba(255,255,255,0.25)' : 'var(--color-chart-bg-cyan)')
+                        : (t.alert ? 'var(--color-negative-bg)' : 'var(--color-border-light)'),
                       color: isActive
-                        ? (t.alert ? '#fff' : '#2D7A89')
-                        : (t.alert ? '#B33A3A' : '#6B7280'),
+                        ? (t.alert ? '#fff' : 'var(--color-primary)')
+                        : (t.alert ? 'var(--color-negative)' : 'var(--color-text-muted)'),
                       fontSize: 10, fontWeight: 600, padding: '2px 6px', borderRadius: 3,
                       minWidth: 18, textAlign: 'center', lineHeight: '1.3',
                     }}>
@@ -258,15 +258,15 @@ export function DDOR() {
             {/* 24hr visual timeline */}
             <div style={{ marginBottom: 28 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#5F6B7A' }}>24-Hour Timeline</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-secondary)' }}>24-Hour Timeline</span>
                 <span style={{
                   fontSize: 12, fontWeight: 600,
-                  color: hrsValid ? '#2A6B4A' : '#8B3A3A',
+                  color: hrsValid ? 'var(--color-positive)' : 'var(--color-negative)',
                 }}>
                   {totalOpsHrs.toFixed(1)} / 24.0 hrs {hrsValid ? '✓' : '— missing ' + (24 - totalOpsHrs).toFixed(1) + 'h'}
                 </span>
               </div>
-              <div style={{ display: 'flex', height: 32, borderRadius: 6, overflow: 'hidden', background: '#F0F2F5', border: '1px solid #E5E7EB' }}>
+              <div style={{ display: 'flex', height: 32, borderRadius: 6, overflow: 'hidden', background: 'var(--color-bg)', border: '1px solid var(--color-border)' }}>
                 {opsRows.filter(r => Number(r.hrs) > 0).map(r => (
                   <div
                     key={r.id}
@@ -288,7 +288,7 @@ export function DDOR() {
               {/* hour markers */}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, padding: '0 2px' }}>
                 {[0, 4, 8, 12, 16, 20, 24].map(h => (
-                  <span key={h} style={{ fontSize: 10, color: '#8993A4', fontWeight: 500 }}>{String(h).padStart(2, '0')}:00</span>
+                  <span key={h} style={{ fontSize: 10, color: 'var(--color-text-muted)', fontWeight: 500 }}>{String(h).padStart(2, '0')}:00</span>
                 ))}
               </div>
             </div>
@@ -304,7 +304,7 @@ export function DDOR() {
                 }}>
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: codeColor(code) }} />
                   <span style={{ fontSize: 11, fontWeight: 600, color: codeColor(code) }}>{code}</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#3D4554' }}>{hrs.toFixed(1)}h</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text-primary)' }}>{hrs.toFixed(1)}h</span>
                 </div>
               ))}
             </div>
@@ -314,20 +314,20 @@ export function DDOR() {
               <table>
                 <thead>
                   <tr>
-                    <th className="th" style={{ width: 40, textAlign: 'center' }}>#</th>
-                    <th className="th" style={{ width: 90 }}>From</th>
-                    <th className="th" style={{ width: 90 }}>To</th>
-                    <th className="th" style={{ width: 70, textAlign: 'center' }}>Hrs</th>
-                    <th className="th" style={{ width: 110 }}>Code</th>
-                    <th className="th" style={{ width: 90 }}>Rate</th>
-                    <th className="th">Description / Activity</th>
-                    <th className="th" style={{ width: 44 }}></th>
+                    <th scope="col" className="th" style={{ width: 40, textAlign: 'center' }}>#</th>
+                    <th scope="col" className="th" style={{ width: 90 }}>From</th>
+                    <th scope="col" className="th" style={{ width: 90 }}>To</th>
+                    <th scope="col" className="th" style={{ width: 70, textAlign: 'center' }}>Hrs</th>
+                    <th scope="col" className="th" style={{ width: 110 }}>Code</th>
+                    <th scope="col" className="th" style={{ width: 90 }}>Rate</th>
+                    <th scope="col" className="th">Description / Activity</th>
+                    <th scope="col" className="th" style={{ width: 44 }}></th>
                   </tr>
                 </thead>
                 <tbody>
                   {opsRows.map((row, idx) => (
                     <tr key={row.id}>
-                      <td style={{ textAlign: 'center', fontWeight: 500, color: '#8993A4', fontSize: 12 }}>{idx + 1}</td>
+                      <td style={{ textAlign: 'center', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: 12 }}>{idx + 1}</td>
                       <td style={{ padding: '8px 8px' }}>
                         <input className="f-man" style={{ padding: '6px 8px', fontSize: 12, textAlign: 'center' }} value={row.from} onChange={(e) => updateRow(row.id, 'from', e.target.value)} />
                       </td>
@@ -347,7 +347,7 @@ export function DDOR() {
                         </div>
                       </td>
                       <td style={{ padding: '8px 8px' }}>
-                        <select className="f-dd" style={{ padding: '6px 8px', fontSize: 12, minWidth: 60, background: row.rate === 'OP' ? '#EFF7F2' : row.rate === 'RD' ? '#FDF8EF' : '#FAF0F0', border: `1px solid ${row.rate === 'OP' ? '#C3DFC9' : row.rate === 'RD' ? '#EBD9B0' : '#E0BFBF'}`, color: row.rate === 'OP' ? '#2A6B4A' : row.rate === 'RD' ? '#8A6D2B' : '#8B3A3A' }} value={row.rate} onChange={(e) => updateRow(row.id, 'rate', e.target.value)}>
+                        <select className="f-dd" style={{ padding: '6px 8px', fontSize: 12, minWidth: 60, background: row.rate === 'OP' ? 'var(--color-positive-bg)' : row.rate === 'RD' ? 'var(--color-warning-bg)' : 'var(--color-negative-bg)', border: `1px solid ${row.rate === 'OP' ? 'var(--color-positive)' : row.rate === 'RD' ? 'var(--color-warning)' : 'var(--color-negative)'}`, color: row.rate === 'OP' ? 'var(--color-positive)' : row.rate === 'RD' ? 'var(--color-warning)' : 'var(--color-negative)' }} value={row.rate} onChange={(e) => updateRow(row.id, 'rate', e.target.value)}>
                           {RATE_TYPES.map(r => <option key={r} value={r}>{r}</option>)}
                         </select>
                       </td>
@@ -355,7 +355,7 @@ export function DDOR() {
                         <input className="f-man" style={{ padding: '6px 8px', fontSize: 12 }} value={row.desc} onChange={(e) => updateRow(row.id, 'desc', e.target.value)} />
                       </td>
                       <td style={{ padding: '8px 4px', textAlign: 'center' }}>
-                        <button onClick={() => removeRow(row.id)} style={{ color: '#D1D5DB', cursor: 'pointer', background: 'none', border: 'none', padding: 4, borderRadius: 4, transition: 'color .15s' }} onMouseEnter={e => (e.currentTarget.style.color = '#B33A3A')} onMouseLeave={e => (e.currentTarget.style.color = '#D1D5DB')}>
+                        <button onClick={() => removeRow(row.id)} style={{ color: 'var(--color-border)', cursor: 'pointer', background: 'none', border: 'none', padding: 4, borderRadius: 4, transition: 'color .15s' }} onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-negative)')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-border)')}>
                           <Trash2 size={14} />
                         </button>
                       </td>
@@ -371,11 +371,11 @@ export function DDOR() {
               </button>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                 {!hrsValid && (
-                  <span style={{ fontSize: 12, fontWeight: 500, color: '#8B3A3A', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-negative)', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <AlertTriangle size={14} /> Total must equal 24.0h
                   </span>
                 )}
-                <div style={{ padding: '6px 16px', borderRadius: 6, background: hrsValid ? '#EFF7F2' : '#FAF0F0', border: `1px solid ${hrsValid ? '#C3DFC9' : '#E0BFBF'}`, fontSize: 14, fontWeight: 600, color: hrsValid ? '#2A6B4A' : '#8B3A3A' }}>
+                <div style={{ padding: '6px 16px', borderRadius: 6, background: hrsValid ? 'var(--color-positive-bg)' : 'var(--color-negative-bg)', border: `1px solid ${hrsValid ? 'var(--color-positive)' : 'var(--color-negative)'}`, fontSize: 14, fontWeight: 600, color: hrsValid ? 'var(--color-positive)' : 'var(--color-negative)' }}>
                   {totalOpsHrs.toFixed(1)} hrs
                 </div>
               </div>
@@ -388,9 +388,9 @@ export function DDOR() {
           <div style={{ padding: 20 }}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Mud Properties */}
-              <div style={{ border: '1px solid #E5E7EB', borderRadius: 8, overflow: 'hidden' }}>
-                <div style={{ padding: '12px 16px', background: '#F7F8FA', borderBottom: '1px solid #E5E7EB', color: '#1A1D23', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Droplets size={16} style={{ color: '#5F6B7A' }} /> Mud Properties
+              <div style={{ border: '1px solid var(--color-border)', borderRadius: 8, overflow: 'hidden' }}>
+                <div style={{ padding: '12px 16px', background: 'var(--color-card-header)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-primary)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Droplets size={16} style={{ color: 'var(--color-text-secondary)' }} /> Mud Properties
                 </div>
                 <div style={{ padding: 20 }} className="grid grid-cols-2 gap-4">
                   <FM l="Mud Type" v="KCl-Polymer" />
@@ -409,20 +409,20 @@ export function DDOR() {
               </div>
 
               {/* Pump Parameters */}
-              <div style={{ border: '1px solid #E5E7EB', borderRadius: 8, overflow: 'hidden' }}>
-                <div style={{ padding: '12px 16px', background: '#F7F8FA', borderBottom: '1px solid #E5E7EB', color: '#1A1D23', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Gauge size={16} style={{ color: '#5F6B7A' }} /> Pump Parameters
+              <div style={{ border: '1px solid var(--color-border)', borderRadius: 8, overflow: 'hidden' }}>
+                <div style={{ padding: '12px 16px', background: 'var(--color-card-header)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-primary)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Gauge size={16} style={{ color: 'var(--color-text-secondary)' }} /> Pump Parameters
                 </div>
                 <div style={{ padding: 20 }} className="grid grid-cols-2 gap-4">
                   <div style={{ gridColumn: 'span 2' }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: '#8993A4', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10, paddingBottom: 6, borderBottom: '1px solid #F0F1F3' }}>Pump #1</div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10, paddingBottom: 6, borderBottom: '1px solid var(--color-border-light)' }}>Pump #1</div>
                   </div>
                   <FM l="Liner Size (in)" v="6.5" />
                   <FM l="SPM" v="120" />
                   <FM l="Pressure (psi)" v="2,800" />
                   <FM l="Output (gpm)" v="450" />
                   <div style={{ gridColumn: 'span 2' }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: '#8993A4', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10, marginTop: 8, paddingBottom: 6, borderBottom: '1px solid #F0F1F3' }}>Pump #2</div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10, marginTop: 8, paddingBottom: 6, borderBottom: '1px solid var(--color-border-light)' }}>Pump #2</div>
                   </div>
                   <FM l="Liner Size (in)" v="6.5" />
                   <FM l="SPM" v="115" />
@@ -433,8 +433,8 @@ export function DDOR() {
             </div>
 
             {/* Drilling Parameters */}
-            <div style={{ border: '1px solid #E5E7EB', borderRadius: 8, overflow: 'hidden', marginTop: 20 }}>
-              <div style={{ padding: '12px 16px', background: '#F7F8FA', borderBottom: '1px solid #E5E7EB', color: '#1A1D23', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ border: '1px solid var(--color-border)', borderRadius: 8, overflow: 'hidden', marginTop: 20 }}>
+              <div style={{ padding: '12px 16px', background: 'var(--color-card-header)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-primary)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
                 Drilling Parameters
               </div>
               <div style={{ padding: 20 }} className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -450,8 +450,8 @@ export function DDOR() {
             </div>
 
             {/* Mud Volumes */}
-            <div style={{ border: '1px solid #E5E7EB', borderRadius: 8, overflow: 'hidden', marginTop: 20 }}>
-              <div style={{ padding: '12px 16px', background: '#F7F8FA', borderBottom: '1px solid #E5E7EB', color: '#1A1D23', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ border: '1px solid var(--color-border)', borderRadius: 8, overflow: 'hidden', marginTop: 20 }}>
+              <div style={{ padding: '12px 16px', background: 'var(--color-card-header)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-primary)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
                 Mud Volumes & Pit Levels
               </div>
               <div style={{ padding: 20 }} className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -469,8 +469,8 @@ export function DDOR() {
         {tab === 'bha' && (
           <div style={{ padding: 20 }}>
             {/* Bit Details */}
-            <div style={{ border: '1px solid #E5E7EB', borderRadius: 8, overflow: 'hidden', marginBottom: 20 }}>
-              <div style={{ padding: '12px 16px', background: '#F7F8FA', borderBottom: '1px solid #E5E7EB', color: '#1A1D23', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ border: '1px solid var(--color-border)', borderRadius: 8, overflow: 'hidden', marginBottom: 20 }}>
+              <div style={{ padding: '12px 16px', background: 'var(--color-card-header)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-primary)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
                 Bit Record — Current Bit
               </div>
               <div style={{ padding: 20 }} className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -490,8 +490,8 @@ export function DDOR() {
             </div>
 
             {/* BHA Table */}
-            <div style={{ border: '1px solid #E5E7EB', borderRadius: 8, overflow: 'hidden' }}>
-              <div style={{ padding: '12px 16px', background: '#F7F8FA', borderBottom: '1px solid #E5E7EB', color: '#1A1D23', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ border: '1px solid var(--color-border)', borderRadius: 8, overflow: 'hidden' }}>
+              <div style={{ padding: '12px 16px', background: 'var(--color-card-header)', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-primary)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   Bottom Hole Assembly (BHA #{5})
                 </div>
@@ -501,28 +501,28 @@ export function DDOR() {
                 <table>
                   <thead>
                     <tr>
-                      <th className="th" style={{ width: 40, textAlign: 'center' }}>#</th>
-                      <th className="th" style={{ minWidth: 140 }}>Component</th>
-                      <th className="th" style={{ width: 90, textAlign: 'center' }}>OD (in)</th>
-                      <th className="th" style={{ width: 90, textAlign: 'center' }}>ID (in)</th>
-                      <th className="th" style={{ width: 100, textAlign: 'center' }}>Length (ft)</th>
-                      <th className="th">Description / Specs</th>
+                      <th scope="col" className="th" style={{ width: 40, textAlign: 'center' }}>#</th>
+                      <th scope="col" className="th" style={{ minWidth: 140 }}>Component</th>
+                      <th scope="col" className="th" style={{ width: 90, textAlign: 'center' }}>OD (in)</th>
+                      <th scope="col" className="th" style={{ width: 90, textAlign: 'center' }}>ID (in)</th>
+                      <th scope="col" className="th" style={{ width: 100, textAlign: 'center' }}>Length (ft)</th>
+                      <th scope="col" className="th">Description / Specs</th>
                     </tr>
                   </thead>
                   <tbody>
                     {bhaRows.map((r, i) => (
                       <tr key={r.id}>
-                        <td style={{ textAlign: 'center', fontWeight: 500, color: '#8993A4', fontSize: 12 }}>{i + 1}</td>
-                        <td style={{ fontWeight: 600, color: '#1A1D23', fontSize: 12 }}>{r.comp}</td>
+                        <td style={{ textAlign: 'center', fontWeight: 500, color: 'var(--color-text-muted)', fontSize: 12 }}>{i + 1}</td>
+                        <td style={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: 12 }}>{r.comp}</td>
                         <td style={{ textAlign: 'center', fontFamily: 'monospace', fontWeight: 500 }}>{r.od}</td>
-                        <td style={{ textAlign: 'center', fontFamily: 'monospace', fontWeight: 500, color: r.id_ === '—' ? '#D1D5DB' : '#3D4554' }}>{r.id_}</td>
+                        <td style={{ textAlign: 'center', fontFamily: 'monospace', fontWeight: 500, color: r.id_ === '—' ? 'var(--color-border)' : 'var(--color-text-primary)' }}>{r.id_}</td>
                         <td style={{ textAlign: 'center', fontFamily: 'monospace', fontWeight: 600 }}>{r.len}</td>
-                        <td style={{ fontSize: 12, color: '#5F6B7A' }}>{r.desc}</td>
+                        <td style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>{r.desc}</td>
                       </tr>
                     ))}
-                    <tr style={{ background: '#F7F8FA' }}>
-                      <td colSpan={4} style={{ textAlign: 'right', fontWeight: 600, color: '#5F6B7A' }}>Total BHA Length:</td>
-                      <td style={{ textAlign: 'center', fontWeight: 600, fontFamily: 'monospace', color: '#1A1D23', fontSize: 13 }}>
+                    <tr style={{ background: 'var(--color-card-header)' }}>
+                      <td colSpan={4} style={{ textAlign: 'right', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Total BHA Length:</td>
+                      <td style={{ textAlign: 'center', fontWeight: 600, fontFamily: 'monospace', color: 'var(--color-text-primary)', fontSize: 13 }}>
                         {bhaRows.reduce((s, r) => s + parseFloat(r.len.replace(/,/g, '')), 0).toLocaleString()} ft
                       </td>
                       <td></td>
@@ -541,22 +541,22 @@ export function DDOR() {
             <div style={{
               display: 'flex', alignItems: 'center', gap: 20, marginBottom: 20,
               padding: '14px 20px', borderRadius: 8,
-              background: totalNptHrs > 0 ? '#FAF0F0' : '#EFF7F2',
-              border: `1px solid ${totalNptHrs > 0 ? '#E0BFBF' : '#C3DFC9'}`,
+              background: totalNptHrs > 0 ? 'var(--color-negative-bg)' : 'var(--color-positive-bg)',
+              border: `1px solid ${totalNptHrs > 0 ? 'var(--color-negative)' : 'var(--color-positive)'}`,
             }}>
               <div>
-                <div style={{ fontSize: 10, fontWeight: 600, color: '#8993A4', textTransform: 'uppercase', letterSpacing: 0.6 }}>Total NPT</div>
-                <div style={{ fontSize: 22, fontWeight: 600, color: totalNptHrs > 0 ? '#8B3A3A' : '#2A6B4A' }}>{totalNptHrs.toFixed(1)}h</div>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: 0.6 }}>Total NPT</div>
+                <div style={{ fontSize: 22, fontWeight: 600, color: totalNptHrs > 0 ? 'var(--color-negative)' : 'var(--color-positive)' }}>{totalNptHrs.toFixed(1)}h</div>
               </div>
-              <div style={{ width: 1, height: 36, background: '#E5E7EB' }} />
+              <div style={{ width: 1, height: 36, background: 'var(--color-border)' }} />
               <div>
-                <div style={{ fontSize: 10, fontWeight: 600, color: '#8993A4', textTransform: 'uppercase', letterSpacing: 0.6 }}>% of 24hr</div>
-                <div style={{ fontSize: 22, fontWeight: 600, color: totalNptHrs > 0 ? '#8B3A3A' : '#2A6B4A' }}>{((totalNptHrs / 24) * 100).toFixed(1)}%</div>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: 0.6 }}>% of 24hr</div>
+                <div style={{ fontSize: 22, fontWeight: 600, color: totalNptHrs > 0 ? 'var(--color-negative)' : 'var(--color-positive)' }}>{((totalNptHrs / 24) * 100).toFixed(1)}%</div>
               </div>
-              <div style={{ width: 1, height: 36, background: '#E5E7EB' }} />
+              <div style={{ width: 1, height: 36, background: 'var(--color-border)' }} />
               <div>
-                <div style={{ fontSize: 10, fontWeight: 600, color: '#8993A4', textTransform: 'uppercase', letterSpacing: 0.6 }}>Events</div>
-                <div style={{ fontSize: 22, fontWeight: 600, color: '#1A1D23' }}>{nptRows.length}</div>
+                <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: 0.6 }}>Events</div>
+                <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--color-text-primary)' }}>{nptRows.length}</div>
               </div>
               <div style={{ marginLeft: 'auto' }}>
                 <button onClick={addNptRow} className="btn btn-t btn-xs" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -569,11 +569,11 @@ export function DDOR() {
             {nptRows.length === 0 ? (
               <div style={{
                 textAlign: 'center', padding: '48px 40px',
-                background: '#FAFBFC', borderRadius: 8, border: '1px dashed #D1D5DB',
+                background: 'var(--color-surface)', borderRadius: 8, border: '1px dashed var(--color-border)',
               }}>
                 <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.3 }}>✓</div>
-                <div style={{ fontSize: 15, fontWeight: 600, color: '#2A6B4A', marginBottom: 6 }}>Zero NPT</div>
-                <div style={{ fontSize: 13, color: '#8993A4', maxWidth: 320, margin: '0 auto' }}>
+                <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-positive)', marginBottom: 6 }}>Zero NPT</div>
+                <div style={{ fontSize: 13, color: 'var(--color-text-muted)', maxWidth: 320, margin: '0 auto' }}>
                   No non-productive time recorded for this 24-hour period. Great job!
                 </div>
               </div>
@@ -583,31 +583,31 @@ export function DDOR() {
                   const isExpanded = expandedNPT === row.id;
                   return (
                     <div key={row.id} style={{
-                      border: '1px solid #E0BFBF', borderRadius: 8, overflow: 'hidden',
+                      border: '1px solid var(--color-negative)', borderRadius: 8, overflow: 'hidden',
                       background: '#fff',
                     }}>
                       {/* event header bar */}
                       <div
                         style={{
                           padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12,
-                          background: '#FAF5F5', borderBottom: isExpanded ? '1px solid #E0BFBF' : 'none',
+                          background: '#FAF5F5', borderBottom: isExpanded ? '1px solid var(--color-negative)' : 'none',
                           cursor: 'pointer',
                         }}
                         onClick={() => setExpandedNPT(isExpanded ? null : row.id)}
                       >
                         <div style={{
                           width: 26, height: 26, borderRadius: 6,
-                          background: '#B33A3A', color: '#fff',
+                          background: 'var(--color-negative)', color: '#fff',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: 12, fontWeight: 600, flexShrink: 0,
                         }}>
                           {idx + 1}
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: '#1A1D23' }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)' }}>
                             {row.system || 'Uncategorized'} — {row.equip || 'No equipment specified'}
                           </div>
-                          <div style={{ fontSize: 11, color: '#8993A4', marginTop: 2 }}>
+                          <div style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 2 }}>
                             {row.from || '??:??'} – {row.to || '??:??'}
                           </div>
                         </div>
@@ -618,7 +618,7 @@ export function DDOR() {
                         <Bdg c={row.rateApplied === 'OP' ? 'g' : row.rateApplied === 'RD' ? 'w' : 'r'}>
                           {row.rateApplied} Rate
                         </Bdg>
-                        {isExpanded ? <ChevronUp size={18} style={{ color: '#8993A4' }} /> : <ChevronDown size={18} style={{ color: '#8993A4' }} />}
+                        {isExpanded ? <ChevronUp size={18} style={{ color: 'var(--color-text-muted)' }} /> : <ChevronDown size={18} style={{ color: 'var(--color-text-muted)' }} />}
                       </div>
 
                       {/* expanded detail form */}
@@ -649,12 +649,12 @@ export function DDOR() {
                               style={{
                                 display: 'flex', alignItems: 'center', gap: 6,
                                 padding: '7px 14px', borderRadius: 6,
-                                background: '#FAF0F0', border: '1px solid #E0BFBF',
-                                color: '#8B3A3A', fontSize: 12, fontWeight: 600,
+                                background: 'var(--color-negative-bg)', border: '1px solid var(--color-negative)',
+                                color: 'var(--color-negative)', fontSize: 12, fontWeight: 600,
                                 cursor: 'pointer', transition: 'all .15s',
                               }}
                               onMouseEnter={e => { e.currentTarget.style.background = '#F5E5E5'; }}
-                              onMouseLeave={e => { e.currentTarget.style.background = '#FAF0F0'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'var(--color-negative-bg)'; }}
                             >
                               <Trash2 size={14} /> Remove Event
                             </button>
@@ -678,19 +678,19 @@ export function DDOR() {
             <span style={{ fontSize: 16 }}>✓</span>
             <div style={{ flex: 1 }}>
               <strong>Night Tool Pusher (NTP)</strong> — Reviewed & Signed
-              <span style={{ marginLeft: 10, fontSize: 12, color: '#8993A4' }}>Said Al-Busaidi — 15-Jun-2025 06:00</span>
+              <span style={{ marginLeft: 10, fontSize: 12, color: 'var(--color-text-muted)' }}>Said Al-Busaidi — 15-Jun-2025 06:00</span>
             </div>
             <Bdg c="g">Approved</Bdg>
           </div>
           <div className="appr">
-            <span style={{ fontSize: 14, color: '#8993A4' }}>○</span>
+            <span style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>○</span>
             <div style={{ flex: 1 }}>
               <strong>Rig Manager</strong> — Pending Review
             </div>
             <Bdg c="w">Pending</Bdg>
           </div>
           <div className="appr">
-            <span style={{ fontSize: 14, color: '#8993A4' }}>○</span>
+            <span style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>○</span>
             <div style={{ flex: 1 }}>
               <strong>WSL (Client Representative)</strong> — Awaiting RM Approval
             </div>

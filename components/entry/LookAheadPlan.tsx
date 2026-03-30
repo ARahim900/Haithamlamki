@@ -125,14 +125,14 @@ export function LookAheadPlan() {
           <table>
             <thead>
               <tr>
-                <th className="th" style={{ minWidth: 90 }}>Day</th>
-                <th className="th" style={{ minWidth: 100 }}>Dept</th>
-                <th className="th" style={{ minWidth: 250 }}>Task / Activity</th>
-                <th className="th" style={{ minWidth: 120 }}>SOP Ref</th>
+                <th scope="col" className="th" style={{ minWidth: 90 }}>Day</th>
+                <th scope="col" className="th" style={{ minWidth: 100 }}>Dept</th>
+                <th scope="col" className="th" style={{ minWidth: 250 }}>Task / Activity</th>
+                <th scope="col" className="th" style={{ minWidth: 120 }}>SOP Ref</th>
                 {HSE_CONTROLS.map(c => (
-                  <th key={c} className="th" style={{ minWidth: 50, textAlign: 'center', fontSize: 10 }}>{c}</th>
+                  <th key={c} scope="col" className="th" style={{ minWidth: 50, textAlign: 'center', fontSize: 10 }}>{c}</th>
                 ))}
-                <th className="th" style={{ minWidth: 60 }}>Actions</th>
+                <th scope="col" className="th" style={{ minWidth: 60 }}>Actions</th>
               </tr>
             </thead>
             <tbody>

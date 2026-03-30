@@ -68,7 +68,7 @@ export function NPTBilling() {
             <thead>
               <tr>
                 {['Rig', 'Op (h)', 'Reduced (h)', 'Repair (h)', 'Zero (h)', 'Special (h)', 'Manual Total', 'E-Ticket Total', 'Match'].map(h => (
-                  <th key={h} className="th">{h}</th>
+                  <th key={h} scope="col" className="th">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -76,13 +76,13 @@ export function NPTBilling() {
               {filteredData.map((r, i) => {
                 const manualTotal = (r.opr_rate_hrs ?? 0) + (r.reduce_rate_hrs ?? 0) + (r.repair_rate_hrs ?? 0) + (r.zero_rate_hrs ?? 0) + (r.special_rate_hrs ?? 0);
                 return (
-                  <tr key={i} style={r.mismatch ? { background: '#FEF9C3' } : {}}>
+                  <tr key={i} style={r.mismatch ? { background: 'var(--color-warning-bg)' } : {}}>
                     <td><strong>{r.rig}</strong></td>
-                    <td className="tb-num" style={{ color: '#2A6B4A', fontWeight: 700 }}>{r.opr_rate_hrs ?? 0}</td>
-                    <td className="tb-num" style={{ color: (r.reduce_rate_hrs ?? 0) ? '#D97706' : '#D4D7DC' }}>{r.reduce_rate_hrs || '-'}</td>
-                    <td className="tb-num" style={{ color: '#8B3A3A', fontWeight: 700 }}>{r.repair_rate_hrs ?? 0}</td>
-                    <td className="tb-num" style={{ color: (r.zero_rate_hrs ?? 0) ? '#5F6B7A' : '#D4D7DC' }}>{r.zero_rate_hrs || '-'}</td>
-                    <td className="tb-num" style={{ color: (r.special_rate_hrs ?? 0) ? '#3B6BAD' : '#D4D7DC' }}>{r.special_rate_hrs || '-'}</td>
+                    <td className="tb-num" style={{ color: 'var(--color-positive)', fontWeight: 700 }}>{r.opr_rate_hrs ?? 0}</td>
+                    <td className="tb-num" style={{ color: (r.reduce_rate_hrs ?? 0) ? 'var(--color-warning)' : 'var(--color-border)' }}>{r.reduce_rate_hrs || '-'}</td>
+                    <td className="tb-num" style={{ color: 'var(--color-negative)', fontWeight: 700 }}>{r.repair_rate_hrs ?? 0}</td>
+                    <td className="tb-num" style={{ color: (r.zero_rate_hrs ?? 0) ? 'var(--color-text-secondary)' : 'var(--color-border)' }}>{r.zero_rate_hrs || '-'}</td>
+                    <td className="tb-num" style={{ color: (r.special_rate_hrs ?? 0) ? 'var(--color-info)' : 'var(--color-border)' }}>{r.special_rate_hrs || '-'}</td>
                     <td className="tb-num" style={{ fontWeight: 600 }}>{manualTotal}h</td>
                     <td className="tb-num" style={{ fontWeight: 600 }}>
                       <FA v={`${r.eticket_total ?? manualTotal}h`} />

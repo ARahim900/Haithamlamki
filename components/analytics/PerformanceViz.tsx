@@ -2,6 +2,7 @@
 import React from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
 import { utilData, crmData, wellTracking } from '@/lib/data';
+import { colors as t } from '@/lib/tokens';
 import { KPI, Bdg } from '@/components/Shared';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -23,16 +24,16 @@ export function PerformanceViz(){
           <div className="chart-wrap" style={{height:isMobile ? 180 : 220}}>
             <ResponsiveContainer width="100%" height={isMobile ? 180 : 220}>
               <BarChart data={utilData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
-                <XAxis dataKey="m" tick={{fontSize:10}} stroke="#ccc"/>
-                <YAxis tick={{fontSize:10}} stroke="#ccc"/>
+                <CartesianGrid strokeDasharray="3 3" stroke={t.grid}/>
+                <XAxis dataKey="m" tick={{fontSize:10}} stroke={t.axis}/>
+                <YAxis tick={{fontSize:10}} stroke={t.axis}/>
                 <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
                 <Legend wrapperStyle={{fontSize:10}}/>
-                <Bar dataKey="op" fill="#07788D" stackId="a" name="Operating"/>
-                <Bar dataKey="rd" fill="#D97706" stackId="a" name="Reduced"/>
-                <Bar dataKey="bkd" fill="#8B3A3A" stackId="a" name="Breakdown"/>
-                <Bar dataKey="zero" fill="#A7A8A9" stackId="a" name="Zero"/>
-                <Bar dataKey="sp" fill="#0085CA" stackId="a" name="Special" radius={[3,3,0,0]}/>
+                <Bar dataKey="op" fill={t.primary} stackId="a" name="Operating"/>
+                <Bar dataKey="rd" fill={t.warning} stackId="a" name="Reduced"/>
+                <Bar dataKey="bkd" fill={t.negative} stackId="a" name="Breakdown"/>
+                <Bar dataKey="zero" fill={t.neutral} stackId="a" name="Zero"/>
+                <Bar dataKey="sp" fill={t.info} stackId="a" name="Special" radius={[3,3,0,0]}/>
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -42,18 +43,18 @@ export function PerformanceViz(){
           <div className="chart-wrap" style={{height:isMobile ? 150 : 180}}>
             <ResponsiveContainer width="100%" height={isMobile ? 150 : 180}>
               <LineChart data={csatTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
-                <XAxis dataKey="m" tick={{fontSize:10}} stroke="#ccc"/>
-                <YAxis domain={[80,100]} tick={{fontSize:10}} stroke="#ccc"/>
+                <CartesianGrid strokeDasharray="3 3" stroke={t.grid}/>
+                <XAxis dataKey="m" tick={{fontSize:10}} stroke={t.axis}/>
+                <YAxis domain={[80,100]} tick={{fontSize:10}} stroke={t.axis}/>
                 <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
-                <Line type="monotone" dataKey="avg" stroke="#07788D" strokeWidth={2.5} dot={{r:4,fill:"#07788D"}} name="Avg CSAT %"/>
+                <Line type="monotone" dataKey="avg" stroke={t.primary} strokeWidth={2.5} dot={{r:4,fill:t.primary}} name="Avg CSAT %"/>
               </LineChart>
             </ResponsiveContainer>
           </div>
-          <div style={{marginTop:10,paddingTop:8,borderTop:"1px solid #F0F1F5"}}>
-            {[["PDO target","90%+","#0085CA"],["Current avg","89%","#D97706"],["Best rig","100% (Rig 105)","#07788D"],["Attention","68% (Rig 108)","#8B3A3A"]].map(([l,v,c])=>(
-              <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid #F0F1F5",fontSize:11}}>
-                <span style={{color:"#777"}}>{l}</span><strong style={{color:c}}>{v}</strong>
+          <div style={{marginTop:10,paddingTop:8,borderTop:"1px solid var(--color-border-light)"}}>
+            {[["PDO target","90%+",t.info],["Current avg","89%",t.warning],["Best rig","100% (Rig 105)",t.primary],["Attention","68% (Rig 108)",t.negative]].map(([l,v,c])=>(
+              <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid var(--color-border-light)",fontSize:11}}>
+                <span style={{color:"var(--color-text-muted)"}}>{l}</span><strong style={{color:c as string}}>{v}</strong>
               </div>
             ))}
           </div>
@@ -65,12 +66,12 @@ export function PerformanceViz(){
           <div className="chart-wrap" style={{height:isMobile ? 170 : 200}}>
             <ResponsiveContainer width="100%" height={isMobile ? 170 : 200}>
               <BarChart data={crmData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
-                <XAxis dataKey="rig" tick={{fontSize:9}} stroke="#ccc"/>
-                <YAxis domain={[60,100]} tick={{fontSize:10}} stroke="#ccc"/>
+                <CartesianGrid strokeDasharray="3 3" stroke={t.grid}/>
+                <XAxis dataKey="rig" tick={{fontSize:9}} stroke={t.axis}/>
+                <YAxis domain={[60,100]} tick={{fontSize:10}} stroke={t.axis}/>
                 <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
                 <Bar dataKey="score" name="CSAT %" radius={[3,3,0,0]}>
-                  {crmData.map((d,i)=><Cell key={i} fill={d.score>=90?"#07788D":d.score>=80?"#D97706":"#8B3A3A"}/>)}
+                  {crmData.map((d,i)=><Cell key={i} fill={d.score>=90?t.primary:d.score>=80?t.warning:t.negative}/>)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -83,14 +84,14 @@ export function PerformanceViz(){
               const prog=Math.min(100,Math.round((w.cTD/w.tTD)*100));
               const vari=w.actD-w.afeD;
               return (
-                <div key={i} style={{padding:"8px 0",borderBottom:"1px solid #F0F1F5"}}>
+                <div key={i} style={{padding:"8px 0",borderBottom:"1px solid var(--color-border-light)"}}>
                   <div style={{display:"flex",justifyContent:"space-between",marginBottom:4,fontSize:11}}>
                     <span><strong>Rig {w.rig}</strong> — {w.well}</span>
-                    <span style={{color:vari>0?"#8B3A3A":"#2A6B4A",fontWeight:600,fontSize:11}}>{vari>0?"+":""}{vari}d vs AFE</span>
+                    <span style={{color:vari>0?"var(--color-negative)":"var(--color-positive)",fontWeight:600,fontSize:11}}>{vari>0?"+":""}{vari}d vs AFE</span>
                   </div>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
-                    <div className="prog-track"><div className="prog-fill" style={{width:prog+"%",background:prog>80?"#07788D":"#0085CA"}}/></div>
-                    <span style={{fontSize:10,color:"#07788D",fontWeight:600,width:36}}>{prog}%</span>
+                    <div className="prog-track"><div className="prog-fill" style={{width:prog+"%",background:prog>80?t.primary:t.info}}/></div>
+                    <span style={{fontSize:10,color:"var(--color-primary)",fontWeight:600,width:36}}>{prog}%</span>
                     <Bdg c={w.status==="Drilling"?"g":w.status==="Rig Move"?"t":"b"}>{w.status}</Bdg>
                   </div>
                 </div>

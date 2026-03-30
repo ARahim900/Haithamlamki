@@ -117,14 +117,14 @@ export function BillingAccruals() {
       <div className="card">
         <div className="card-hdr">
           Accrual Consolidation — {selectedMonth} {selectedYear}
-          <span style={{ fontSize: 12, color: '#5F6B7A' }}>744h = full month</span>
+          <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>744h = full month</span>
         </div>
         <div className="tw" style={{ overflowX: 'auto' }}>
           <table>
             <thead>
               <tr>
                 {['Rig', 'WBS #', 'Network', 'Well', 'Field', 'Area', 'OP (h)', 'RD (h)', 'BKD (h)', 'SP (h)', 'ZR (h)', 'SK (h)', 'Rig Move ($)', 'Total (h)', 'Actions'].map(h => (
-                  <th key={h} className="th" style={{ minWidth: h.length > 6 ? 100 : 70 }}>{h}</th>
+                  <th key={h} scope="col" className="th" style={{ minWidth: h.length > 6 ? 100 : 70 }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -132,18 +132,18 @@ export function BillingAccruals() {
               {filteredData.map((r) => (
                 <tr key={r.id}>
                   <td><strong>{r.rig}</strong></td>
-                  <td style={{ fontSize: 11, fontFamily: 'monospace', color: '#3B6BAD' }}>{r.wbs || '-'}</td>
-                  <td style={{ fontSize: 11, fontFamily: 'monospace', color: '#5F6B7A' }}>{r.network || '-'}</td>
-                  <td style={{ fontSize: 12, color: '#3D4554' }}>{r.well_name || '-'}</td>
+                  <td style={{ fontSize: 11, fontFamily: 'monospace', color: 'var(--color-info)' }}>{r.wbs || '-'}</td>
+                  <td style={{ fontSize: 11, fontFamily: 'monospace', color: 'var(--color-text-secondary)' }}>{r.network || '-'}</td>
+                  <td style={{ fontSize: 12, color: 'var(--color-text-primary)' }}>{r.well_name || '-'}</td>
                   <td><Bdg c="gr">{r.field_name || '-'}</Bdg></td>
                   <td><Bdg c={r.area === 'North' ? 'b' : r.area === 'South' ? 'g' : 'w'}>{r.area || '-'}</Bdg></td>
-                  <td className="tb-num" style={{ color: '#2A6B4A', fontWeight: 700 }}>{r.opp_hrs ?? 0}</td>
-                  <td className="tb-num" style={{ color: (r.reduce_hrs ?? 0) ? '#D97706' : '#D4D7DC' }}>{r.reduce_hrs || '-'}</td>
-                  <td className="tb-num" style={{ color: (r.bkd_hrs ?? 0) ? '#8B3A3A' : '#D4D7DC' }}>{r.bkd_hrs || '-'}</td>
-                  <td className="tb-num" style={{ color: (r.special_rate ?? 0) ? '#3B6BAD' : '#D4D7DC' }}>{r.special_rate || '-'}</td>
-                  <td className="tb-num" style={{ color: (r.zero_hrs ?? 0) ? '#5F6B7A' : '#D4D7DC' }}>{r.zero_hrs || '-'}</td>
-                  <td className="tb-num" style={{ color: '#D4D7DC' }}>{r.stacked_hrs || '-'}</td>
-                  <td className="tb-num" style={{ fontWeight: (r.rig_move_amt ?? 0) ? 700 : 400, color: (r.rig_move_amt ?? 0) ? '#3B6BAD' : '#D4D7DC' }}>
+                  <td className="tb-num" style={{ color: 'var(--color-positive)', fontWeight: 700 }}>{r.opp_hrs ?? 0}</td>
+                  <td className="tb-num" style={{ color: (r.reduce_hrs ?? 0) ? 'var(--color-warning)' : 'var(--color-border)' }}>{r.reduce_hrs || '-'}</td>
+                  <td className="tb-num" style={{ color: (r.bkd_hrs ?? 0) ? 'var(--color-negative)' : 'var(--color-border)' }}>{r.bkd_hrs || '-'}</td>
+                  <td className="tb-num" style={{ color: (r.special_rate ?? 0) ? 'var(--color-info)' : 'var(--color-border)' }}>{r.special_rate || '-'}</td>
+                  <td className="tb-num" style={{ color: (r.zero_hrs ?? 0) ? 'var(--color-text-secondary)' : 'var(--color-border)' }}>{r.zero_hrs || '-'}</td>
+                  <td className="tb-num" style={{ color: 'var(--color-border)' }}>{r.stacked_hrs || '-'}</td>
+                  <td className="tb-num" style={{ fontWeight: (r.rig_move_amt ?? 0) ? 700 : 400, color: (r.rig_move_amt ?? 0) ? 'var(--color-info)' : 'var(--color-border)' }}>
                     {(r.rig_move_amt ?? 0) ? '$' + (r.rig_move_amt ?? 0).toLocaleString() : '-'}
                   </td>
                   <td className="tb-num" style={{ fontWeight: 600 }}>{r.total_hrs ?? 744}h</td>
@@ -156,15 +156,15 @@ export function BillingAccruals() {
                 <tr><td colSpan={15} className="text-center text-gray-400 py-8">No accrual data for {selectedMonth} {selectedYear}</td></tr>
               )}
               {filteredData.length > 0 && (
-                <tr style={{ background: '#F3F6FA', fontWeight: 600 }}>
+                <tr style={{ background: 'var(--color-chart-bg-blue)', fontWeight: 600 }}>
                   <td colSpan={6} style={{ textAlign: 'right', fontWeight: 600 }}>TOTALS</td>
-                  <td className="tb-num" style={{ fontWeight: 600, color: '#2A6B4A' }}>{totalOP}</td>
+                  <td className="tb-num" style={{ fontWeight: 600, color: 'var(--color-positive)' }}>{totalOP}</td>
                   <td className="tb-num">{totalRD}</td>
-                  <td className="tb-num" style={{ color: '#8B3A3A' }}>{totalBKD}</td>
+                  <td className="tb-num" style={{ color: 'var(--color-negative)' }}>{totalBKD}</td>
                   <td className="tb-num">{filteredData.reduce((s, r) => s + (r.special_rate ?? 0), 0)}</td>
                   <td className="tb-num">{filteredData.reduce((s, r) => s + (r.zero_hrs ?? 0), 0)}</td>
                   <td className="tb-num">{filteredData.reduce((s, r) => s + (r.stacked_hrs ?? 0), 0)}</td>
-                  <td className="tb-num" style={{ color: '#3B6BAD' }}>${totalRM.toLocaleString()}</td>
+                  <td className="tb-num" style={{ color: 'var(--color-info)' }}>${totalRM.toLocaleString()}</td>
                   <td className="tb-num" style={{ fontWeight: 600 }}>{filteredData.reduce((s, r) => s + (r.total_hrs ?? 0), 0)}h</td>
                   <td></td>
                 </tr>

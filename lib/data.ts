@@ -48,19 +48,19 @@ export const lookAheadTasks = [
 // ── SHEET 3: DDOR CONFIG (reports generated per rig/day) ──
 export const ddorConfig = {
   activityCodes: [
-    { code:"DRL", label:"Drilling",      color:"#16A34A" },
-    { code:"TRP", label:"Tripping",      color:"#0284C7" },
-    { code:"CSG", label:"Casing",        color:"#7C3AED" },
-    { code:"CMT", label:"Cementing",     color:"#0891B2" },
-    { code:"LOG", label:"Logging",       color:"#6D28D9" },
-    { code:"SRV", label:"Service/PM",    color:"#D97706" },
-    { code:"CIR", label:"Circulate",     color:"#059669" },
-    { code:"BHA", label:"BHA Change",    color:"#9333EA" },
-    { code:"RIG", label:"Rig Up/Down",   color:"#64748B" },
-    { code:"WFT", label:"Wireline/DST",  color:"#0369A1" },
-    { code:"NPT", label:"NPT",           color:"#DC2626" },
-    { code:"WOC", label:"Wait on Cement",color:"#B45309" },
-    { code:"WOO", label:"Wait on Orders",color:"#78716C" },
+    { code:"DRL", label:"Drilling",      color:"#3A9E7E" },
+    { code:"TRP", label:"Tripping",      color:"#5B8DB8" },
+    { code:"CSG", label:"Casing",        color:"#7B6B9E" },
+    { code:"CMT", label:"Cementing",     color:"#4D9BA8" },
+    { code:"LOG", label:"Logging",       color:"#6B5B8D" },
+    { code:"SRV", label:"Service/PM",    color:"#C4923A" },
+    { code:"CIR", label:"Circulate",     color:"#2A6B4A" },
+    { code:"BHA", label:"BHA Change",    color:"#8B6BAD" },
+    { code:"RIG", label:"Rig Up/Down",   color:"#6B7280" },
+    { code:"WFT", label:"Wireline/DST",  color:"#3B6BAD" },
+    { code:"NPT", label:"NPT",           color:"#B06B6F" },
+    { code:"WOC", label:"Wait on Cement",color:"#9A7328" },
+    { code:"WOO", label:"Wait on Orders",color:"#7A7F88" },
   ],
 };
 export const ddorReports = [
@@ -219,9 +219,9 @@ export const fleetRows = [
 ];
 
 export const nptPie = [
-  {n:"Drawworks", v:28, c:"#07788D"},
-  {n:"Mud Pumps",  v:19, c:"#0085CA"},
-  {n:"Top Drive",  v:15, c:"#16A34A"},
-  {n:"Electrical", v:22, c:"#D97706"},
-  {n:"BOP",        v:16, c:"#DC2626"},
+  {n:"Drawworks", v:28, c:"#2D7A89"},
+  {n:"Mud Pumps",  v:19, c:"#5B8DB8"},
+  {n:"Top Drive",  v:15, c:"#3A9E7E"},
+  {n:"Electrical", v:22, c:"#D4A24C"},
+  {n:"BOP",        v:16, c:"#B06B6F"},
 ];

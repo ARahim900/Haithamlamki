@@ -40,12 +40,11 @@ function ViewSkeleton() {
 
 export default function DashboardApp() {
   const [page, setPage] = useState('home');
-  const [col, setCol] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
+  const [col, setCol] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches);
 
   useEffect(() => {
     const mql = window.matchMedia('(max-width: 1023px)');
     const handler = (e: MediaQueryListEvent) => setCol(e.matches);
-    setCol(mql.matches);
     mql.addEventListener('change', handler);
     return () => mql.removeEventListener('change', handler);
   }, []);

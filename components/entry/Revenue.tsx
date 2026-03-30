@@ -6,12 +6,12 @@ import { RIGS, MONTHS } from '@/lib/data';
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-// Color palette — all pass WCAG AA against white (#fff)
-const POSITIVE_COLOR = '#1A7742';  // 5.1:1 contrast ratio
-const NEGATIVE_COLOR = '#B91C1C';  // 5.7:1 contrast ratio
-const MUTED_COLOR = '#5F6B7A';     // 4.9:1 contrast ratio
-const WARNING_COLOR = '#B45309';   // 4.8:1 contrast ratio
-const DIMMED_COLOR = '#D4D7DC';
+// Color palette — uses CSS custom properties from the design token system
+const POSITIVE_COLOR = 'var(--color-positive)';
+const NEGATIVE_COLOR = 'var(--color-negative)';
+const MUTED_COLOR = 'var(--color-text-secondary)';
+const WARNING_COLOR = 'var(--color-warning)';
+const DIMMED_COLOR = 'var(--color-border)';
 
 const NPT_REPAIR_THRESHOLD = 15000;
 
@@ -76,7 +76,7 @@ export function Revenue() {
             <thead>
               <tr>
                 {['Rig', 'Actual Revenue ($)', 'Budget Revenue ($)', 'Var', 'Fuel Cost ($)', 'NPT Repair ($)', 'NPT Zero ($)', 'Comments'].map(h => (
-                  <th key={h} className="th">{h}</th>
+                  <th key={h} scope="col" className="th">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -106,7 +106,7 @@ export function Revenue() {
                 <tr><td colSpan={8} className="text-center text-gray-400 py-8">No revenue data for {fullMonthName} {selectedYear}</td></tr>
               )}
               {filteredData.length > 0 && (
-                <tr style={{ background: '#EFF7F2', fontWeight: 600 }}>
+                <tr style={{ background: 'var(--color-positive-bg)', fontWeight: 600 }}>
                   <td style={{ fontWeight: 600 }}>TOTAL</td>
                   <td className="tb-num" style={{ fontWeight: 600, color: POSITIVE_COLOR }}>${totalActual.toLocaleString()}</td>
                   <td className="tb-num">${totalBudget.toLocaleString()}</td>

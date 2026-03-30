@@ -2,6 +2,7 @@
 import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { fleetRows, revData, nptPie } from '@/lib/data';
+import { colors as t } from '@/lib/tokens';
 import { Bdg, KPI } from '@/components/Shared';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -31,13 +32,13 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
           <div className="chart-wrap" style={{height:isMobile ? 140 : 160}}>
             <ResponsiveContainer width="100%" height={isMobile ? 140 : 160}>
               <AreaChart data={revData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
-                <XAxis dataKey="m" tick={{fontSize:10, fill: "#888"}} stroke="#eaeaea"/>
-                <YAxis tick={{fontSize:10, fill: "#888"}} stroke="#eaeaea" domain={[2.5,4.5]} width={30}/>
+                <CartesianGrid strokeDasharray="3 3" stroke={t.grid}/>
+                <XAxis dataKey="m" tick={{fontSize:10, fill: t.axisText}} stroke={t.axisLight}/>
+                <YAxis tick={{fontSize:10, fill: t.axisText}} stroke={t.axisLight} domain={[2.5,4.5]} width={30}/>
                 <Tooltip contentStyle={{borderRadius:6,fontSize:10}}/>
                 <Legend align="center" verticalAlign="bottom" wrapperStyle={{fontSize:10, paddingTop: 6}}/>
-                <Area type="monotone" dataKey="bud" stroke="#0085CA" fill="#0085CA10" strokeDasharray="4 4" strokeWidth={1.5} name="Budget"/>
-                <Area type="monotone" dataKey="act" stroke="#07788D" fill="#07788D12" strokeWidth={2} name="Actual"/>
+                <Area type="monotone" dataKey="bud" stroke={t.info} fill={t.info+"10"} strokeDasharray="4 4" strokeWidth={1.5} name="Budget"/>
+                <Area type="monotone" dataKey="act" stroke={t.primary} fill={t.primary+"12"} strokeWidth={2} name="Actual"/>
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -74,15 +75,15 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
               {fleetRows.map((r,i)=>(
                 <tr key={i}>
                   <td><strong>Rig {r.rig}</strong></td>
-                  <td style={{color:"#0085CA",fontWeight:700,fontSize:11}}>{r.well}</td>
+                  <td style={{color:"var(--color-info)",fontWeight:700,fontSize:11}}>{r.well}</td>
                   <td><Bdg c={r.status==="Drilling"?"g":r.status==="Stacked"?"gr":r.status==="Rig Move"?"t":"b"}>{r.status}</Bdg></td>
                   <td style={{fontFamily:"monospace"}}>{r.depth}</td>
                   <td className="tb-num">{r.days}d</td>
                   <td><Bdg c={r.rate==="Op"?"g":r.rate==="Stack"?"gr":"b"}>{r.rate}</Bdg></td>
                   <td>
                     <div style={{display:"flex",alignItems:"center",gap:6}}>
-                      <div className="prog-track"><div className="prog-fill" style={{width:r.csat+"%",background:r.csat>=90?"#2A6B4A":r.csat>=80?"#D97706":"#8B3A3A"}}/></div>
-                      <span style={{fontSize:10,fontWeight:600,color:r.csat>=90?"#2A6B4A":r.csat>=80?"#D97706":"#8B3A3A"}}>{r.csat}%</span>
+                      <div className="prog-track"><div className="prog-fill" style={{width:r.csat+"%",background:r.csat>=90?t.positive:r.csat>=80?t.warning:t.negative}}/></div>
+                      <span style={{fontSize:10,fontWeight:600,color:r.csat>=90?"var(--color-positive)":r.csat>=80?"var(--color-warning)":"var(--color-negative)"}}>{r.csat}%</span>
                     </div>
                   </td>
                   <td className="tb-num">

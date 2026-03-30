@@ -134,7 +134,7 @@ export function YTDDetails() {
             <thead>
               <tr>
                 {['Rig', 'Date', 'Type', 'Hours', 'System', 'Root Cause', 'Actions'].map(h => (
-                  <th key={h} className="th">{h}</th>
+                  <th key={h} scope="col" className="th">{h}</th>
                 ))}
               </tr>
             </thead>

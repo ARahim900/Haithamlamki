@@ -187,7 +187,7 @@ export function RigMove() {
             <thead>
               <tr>
                 {['Rig', 'From', 'To', 'Budget Days', 'Actual Days', 'Var', 'Budget Cost', 'Actual Cost', 'Revenue Impact', 'Status', 'Actions'].map(h => (
-                  <th key={h} className="th">{h}</th>
+                  <th key={h} scope="col" className="th">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -198,14 +198,14 @@ export function RigMove() {
                 return (
                   <tr key={i}>
                     <td><strong>{r.rig}</strong></td>
-                    <td style={{ fontSize: 13, color: '#5F6B7A' }}>{r.move_from}</td>
-                    <td style={{ fontSize: 13, color: '#5F6B7A' }}>{r.move_to}</td>
+                    <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{r.move_from}</td>
+                    <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{r.move_to}</td>
                     <td className="tb-num">{r.budget_days ?? 0}d</td>
                     <td className="tb-num" style={{ fontWeight: 700 }}>{r.actual_days ?? 0}d</td>
-                    <td className="tb-num" style={{ fontWeight: 600, color: dayVar > 0 ? '#8B3A3A' : '#2A6B4A' }}>{dayVar > 0 ? '+' : ''}{dayVar}d</td>
+                    <td className="tb-num" style={{ fontWeight: 600, color: dayVar > 0 ? 'var(--color-negative)' : 'var(--color-positive)' }}>{dayVar > 0 ? '+' : ''}{dayVar}d</td>
                     <td className="tb-num">${(r.budget_cost ?? 0).toLocaleString()}</td>
                     <td className="tb-num" style={{ fontWeight: 700 }}>${(r.actual_cost ?? 0).toLocaleString()}</td>
-                    <td className="tb-num" style={{ fontWeight: 600, color: costVar > 0 ? '#8B3A3A' : '#2A6B4A' }}>{costVar > 0 ? '+' : ''}${Math.abs(costVar).toLocaleString()}</td>
+                    <td className="tb-num" style={{ fontWeight: 600, color: costVar > 0 ? 'var(--color-negative)' : 'var(--color-positive)' }}>{costVar > 0 ? '+' : ''}${Math.abs(costVar).toLocaleString()}</td>
                     <td><span className={'bdg ' + (r.status === 'Completed' ? 'g' : 't')}>{r.status}</span></td>
                     <td className="flex gap-2">
                       <button className="btn btn-t btn-xs" onClick={() => handleEditClick(r)}>Edit</button>

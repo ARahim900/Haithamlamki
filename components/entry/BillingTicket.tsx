@@ -159,8 +159,8 @@ export function BillingTicket() {
         <div className="ddor-rates">
           {Object.entries(dailyRates).map(([k, v]) => (
             <div key={k} className="dr-cell">
-              <div style={{ fontSize: 11, color: '#5F6B7A', fontWeight: 700 }}>{k} RATE</div>
-              <div style={{ fontSize: 16, fontWeight: 600, color: '#1A1D23' }}>${v.toLocaleString()}/day</div>
+              <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 700 }}>{k} RATE</div>
+              <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-text-primary)' }}>${v.toLocaleString()}/day</div>
             </div>
           ))}
         </div>
@@ -169,7 +169,7 @@ export function BillingTicket() {
             <thead>
               <tr>
                 {['Day', 'Date', 'Rate Type', 'Hours', 'Revenue ($)', 'Remarks'].map(h => (
-                  <th key={h} className="th">{h}</th>
+                  <th key={h} scope="col" className="th">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -177,7 +177,7 @@ export function BillingTicket() {
               {days.map((d, i) => (
                 <tr key={i}>
                   <td style={{ fontWeight: 700 }}>Day {d.day}</td>
-                  <td style={{ fontSize: 13, color: '#5F6B7A' }}>{d.date}</td>
+                  <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{d.date}</td>
                   <td>
                     <select
                       className="f-dd"
@@ -189,7 +189,7 @@ export function BillingTicket() {
                     </select>
                   </td>
                   <td className="tb-num" style={{ fontWeight: 700 }}>{d.hrs}h</td>
-                  <td className="tb-num" style={{ fontWeight: 600, color: '#2A6B4A' }}>
+                  <td className="tb-num" style={{ fontWeight: 600, color: 'var(--color-positive)' }}>
                     ${((d.hrs / 24) * dailyRates[d.rate]).toLocaleString()}
                   </td>
                   <td>
@@ -202,10 +202,10 @@ export function BillingTicket() {
                   </td>
                 </tr>
               ))}
-              <tr style={{ background: '#EFF7F2', fontWeight: 600 }}>
+              <tr style={{ background: 'var(--color-positive-bg)', fontWeight: 600 }}>
                 <td colSpan={3} style={{ textAlign: 'right', fontWeight: 600 }}>Totals:</td>
                 <td className="tb-num">{days.reduce((s, d) => s + d.hrs, 0)}h</td>
-                <td className="tb-num" style={{ color: '#2A6B4A', fontSize: 16 }}>${Math.round(totalRevenue).toLocaleString()}</td>
+                <td className="tb-num" style={{ color: 'var(--color-positive)', fontSize: 16 }}>${Math.round(totalRevenue).toLocaleString()}</td>
                 <td></td>
               </tr>
             </tbody>

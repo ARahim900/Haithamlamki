@@ -2,6 +2,7 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart } from 'recharts';
 import { fuelTrend, wellTracking } from '@/lib/data';
+import { colors as t } from '@/lib/tokens';
 import { KPI, Bdg } from '@/components/Shared';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -22,25 +23,25 @@ export function OperationsViz(){
           <div className="chart-wrap" style={{height:chartH}}>
             <ResponsiveContainer width="100%" height={chartH}>
               <ComposedChart data={fuelTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
-                <XAxis dataKey="m" tick={{fontSize:10}} stroke="#ccc"/>
-                <YAxis tick={{fontSize:10}} stroke="#ccc"/>
+                <CartesianGrid strokeDasharray="3 3" stroke={t.grid}/>
+                <XAxis dataKey="m" tick={{fontSize:10}} stroke={t.axis}/>
+                <YAxis tick={{fontSize:10}} stroke={t.axis}/>
                 <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
                 <Legend wrapperStyle={{fontSize:10}}/>
-                <Bar dataKey="con" fill="#8B3A3A" name="Consumed" radius={[3,3,0,0]}/>
-                <Bar dataKey="rec" fill="#07788D" name="Received" radius={[3,3,0,0]}/>
+                <Bar dataKey="con" fill={t.negative} name="Consumed" radius={[3,3,0,0]}/>
+                <Bar dataKey="rec" fill={t.primary} name="Received" radius={[3,3,0,0]}/>
               </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
         <div className="card">
           <div className="card-hdr">Fuel Category Breakdown — Jun</div>
-          {[["Rig engines","28,400L","61%","#07788D"],["Camp generators","8,200L","18%","#0085CA"],["Client invoiced","5,100L","11%","#2A6B4A"],["Other consumers","2,800L","6%","#D97706"],["Vehicles","1,700L","4%","#A7A8A9"]].map(([l,v,p,c])=>(
-            <div key={l} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0",borderBottom:"1px solid #F0F1F5"}}>
-              <div style={{width:10,height:10,borderRadius:"50%",background:c,flexShrink:0}}/>
-              <span style={{flex:1,fontSize:12,color:"#333F48"}}>{l}</span>
+          {[["Rig engines","28,400L","61%",t.primary],["Camp generators","8,200L","18%",t.info],["Client invoiced","5,100L","11%",t.positive],["Other consumers","2,800L","6%",t.warning],["Vehicles","1,700L","4%",t.neutral]].map(([l,v,p,c])=>(
+            <div key={l} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0",borderBottom:"1px solid var(--color-border-light)"}}>
+              <div style={{width:10,height:10,borderRadius:"50%",background:c as string,flexShrink:0}}/>
+              <span style={{flex:1,fontSize:12,color:"var(--color-text-primary)"}}>{l}</span>
               <strong style={{fontSize:12}}>{v}</strong>
-              <span style={{fontSize:11,color:"#777",width:30,textAlign:"right"}}>{p}</span>
+              <span style={{fontSize:11,color:"var(--color-text-muted)",width:30,textAlign:"right"}}>{p}</span>
             </div>
           ))}
         </div>
@@ -57,21 +58,21 @@ export function OperationsViz(){
                 return (
                   <tr key={i}>
                     <td><strong>Rig {r.rig}</strong></td>
-                    <td style={{color:"#0085CA",fontWeight:700,fontSize:11}}>{r.well}</td>
-                    <td style={{color:"#777",fontSize:11}}>{r.field}</td>
-                    <td style={{fontSize:11,color:"#777"}}>{r.spud}</td>
+                    <td style={{color:"var(--color-info)",fontWeight:700,fontSize:11}}>{r.well}</td>
+                    <td style={{color:"var(--color-text-muted)",fontSize:11}}>{r.field}</td>
+                    <td style={{fontSize:11,color:"var(--color-text-muted)"}}>{r.spud}</td>
                     <td><Bdg c={r.status==="Drilling"?"g":r.status==="Rig Move"?"t":"b"}>{r.status}</Bdg></td>
                     <td style={{fontFamily:"monospace"}}>{r.tTD.toLocaleString()}</td>
                     <td style={{fontFamily:"monospace",fontWeight:700}}>{r.cTD.toLocaleString()}</td>
                     <td>
                       <div style={{display:"flex",alignItems:"center",gap:5}}>
-                        <div className="prog-track" style={{minWidth:40,flex:1,maxWidth:60}}><div className="prog-fill" style={{width:prog+"%",background:"#07788D"}}/></div>
-                        <span style={{fontSize:10,fontWeight:600,color:"#07788D"}}>{prog}%</span>
+                        <div className="prog-track" style={{minWidth:40,flex:1,maxWidth:60}}><div className="prog-fill" style={{width:prog+"%",background:t.primary}}/></div>
+                        <span style={{fontSize:10,fontWeight:600,color:"var(--color-primary)"}}>{prog}%</span>
                       </div>
                     </td>
                     <td>{r.afeD}d</td>
                     <td style={{fontWeight:700}}>{r.actD}d</td>
-                    <td style={{fontWeight:600,color:vari>0?"#8B3A3A":"#2A6B4A"}}>{vari>0?"+":""}{vari}d</td>
+                    <td style={{fontWeight:600,color:vari>0?"var(--color-negative)":"var(--color-positive)"}}>{vari>0?"+":""}{vari}d</td>
                   </tr>
                 );
               })}

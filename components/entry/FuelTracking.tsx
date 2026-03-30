@@ -48,7 +48,7 @@ export function FuelTracking() {
         invoice_client: 0,
       });
     }
-  }, [currentRecord?.id, selectedRig, selectedMonth, selectedYear]);
+  }, [currentRecord, selectedRig, selectedMonth, selectedYear]);
 
   const totalConsumed = (form.rig_engine ?? 0) + (form.camp_engine ?? 0) + (form.vehicles ?? 0) + (form.other_site ?? 0);
   const closingBalance = (form.opening_stock ?? 0) + (form.received ?? 0) - totalConsumed;
@@ -127,8 +127,8 @@ export function FuelTracking() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 text-xs uppercase text-gray-500 border-b border-gray-200">
-                <th className="p-2 font-semibold">Equipment</th>
-                <th className="p-2 font-semibold">Consumption (L)</th>
+                <th scope="col" className="p-2 font-semibold">Equipment</th>
+                <th scope="col" className="p-2 font-semibold">Consumption (L)</th>
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -173,7 +173,7 @@ export function FuelTracking() {
             <thead>
               <tr>
                 {['Rig', 'Month', 'Year', 'Opening', 'Received', 'Consumed', 'Closing'].map(h => (
-                  <th key={h} className="th">{h}</th>
+                  <th key={h} scope="col" className="th">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -185,8 +185,8 @@ export function FuelTracking() {
                   <td>{r.year}</td>
                   <td className="tb-num">{(r.opening_stock ?? 0).toLocaleString()}L</td>
                   <td className="tb-num">{(r.received ?? 0).toLocaleString()}L</td>
-                  <td className="tb-num" style={{ color: '#8B3A3A' }}>{(r.total_consumed ?? 0).toLocaleString()}L</td>
-                  <td className="tb-num" style={{ fontWeight: 700, color: '#2A6B4A' }}>{(r.closing_balance ?? 0).toLocaleString()}L</td>
+                  <td className="tb-num" style={{ color: 'var(--color-negative)' }}>{(r.total_consumed ?? 0).toLocaleString()}L</td>
+                  <td className="tb-num" style={{ fontWeight: 700, color: 'var(--color-positive)' }}>{(r.closing_balance ?? 0).toLocaleString()}L</td>
                 </tr>
               ))}
             </tbody>
