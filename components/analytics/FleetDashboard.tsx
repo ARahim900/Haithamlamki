@@ -45,14 +45,14 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
         </div>
         <div className="card">
           <div className="card-hdr">NPT by System — MTD</div>
-          <div className="chart-wrap" style={{height:isMobile ? 140 : 160}}>
-            <ResponsiveContainer width="100%" height={isMobile ? 140 : 160}>
+          <div className="chart-wrap" style={{height:isMobile ? 180 : 160}}>
+            <ResponsiveContainer width="100%" height={isMobile ? 180 : 160}>
               <PieChart>
-                <Pie data={nptPie} cx="50%" cy="50%" innerRadius={35} outerRadius={60} paddingAngle={2} dataKey="v" nameKey="n">
+                <Pie data={nptPie} cx="50%" cy="50%" innerRadius={isMobile ? 28 : 35} outerRadius={isMobile ? 48 : 60} paddingAngle={2} dataKey="v" nameKey="n">
                   {nptPie.map((d,i)=><Cell key={i} fill={d.c}/>)}
                 </Pie>
                 <Tooltip contentStyle={{borderRadius:6,fontSize:10}} trigger="click"/>
-                <Legend align="center" verticalAlign="bottom" iconSize={6} wrapperStyle={{fontSize:10, paddingTop: 4}}/>
+                <Legend align="center" verticalAlign="bottom" iconSize={isMobile ? 5 : 6} layout={isMobile ? "horizontal" : undefined} wrapperStyle={{fontSize:10, paddingTop: 4}}/>
               </PieChart>
             </ResponsiveContainer>
           </div>

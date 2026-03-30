@@ -583,6 +583,23 @@ tr:hover td { background: var(--color-surface); transition: background .15s ease
 
   /* Mobile menu button touch target */
   .mobile-menu { min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+
+  /* DDOR inline tabs — scroll on mobile */
+  .card > div > div[style*="inline-flex"] {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    width: 100%;
+  }
+  .card > div > div[style*="inline-flex"]::-webkit-scrollbar { display: none; }
+
+  /* DDOR form grids — stack on mobile */
+  .grid.grid-cols-2 { grid-template-columns: 1fr; }
+  .grid.grid-cols-3 { grid-template-columns: 1fr 1fr; }
+
+  /* DDOR operations section — tighter padding */
+  .card > div[style*="padding: 20px"] { padding: 12px !important; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
