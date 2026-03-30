@@ -185,8 +185,8 @@ export function FuelTracking() {
                   <td>{r.year}</td>
                   <td className="tb-num">{(r.opening_stock ?? 0).toLocaleString()}L</td>
                   <td className="tb-num">{(r.received ?? 0).toLocaleString()}L</td>
-                  <td className="tb-num" style={{ color: '#DC2626' }}>{(r.total_consumed ?? 0).toLocaleString()}L</td>
-                  <td className="tb-num" style={{ fontWeight: 700, color: '#047857' }}>{(r.closing_balance ?? 0).toLocaleString()}L</td>
+                  <td className="tb-num" style={{ color: '#8B3A3A' }}>{(r.total_consumed ?? 0).toLocaleString()}L</td>
+                  <td className="tb-num" style={{ fontWeight: 700, color: '#2A6B4A' }}>{(r.closing_balance ?? 0).toLocaleString()}L</td>
                 </tr>
               ))}
             </tbody>

@@ -43,7 +43,7 @@ export function FinancialViz(){
                 <Legend wrapperStyle={{fontSize:10}}/>
                 <Area type="monotone" dataKey="bud" stroke="#0085CA" fill="#0085CA10" strokeDasharray="4 4" name="Budget"/>
                 <Area type="monotone" dataKey="act" stroke="#07788D" fill="#07788D12" strokeWidth={2} name="Actual"/>
-                <Bar dataKey="npt" fill="#DC2626" opacity={0.6} name="NPT Loss ($M)" radius={[2,2,0,0]}/>
+                <Bar dataKey="npt" fill="#8B3A3A" opacity={0.6} name="NPT Loss ($M)" radius={[2,2,0,0]}/>
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -62,7 +62,7 @@ export function FinancialViz(){
                 return (
                   <tr key={i}>
                     <td><strong>Rig {r.rig}</strong></td>
-                    <td style={{color:"#16A34A",fontWeight:700}}>{op}</td>
+                    <td style={{color:"#2A6B4A",fontWeight:700}}>{op}</td>
                     <td style={{fontWeight:700}}>{(op/24).toFixed(1)}</td>
                     <td style={{color:rd?"#D97706":"#ccc",fontWeight:rd?700:400}}>{rd||"-"}</td>
                     <td style={{color:"#ccc"}}>-</td>
@@ -70,7 +70,7 @@ export function FinancialViz(){
                     <td style={{color:"#ccc"}}>-</td>
                     <td style={{color:"#ccc"}}>-</td>
                     <td style={{fontWeight:700}}>744</td>
-                    <td style={{fontWeight:900,color:"#07788D"}}>${Math.round(rev).toLocaleString()}</td>
+                    <td style={{fontWeight:600,color:"#07788D"}}>${Math.round(rev).toLocaleString()}</td>
                   </tr>
                 );
               })}

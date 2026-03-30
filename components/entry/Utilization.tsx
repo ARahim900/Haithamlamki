@@ -77,9 +77,9 @@ export function Utilization() {
                     <td><FA v={String(r.year)} /></td>
                     <td><FA v={r.month} /></td>
                     <td><strong>{r.rig}</strong></td>
-                    <td className="tb-num" style={{ fontWeight: 700, color: '#047857' }}>{r.op_hours ?? 0}h</td>
-                    <td className="tb-num" style={{ fontWeight: 700, color: (r.npt_hours ?? 0) > 20 ? '#DC2626' : '#64748B' }}>{r.npt_hours ?? 0}h</td>
-                    <td className="tb-num" style={{ fontWeight: 800, color: overTarget ? '#DC2626' : '#16A34A' }}>{(r.npt_pct ?? 0).toFixed(1)}%</td>
+                    <td className="tb-num" style={{ fontWeight: 700, color: '#2A6B4A' }}>{r.op_hours ?? 0}h</td>
+                    <td className="tb-num" style={{ fontWeight: 700, color: (r.npt_hours ?? 0) > 20 ? '#8B3A3A' : '#5F6B7A' }}>{r.npt_hours ?? 0}h</td>
+                    <td className="tb-num" style={{ fontWeight: 600, color: overTarget ? '#8B3A3A' : '#2A6B4A' }}>{(r.npt_pct ?? 0).toFixed(1)}%</td>
                     <td><Bdg c={r.npt_type === 'Contractual' ? 'w' : 'r'}>{r.npt_type || '-'}</Bdg></td>
                     <td className="tb-num">{r.allowable_npt || '3%'}</td>
                     <td>

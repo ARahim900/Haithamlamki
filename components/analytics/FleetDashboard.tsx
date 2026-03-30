@@ -79,8 +79,8 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
                   <td><Bdg c={r.rate==="Op"?"g":r.rate==="Stack"?"gr":"b"}>{r.rate}</Bdg></td>
                   <td>
                     <div style={{display:"flex",alignItems:"center",gap:6}}>
-                      <div className="prog-track"><div className="prog-fill" style={{width:r.csat+"%",background:r.csat>=90?"#16A34A":r.csat>=80?"#D97706":"#DC2626"}}/></div>
-                      <span style={{fontSize:10,fontWeight:900,color:r.csat>=90?"#16A34A":r.csat>=80?"#D97706":"#DC2626"}}>{r.csat}%</span>
+                      <div className="prog-track"><div className="prog-fill" style={{width:r.csat+"%",background:r.csat>=90?"#2A6B4A":r.csat>=80?"#D97706":"#8B3A3A"}}/></div>
+                      <span style={{fontSize:10,fontWeight:600,color:r.csat>=90?"#2A6B4A":r.csat>=80?"#D97706":"#8B3A3A"}}>{r.csat}%</span>
                     </div>
                   </td>
                   <td className="tb-num">

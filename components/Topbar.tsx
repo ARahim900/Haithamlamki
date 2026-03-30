@@ -20,21 +20,24 @@ export const CRUMBS: Record<string, string[]>={
   util:["Data Entry","Utilization (Sheet 6)"],
 };
 
-export function Topbar({page}: {page: string}){
+export function Topbar({page,setCol}: {page: string, col?: boolean, setCol: React.Dispatch<React.SetStateAction<boolean>>}){
   const [par,cur]=CRUMBS[page]||["","Dashboard"];
   const isEntry=par==="Data Entry";
   return (
     <div className="topbar">
       <div className="tb-left">
+        <button className="mobile-menu" onClick={()=>setCol(c=>!c)} aria-label="Toggle menu">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><line x1="3" y1="5" x2="15" y2="5"/><line x1="3" y1="9" x2="15" y2="9"/><line x1="3" y1="13" x2="15" y2="13"/></svg>
+        </button>
         <span className="bc-par">{par}</span>
         <span className="bc-sep"> / </span>
         <span className="bc-cur">{cur}</span>
-        {isEntry&&<span style={{marginLeft:10,background:"#DBEAFE",color:"#1D4ED8",fontSize:9,fontWeight:700,padding:"4px 10px",borderRadius:100,textTransform:"uppercase",letterSpacing:".5px"}}>Entry</span>}
+        {isEntry&&<span style={{marginLeft:10,background:"#ECEEF1",color:"#6B7280",fontSize:9,fontWeight:600,padding:"3px 8px",borderRadius:4,textTransform:"uppercase",letterSpacing:".3px"}}>Entry</span>}
       </div>
       <div className="tb-right">
-        <span style={{background:"#F8FAFC",color:"#475569",borderRadius:100,padding:"5px 12px",fontSize:11,fontWeight:600,border:"1px solid #E2E8F0"}}>PDO</span>
-        <span style={{background:"#ECFDF5",color:"#047857",borderRadius:100,padding:"5px 12px",fontSize:11,fontWeight:700,border:"1px solid #A7F3D0"}}>● Live</span>
-        <div style={{width:32,height:32,borderRadius:"50%",background:"linear-gradient(135deg, #3D7A89, #2D5A66)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:11,fontWeight:700,boxShadow:"0 2px 8px rgba(61,122,137,0.25)"}}>RM</div>
+        <span style={{background:"#F5F6F8",color:"#6B7280",borderRadius:4,padding:"4px 10px",fontSize:11,fontWeight:500,border:"1px solid #E5E7EB"}}>PDO</span>
+        <span style={{background:"#EFF7F2",color:"#2A6B4A",borderRadius:4,padding:"4px 10px",fontSize:11,fontWeight:600,border:"1px solid #C3DFC9"}}>● Live</span>
+        <div style={{width:30,height:30,borderRadius:"50%",background:"#243B42",display:"flex",alignItems:"center",justifyContent:"center",color:"rgba(255,255,255,0.85)",fontSize:11,fontWeight:600}}>RM</div>
       </div>
     </div>
   );

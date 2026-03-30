@@ -24,7 +24,7 @@ export function OperationsViz(){
                 <YAxis tick={{fontSize:10}} stroke="#ccc"/>
                 <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
                 <Legend wrapperStyle={{fontSize:10}}/>
-                <Bar dataKey="con" fill="#DC2626" name="Consumed" radius={[3,3,0,0]}/>
+                <Bar dataKey="con" fill="#8B3A3A" name="Consumed" radius={[3,3,0,0]}/>
                 <Bar dataKey="rec" fill="#07788D" name="Received" radius={[3,3,0,0]}/>
               </ComposedChart>
             </ResponsiveContainer>
@@ -32,7 +32,7 @@ export function OperationsViz(){
         </div>
         <div className="card">
           <div className="card-hdr">Fuel Category Breakdown — Jun</div>
-          {[["Rig engines","28,400L","61%","#07788D"],["Camp generators","8,200L","18%","#0085CA"],["Client invoiced","5,100L","11%","#16A34A"],["Other consumers","2,800L","6%","#D97706"],["Vehicles","1,700L","4%","#A7A8A9"]].map(([l,v,p,c])=>(
+          {[["Rig engines","28,400L","61%","#07788D"],["Camp generators","8,200L","18%","#0085CA"],["Client invoiced","5,100L","11%","#2A6B4A"],["Other consumers","2,800L","6%","#D97706"],["Vehicles","1,700L","4%","#A7A8A9"]].map(([l,v,p,c])=>(
             <div key={l} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0",borderBottom:"1px solid #F0F1F5"}}>
               <div style={{width:10,height:10,borderRadius:"50%",background:c,flexShrink:0}}/>
               <span style={{flex:1,fontSize:12,color:"#333F48"}}>{l}</span>
@@ -63,12 +63,12 @@ export function OperationsViz(){
                     <td>
                       <div style={{display:"flex",alignItems:"center",gap:5}}>
                         <div className="prog-track" style={{width:50}}><div className="prog-fill" style={{width:prog+"%",background:"#07788D"}}/></div>
-                        <span style={{fontSize:10,fontWeight:900,color:"#07788D"}}>{prog}%</span>
+                        <span style={{fontSize:10,fontWeight:600,color:"#07788D"}}>{prog}%</span>
                       </div>
                     </td>
                     <td>{r.afeD}d</td>
                     <td style={{fontWeight:700}}>{r.actD}d</td>
-                    <td style={{fontWeight:900,color:vari>0?"#DC2626":"#16A34A"}}>{vari>0?"+":""}{vari}d</td>
+                    <td style={{fontWeight:600,color:vari>0?"#8B3A3A":"#2A6B4A"}}>{vari>0?"+":""}{vari}d</td>
                   </tr>
                 );
               })}

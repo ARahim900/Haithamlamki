@@ -101,7 +101,7 @@ export function YTDDetails() {
         </div>
 
         <div className="p-4 flex items-center gap-4">
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#475569' }}>Filter by type:</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#5F6B7A' }}>Filter by type:</span>
           {['All', 'Abraj', 'Contractual'].map(f => (
             <button
               key={f}
@@ -112,7 +112,7 @@ export function YTDDetails() {
               {f}
             </button>
           ))}
-          <span style={{ marginLeft: 'auto', fontSize: 14, fontWeight: 800, color: '#DC2626' }}>
+          <span style={{ marginLeft: 'auto', fontSize: 14, fontWeight: 600, color: '#8B3A3A' }}>
             Total: {totalHrs}h NPT ({filtered.length} events)
           </span>
         </div>
@@ -141,11 +141,11 @@ export function YTDDetails() {
               {filtered.map((r) => (
                 <tr key={r.id}>
                   <td><strong>{r.rig}</strong></td>
-                  <td style={{ fontSize: 13, color: '#64748B' }}>{r.event_date}</td>
+                  <td style={{ fontSize: 13, color: '#5F6B7A' }}>{r.event_date}</td>
                   <td><Bdg c={r.npt_type === 'Abraj' ? 'r' : 'w'}>{r.npt_type || '-'}</Bdg></td>
-                  <td className="tb-num" style={{ fontWeight: 700, color: '#DC2626' }}>{r.hours ?? 0}h</td>
+                  <td className="tb-num" style={{ fontWeight: 700, color: '#8B3A3A' }}>{r.hours ?? 0}h</td>
                   <td>{r.system_category || '-'}</td>
-                  <td style={{ fontSize: 12, color: '#64748B', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <td style={{ fontSize: 12, color: '#5F6B7A', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {r.root_cause || r.contractual_process || '-'}
                   </td>
                   <td className="flex gap-2">

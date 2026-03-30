@@ -79,17 +79,17 @@ export function Revenue() {
                     <td><strong>{r.rig}</strong></td>
                     <td className="tb-num">{(r.actual ?? 0).toLocaleString()}</td>
                     <td className="tb-num">{(r.budgeted ?? 0).toLocaleString()}</td>
-                    <td className="tb-num" style={{ fontWeight: 800, color: revVar >= 0 ? '#16A34A' : '#DC2626' }}>
+                    <td className="tb-num" style={{ fontWeight: 600, color: revVar >= 0 ? '#2A6B4A' : '#8B3A3A' }}>
                       {revVar >= 0 ? '+' : ''}{revVar.toLocaleString()}
                     </td>
                     <td className="tb-num">{(r.fuel ?? 0).toLocaleString()}</td>
-                    <td className="tb-num" style={{ color: (r.npt_repair ?? 0) > 15000 ? '#DC2626' : '#64748B' }}>
+                    <td className="tb-num" style={{ color: (r.npt_repair ?? 0) > 15000 ? '#8B3A3A' : '#5F6B7A' }}>
                       {(r.npt_repair ?? 0).toLocaleString()}
                     </td>
-                    <td className="tb-num" style={{ color: (r.npt_zero ?? 0) ? '#D97706' : '#CBD5E1' }}>
+                    <td className="tb-num" style={{ color: (r.npt_zero ?? 0) ? '#D97706' : '#D4D7DC' }}>
                       {(r.npt_zero ?? 0) ? (r.npt_zero ?? 0).toLocaleString() : '-'}
                     </td>
-                    <td style={{ fontSize: 12, color: '#64748B' }}>{r.comments || '-'}</td>
+                    <td style={{ fontSize: 12, color: '#5F6B7A' }}>{r.comments || '-'}</td>
                   </tr>
                 );
               })}
@@ -97,15 +97,15 @@ export function Revenue() {
                 <tr><td colSpan={8} className="text-center text-gray-400 py-8">No revenue data for {fullMonthName} {selectedYear}</td></tr>
               )}
               {filteredData.length > 0 && (
-                <tr style={{ background: '#F0FDF4', fontWeight: 800 }}>
-                  <td style={{ fontWeight: 800 }}>TOTAL</td>
-                  <td className="tb-num" style={{ fontWeight: 900, color: '#047857' }}>${totalActual.toLocaleString()}</td>
+                <tr style={{ background: '#EFF7F2', fontWeight: 600 }}>
+                  <td style={{ fontWeight: 600 }}>TOTAL</td>
+                  <td className="tb-num" style={{ fontWeight: 600, color: '#2A6B4A' }}>${totalActual.toLocaleString()}</td>
                   <td className="tb-num">${totalBudget.toLocaleString()}</td>
-                  <td className="tb-num" style={{ fontWeight: 900, color: totalActual - totalBudget >= 0 ? '#16A34A' : '#DC2626' }}>
+                  <td className="tb-num" style={{ fontWeight: 600, color: totalActual - totalBudget >= 0 ? '#2A6B4A' : '#8B3A3A' }}>
                     {totalActual - totalBudget >= 0 ? '+' : ''}${(totalActual - totalBudget).toLocaleString()}
                   </td>
                   <td className="tb-num">${totalFuel.toLocaleString()}</td>
-                  <td className="tb-num" style={{ color: '#DC2626' }}>${filteredData.reduce((s, r) => s + (r.npt_repair ?? 0), 0).toLocaleString()}</td>
+                  <td className="tb-num" style={{ color: '#8B3A3A' }}>${filteredData.reduce((s, r) => s + (r.npt_repair ?? 0), 0).toLocaleString()}</td>
                   <td className="tb-num">${filteredData.reduce((s, r) => s + (r.npt_zero ?? 0), 0).toLocaleString()}</td>
                   <td></td>
                 </tr>

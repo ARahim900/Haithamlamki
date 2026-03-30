@@ -28,7 +28,7 @@ export function PerformanceViz(){
                 <Legend wrapperStyle={{fontSize:10}}/>
                 <Bar dataKey="op" fill="#07788D" stackId="a" name="Operating"/>
                 <Bar dataKey="rd" fill="#D97706" stackId="a" name="Reduced"/>
-                <Bar dataKey="bkd" fill="#DC2626" stackId="a" name="Breakdown"/>
+                <Bar dataKey="bkd" fill="#8B3A3A" stackId="a" name="Breakdown"/>
                 <Bar dataKey="zero" fill="#A7A8A9" stackId="a" name="Zero"/>
                 <Bar dataKey="sp" fill="#0085CA" stackId="a" name="Special" radius={[3,3,0,0]}/>
               </BarChart>
@@ -49,7 +49,7 @@ export function PerformanceViz(){
             </ResponsiveContainer>
           </div>
           <div style={{marginTop:10,paddingTop:8,borderTop:"1px solid #F0F1F5"}}>
-            {[["PDO target","90%+","#0085CA"],["Current avg","89%","#D97706"],["Best rig","100% (Rig 105)","#07788D"],["Attention","68% (Rig 108)","#DC2626"]].map(([l,v,c])=>(
+            {[["PDO target","90%+","#0085CA"],["Current avg","89%","#D97706"],["Best rig","100% (Rig 105)","#07788D"],["Attention","68% (Rig 108)","#8B3A3A"]].map(([l,v,c])=>(
               <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid #F0F1F5",fontSize:11}}>
                 <span style={{color:"#777"}}>{l}</span><strong style={{color:c}}>{v}</strong>
               </div>
@@ -68,7 +68,7 @@ export function PerformanceViz(){
                 <YAxis domain={[60,100]} tick={{fontSize:10}} stroke="#ccc"/>
                 <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
                 <Bar dataKey="score" name="CSAT %" radius={[3,3,0,0]}>
-                  {crmData.map((d,i)=><Cell key={i} fill={d.score>=90?"#07788D":d.score>=80?"#D97706":"#DC2626"}/>)}
+                  {crmData.map((d,i)=><Cell key={i} fill={d.score>=90?"#07788D":d.score>=80?"#D97706":"#8B3A3A"}/>)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -84,11 +84,11 @@ export function PerformanceViz(){
                 <div key={i} style={{padding:"8px 0",borderBottom:"1px solid #F0F1F5"}}>
                   <div style={{display:"flex",justifyContent:"space-between",marginBottom:4,fontSize:11}}>
                     <span><strong>Rig {w.rig}</strong> — {w.well}</span>
-                    <span style={{color:vari>0?"#DC2626":"#16A34A",fontWeight:900,fontSize:11}}>{vari>0?"+":""}{vari}d vs AFE</span>
+                    <span style={{color:vari>0?"#8B3A3A":"#2A6B4A",fontWeight:600,fontSize:11}}>{vari>0?"+":""}{vari}d vs AFE</span>
                   </div>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
                     <div className="prog-track"><div className="prog-fill" style={{width:prog+"%",background:prog>80?"#07788D":"#0085CA"}}/></div>
-                    <span style={{fontSize:10,color:"#07788D",fontWeight:900,width:36}}>{prog}%</span>
+                    <span style={{fontSize:10,color:"#07788D",fontWeight:600,width:36}}>{prog}%</span>
                     <Bdg c={w.status==="Drilling"?"g":w.status==="Rig Move"?"t":"b"}>{w.status}</Bdg>
                   </div>
                 </div>

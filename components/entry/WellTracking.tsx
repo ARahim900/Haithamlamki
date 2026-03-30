@@ -167,7 +167,7 @@ export function WellTracking() {
                     <td>{w.field || '-'}</td>
                     <td className="tb-num">{(w.total_depth ?? 0).toLocaleString()} ft</td>
                     <td className="tb-num">{(w.current_depth ?? 0).toLocaleString()} ft</td>
-                    <td className="tb-num" style={{ fontWeight: 700, color: Number(prog) >= 100 ? '#047857' : '#0284C7' }}>{prog}%</td>
+                    <td className="tb-num" style={{ fontWeight: 700, color: Number(prog) >= 100 ? '#2A6B4A' : '#3B6BAD' }}>{prog}%</td>
                     <td><Bdg c={w.status === 'Completed' ? 'g' : w.status === 'In Progress' ? 'b' : 'gr'}>{w.status || '-'}</Bdg></td>
                     <td className="flex gap-2">
                       <button className="btn btn-t btn-xs" onClick={() => handleEditClick(w)}>Edit</button>

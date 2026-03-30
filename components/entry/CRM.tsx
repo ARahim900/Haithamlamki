@@ -72,7 +72,7 @@ export function CRM() {
       <div className="card">
         <div className="card-hdr">
           CSAT by Rig — {selectedYear} (0-100%)
-          <span style={{ fontSize: 12, color: '#64748B' }}>
+          <span style={{ fontSize: 12, color: '#5F6B7A' }}>
             {crmGrid.length} units tracked across 12 months
           </span>
         </div>
@@ -80,9 +80,9 @@ export function CRM() {
           <table>
             <thead>
               <tr>
-                <th className="th" style={{ position: 'sticky', left: 0, background: '#F8FAFC', zIndex: 2 }}>Rig / Hoist</th>
+                <th className="th" style={{ position: 'sticky', left: 0, background: '#F7F8FA', zIndex: 2 }}>Rig / Hoist</th>
                 {MONTHS.map(m => <th key={m} className="th" style={{ textAlign: 'center', minWidth: 55 }}>{m}</th>)}
-                <th className="th" style={{ textAlign: 'center', minWidth: 70, background: '#F0F9FF' }}>AVG</th>
+                <th className="th" style={{ textAlign: 'center', minWidth: 70, background: '#F3F6FA' }}>AVG</th>
               </tr>
             </thead>
             <tbody>
@@ -93,7 +93,7 @@ export function CRM() {
                     <td key={si} style={{ textAlign: 'center', padding: '8px 4px' }}>
                       <span style={{
                         fontWeight: 700,
-                        color: s >= 90 ? '#047857' : s >= 80 ? '#D97706' : s > 0 ? '#DC2626' : '#CBD5E1'
+                        color: s >= 90 ? '#2A6B4A' : s >= 80 ? '#D97706' : s > 0 ? '#8B3A3A' : '#D4D7DC'
                       }}>
                         {s > 0 ? `${s}%` : '-'}
                       </span>
@@ -101,10 +101,10 @@ export function CRM() {
                   ))}
                   <td style={{
                     textAlign: 'center',
-                    fontWeight: 900,
+                    fontWeight: 600,
                     fontSize: 14,
-                    background: '#F0F9FF',
-                    color: r.avg >= 90 ? '#047857' : r.avg >= 80 ? '#D97706' : '#DC2626'
+                    background: '#F3F6FA',
+                    color: r.avg >= 90 ? '#2A6B4A' : r.avg >= 80 ? '#D97706' : '#8B3A3A'
                   }}>
                     {r.avg > 0 ? `${r.avg}%` : '-'}
                   </td>
@@ -114,19 +114,19 @@ export function CRM() {
                 <tr><td colSpan={14} className="text-center text-gray-400 py-8">No CRM data for {selectedYear}</td></tr>
               )}
               {crmGrid.length > 0 && (
-                <tr style={{ background: '#F8FAFC', fontWeight: 800 }}>
-                  <td style={{ position: 'sticky', left: 0, background: '#F8FAFC', fontWeight: 900, zIndex: 1 }}>MONTHLY AVG</td>
+                <tr style={{ background: '#F7F8FA', fontWeight: 600 }}>
+                  <td style={{ position: 'sticky', left: 0, background: '#F7F8FA', fontWeight: 600, zIndex: 1 }}>MONTHLY AVG</td>
                   {monthAvgs.map((a, i) => (
                     <td key={i} style={{
                       textAlign: 'center',
-                      fontWeight: 900,
-                      color: a >= 90 ? '#047857' : a >= 80 ? '#D97706' : a > 0 ? '#DC2626' : '#CBD5E1',
+                      fontWeight: 600,
+                      color: a >= 90 ? '#2A6B4A' : a >= 80 ? '#D97706' : a > 0 ? '#8B3A3A' : '#D4D7DC',
                       padding: '12px 4px'
                     }}>
                       {a > 0 ? `${a}%` : '-'}
                     </td>
                   ))}
-                  <td style={{ textAlign: 'center', fontWeight: 900, fontSize: 16, background: '#EFF6FF', color: '#1D4ED8' }}>
+                  <td style={{ textAlign: 'center', fontWeight: 600, fontSize: 16, background: '#EBF0F7', color: '#3B6BAD' }}>
                     {fleetAvg}%
                   </td>
                 </tr>
@@ -139,24 +139,24 @@ export function CRM() {
       <div className="card">
         <div className="card-hdr">Performance Bands</div>
         <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div style={{ padding: 20, borderRadius: 16, background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#047857', marginBottom: 8 }}>Excellent (90-100%)</div>
-            <div style={{ fontSize: 28, fontWeight: 900, color: '#047857' }}>{crmGrid.filter(r => r.avg >= 90).length} rigs</div>
-            <div style={{ marginTop: 8, fontSize: 12, color: '#64748B' }}>
+          <div style={{ padding: 20, borderRadius: 16, background: '#EFF7F2', border: '1px solid #C3DFC9' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#2A6B4A', marginBottom: 8 }}>Excellent (90-100%)</div>
+            <div style={{ fontSize: 28, fontWeight: 600, color: '#2A6B4A' }}>{crmGrid.filter(r => r.avg >= 90).length} rigs</div>
+            <div style={{ marginTop: 8, fontSize: 12, color: '#5F6B7A' }}>
               {crmGrid.filter(r => r.avg >= 90).map(r => r.rig).join(', ') || 'None'}
             </div>
           </div>
-          <div style={{ padding: 20, borderRadius: 16, background: '#FFFBEB', border: '1px solid #FDE68A' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#B45309', marginBottom: 8 }}>Acceptable (80-89%)</div>
-            <div style={{ fontSize: 28, fontWeight: 900, color: '#B45309' }}>{crmGrid.filter(r => r.avg >= 80 && r.avg < 90).length} rigs</div>
-            <div style={{ marginTop: 8, fontSize: 12, color: '#64748B' }}>
+          <div style={{ padding: 20, borderRadius: 16, background: '#FFFBEB', border: '1px solid #EBD9B0' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#9A7328', marginBottom: 8 }}>Acceptable (80-89%)</div>
+            <div style={{ fontSize: 28, fontWeight: 600, color: '#9A7328' }}>{crmGrid.filter(r => r.avg >= 80 && r.avg < 90).length} rigs</div>
+            <div style={{ marginTop: 8, fontSize: 12, color: '#5F6B7A' }}>
               {crmGrid.filter(r => r.avg >= 80 && r.avg < 90).map(r => r.rig).join(', ') || 'None'}
             </div>
           </div>
-          <div style={{ padding: 20, borderRadius: 16, background: '#FEF2F2', border: '1px solid #FECACA' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#DC2626', marginBottom: 8 }}>Below Target (&lt;80%)</div>
-            <div style={{ fontSize: 28, fontWeight: 900, color: '#DC2626' }}>{crmGrid.filter(r => r.avg > 0 && r.avg < 80).length} rigs</div>
-            <div style={{ marginTop: 8, fontSize: 12, color: '#64748B' }}>
+          <div style={{ padding: 20, borderRadius: 16, background: '#FAF0F0', border: '1px solid #E0BFBF' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#8B3A3A', marginBottom: 8 }}>Below Target (&lt;80%)</div>
+            <div style={{ fontSize: 28, fontWeight: 600, color: '#8B3A3A' }}>{crmGrid.filter(r => r.avg > 0 && r.avg < 80).length} rigs</div>
+            <div style={{ marginTop: 8, fontSize: 12, color: '#5F6B7A' }}>
               {crmGrid.filter(r => r.avg > 0 && r.avg < 80).map(r => r.rig).join(', ') || 'None'}
             </div>
           </div>

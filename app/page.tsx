@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Topbar } from '@/components/Topbar';
 import { FleetDashboard } from '@/components/analytics/FleetDashboard';
@@ -23,6 +23,10 @@ import './dashboard.css';
 export default function DashboardApp() {
   const [page, setPage] = useState('home');
   const [col, setCol] = useState(false);
+
+  useEffect(() => {
+    if (window.innerWidth < 1024) setCol(true);
+  }, []);
 
   const renderContent = () => {
     switch (page) {
@@ -72,7 +76,7 @@ export default function DashboardApp() {
     <div className="app">
       <Sidebar page={page} setPage={setPage} col={col} setCol={setCol} />
       <div className="main">
-        <Topbar page={page} />
+        <Topbar page={page} col={col} setCol={setCol} />
         <div className="content">
           {renderContent()}
         </div>

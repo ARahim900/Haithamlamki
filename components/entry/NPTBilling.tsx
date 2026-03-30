@@ -78,13 +78,13 @@ export function NPTBilling() {
                 return (
                   <tr key={i} style={r.mismatch ? { background: '#FEF9C3' } : {}}>
                     <td><strong>{r.rig}</strong></td>
-                    <td className="tb-num" style={{ color: '#047857', fontWeight: 700 }}>{r.opr_rate_hrs ?? 0}</td>
-                    <td className="tb-num" style={{ color: (r.reduce_rate_hrs ?? 0) ? '#D97706' : '#CBD5E1' }}>{r.reduce_rate_hrs || '-'}</td>
-                    <td className="tb-num" style={{ color: '#DC2626', fontWeight: 700 }}>{r.repair_rate_hrs ?? 0}</td>
-                    <td className="tb-num" style={{ color: (r.zero_rate_hrs ?? 0) ? '#64748B' : '#CBD5E1' }}>{r.zero_rate_hrs || '-'}</td>
-                    <td className="tb-num" style={{ color: (r.special_rate_hrs ?? 0) ? '#0284C7' : '#CBD5E1' }}>{r.special_rate_hrs || '-'}</td>
-                    <td className="tb-num" style={{ fontWeight: 800 }}>{manualTotal}h</td>
-                    <td className="tb-num" style={{ fontWeight: 800 }}>
+                    <td className="tb-num" style={{ color: '#2A6B4A', fontWeight: 700 }}>{r.opr_rate_hrs ?? 0}</td>
+                    <td className="tb-num" style={{ color: (r.reduce_rate_hrs ?? 0) ? '#D97706' : '#D4D7DC' }}>{r.reduce_rate_hrs || '-'}</td>
+                    <td className="tb-num" style={{ color: '#8B3A3A', fontWeight: 700 }}>{r.repair_rate_hrs ?? 0}</td>
+                    <td className="tb-num" style={{ color: (r.zero_rate_hrs ?? 0) ? '#5F6B7A' : '#D4D7DC' }}>{r.zero_rate_hrs || '-'}</td>
+                    <td className="tb-num" style={{ color: (r.special_rate_hrs ?? 0) ? '#3B6BAD' : '#D4D7DC' }}>{r.special_rate_hrs || '-'}</td>
+                    <td className="tb-num" style={{ fontWeight: 600 }}>{manualTotal}h</td>
+                    <td className="tb-num" style={{ fontWeight: 600 }}>
                       <FA v={`${r.eticket_total ?? manualTotal}h`} />
                     </td>
                     <td style={{ textAlign: 'center' }}>

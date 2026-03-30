@@ -33,7 +33,14 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
     setOpenSection(prev => prev === section ? null : section);
   };
 
+  const navigate = (id: string) => {
+    setPage(id);
+    if (window.innerWidth < 768) setCol(true);
+  };
+
   return (
+    <>
+    {!col && <div className="sb-backdrop" onClick={()=>setCol(true)} />}
     <div className={"sb"+(col?" col":"")}>
       <div className="sb-logo" onClick={()=>setCol(c=>!c)}>
         {col ? (
@@ -50,7 +57,7 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
         </div>}
         {(openSection==='analytics'||col)&&<div className={col?"":"ni-kids"}>
           {NAV_ANALYTICS.map(i=>(
-            <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>setPage(i.id)} title={col?i.lbl:""}>
+            <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>navigate(i.id)} title={col?i.lbl:""}>
               <span className="ni-icon">{i.ico}</span>
               {!col && <span className="ni-kid-txt">{i.lbl}</span>}
             </div>
@@ -63,7 +70,7 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
         </div>}
         {(openSection==='ops'||col)&&<div className={col?"":"ni-kids"}>
           {NAV_OPS.map(i=>(
-            <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>setPage(i.id)} title={col?i.lbl:""}>
+            <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>navigate(i.id)} title={col?i.lbl:""}>
               <span className="ni-icon">{i.ico}</span>
               {!col && <span className="ni-kid-txt">{i.lbl}</span>}
             </div>
@@ -76,7 +83,7 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
         </div>}
         {(openSection==='entry'||col)&&<div className={col?"":"ni-kids"}>
           {NAV_ENTRY.map(i=>(
-            <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>setPage(i.id)} title={col?i.lbl:""}>
+            <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>navigate(i.id)} title={col?i.lbl:""}>
               <span className="ni-icon">{i.ico}</span>
               {!col && <span className="ni-kid-txt">{i.lbl}</span>}
             </div>
@@ -87,5 +94,6 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
         <span style={{fontSize:12}}>{col?"▶":"◀"}</span>{!col&&<span>Collapse</span>}
       </div>
     </div>
+    </>
   );
 }
