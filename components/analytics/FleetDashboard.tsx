@@ -2,11 +2,14 @@
 import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { fleetRows, revData, nptPie } from '@/lib/data';
-import { colors as t } from '@/lib/tokens';
+import { getColors } from '@/lib/tokens';
+import { useDarkMode } from '@/hooks/useDarkMode';
 import { Bdg, KPI } from '@/components/Shared';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
+  const isDark = useDarkMode();
+  const t = getColors(isDark);
   const isMobile = useIsMobile();
   const activeRigs=fleetRows.filter(r=>r.status!=="Stacked").length;
   const avgCSAT=Math.round(fleetRows.reduce((s,r)=>s+r.csat,0)/fleetRows.length);

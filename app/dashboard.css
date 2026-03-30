@@ -111,7 +111,17 @@
     --color-chart-4: #5ABE9E;
     --color-chart-5: #2D7A89;
     --color-chart-bar: #D08B8F;
+    --color-chart-bg-blue: #0D1F2D;
+    --color-chart-bg-green: #0D1F16;
+    --color-chart-bg-yellow: #1F1A0D;
+    --color-chart-bg-red: #1F0D0D;
+    --color-chart-bg-purple: #1A0D1F;
+    --color-chart-bg-cyan: #0D1F1A;
+    --color-chart-bg-orange: #1F170D;
+    --color-chart-bg-pink: #1F0D16;
   }
+  .alert-warn { background: #0D2A33; border-color: var(--color-primary); color: var(--color-primary); }
+  .card-hdr { border-bottom-color: var(--color-border); }
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -171,7 +181,7 @@ body { background: var(--color-bg); color: var(--color-text-primary); overflow: 
 /* ══════════════════════════════════════════════════════════════════════════════
    CARDS
    ══════════════════════════════════════════════════════════════════════════════ */
-.card { background: var(--color-card); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); margin-bottom: var(--space-4); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03); }
+.card { background: var(--color-card); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); margin-bottom: var(--space-4); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03); overflow: hidden; }
 .card + .card { margin-top: var(--space-1); }
 .card-hdr { font-size: var(--font-size-base); font-weight: 600; color: var(--color-text-primary); letter-spacing: 0; margin-bottom: var(--space-4); padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border-light); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); }
 .card-hdr .sub { font-size: var(--font-size-xs); color: var(--color-text-secondary); font-weight: 500; }
@@ -289,7 +299,7 @@ tr:hover td { background: var(--color-surface); transition: background .15s ease
 /* ══════════════════════════════════════════════════════════════════════════════
    ALERTS — Using chart background colors
    ══════════════════════════════════════════════════════════════════════════════ */
-.alert-warn { background: var(--color-warning-bg); border: 1px solid var(--color-warning); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); margin-bottom: var(--space-3); font-size: var(--font-size-xs); font-weight: 500; color: var(--color-warning); display: flex; gap: var(--space-2); align-items: center; }
+.alert-warn { background: #F0F7FA; border: 1px solid var(--color-primary); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); margin-bottom: var(--space-3); font-size: var(--font-size-xs); font-weight: 500; color: var(--color-primary-dark); display: flex; gap: var(--space-2); align-items: center; }
 .alert-info { background: var(--color-info-bg); border: 1px solid var(--color-info); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); margin-bottom: var(--space-3); font-size: var(--font-size-xs); font-weight: 500; color: var(--color-info); display: flex; gap: var(--space-2); align-items: center; }
 .alert-success { background: var(--color-positive-bg); border: 1px solid var(--color-positive); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); margin-bottom: var(--space-3); font-size: var(--font-size-xs); font-weight: 500; color: var(--color-positive); display: flex; gap: var(--space-2); align-items: center; }
 .alert-error { background: var(--color-negative-bg); border: 1px solid var(--color-negative); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); margin-bottom: var(--space-3); font-size: var(--font-size-xs); font-weight: 500; color: var(--color-negative); display: flex; gap: var(--space-2); align-items: center; }

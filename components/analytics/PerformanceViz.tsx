@@ -2,11 +2,14 @@
 import React from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
 import { utilData, crmData, wellTracking } from '@/lib/data';
-import { colors as t } from '@/lib/tokens';
+import { getColors } from '@/lib/tokens';
+import { useDarkMode } from '@/hooks/useDarkMode';
 import { KPI, Bdg } from '@/components/Shared';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export function PerformanceViz(){
+  const isDark = useDarkMode();
+  const t = getColors(isDark);
   const isMobile = useIsMobile();
   const csatTrend=[{m:"Jan",avg:84},{m:"Feb",avg:85},{m:"Mar",avg:86},{m:"Apr",avg:87},{m:"May",avg:86},{m:"Jun",avg:89}];
   const wellVarData=wellTracking.map(w=>({well:w.well.substring(0,8),var:w.actD-w.afeD,prog:Math.min(100,Math.round((w.cTD/w.tTD)*100))}));

@@ -2,11 +2,14 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart, Area } from 'recharts';
 import { fleetRows, revData } from '@/lib/data';
-import { colors as t } from '@/lib/tokens';
+import { getColors } from '@/lib/tokens';
+import { useDarkMode } from '@/hooks/useDarkMode';
 import { KPI } from '@/components/Shared';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export function FinancialViz(){
+  const isDark = useDarkMode();
+  const t = getColors(isDark);
   const isMobile = useIsMobile();
   const chartH = isMobile ? 180 : 220;
   const rigRevData=fleetRows.slice(0,8).map((r,i)=>({rig:"R"+r.rig,rev:3.9-i*0.1,bud:3.7-i*0.05,npt:0.08+i*0.03}));
