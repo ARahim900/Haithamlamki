@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { FA, FD, FM, FieldLegend, Bdg } from '@/components/Shared';
+import { Modal } from '@/components/Modal';
 import { useNptEvents } from '@/hooks/useDb';
 import { RIGS } from '@/lib/data';
 import { Trash2 } from 'lucide-react';
@@ -164,42 +165,38 @@ export function YTDDetails() {
       </div>
 
       {/* Add Modal */}
-      {showAddModal && (
-        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-hdr">
-              <span className="modal-title">Add NPT Event</span>
-              <button className="modal-close" onClick={() => setShowAddModal(false)}>×</button>
+      <Modal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        title="Add NPT Event"
+        footer={
+          <>
+            <button className="btn btn-o" onClick={() => setShowAddModal(false)}>Cancel</button>
+            <button className="btn btn-t" onClick={handleAddSubmit}>Save Event</button>
+          </>
+        }
+      >
+        <div className="grid grid-cols-2 gap-4">
+          <FD l="Rig" v={form.rig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
+          <FM l="Date" v={form.event_date} type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, event_date: e.target.value })} />
+          <FD l="NPT Type" v={form.npt_type} opts={['Abraj', 'Contractual']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, npt_type: e.target.value })} />
+          <FM l="Duration (hrs)" v={form.hours} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, hours: e.target.value })} />
+          {form.npt_type === 'Abraj' && (
+            <>
+              <FD l="System / Category" v={form.system_category} opts={NPT_SYSTEMS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, system_category: e.target.value })} />
+              <FM l="Equipment Failed" v={form.part_equipment} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, part_equipment: e.target.value })} />
+              <FM l="Root Cause" v={form.root_cause} rows={2} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, root_cause: e.target.value })} />
+              <FM l="Corrective Action" v={form.corrective_action} rows={2} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, corrective_action: e.target.value })} />
+            </>
+          )}
+          {form.npt_type === 'Contractual' && (
+            <div className="col-span-2">
+              <FM l="Contractual Process Description" v={form.contractual_process} rows={3} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, contractual_process: e.target.value })} />
             </div>
-            <div className="modal-body">
-              <div className="grid grid-cols-2 gap-4">
-                <FD l="Rig" v={form.rig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
-                <FM l="Date" v={form.event_date} type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, event_date: e.target.value })} />
-                <FD l="NPT Type" v={form.npt_type} opts={['Abraj', 'Contractual']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, npt_type: e.target.value })} />
-                <FM l="Duration (hrs)" v={form.hours} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, hours: e.target.value })} />
-                {form.npt_type === 'Abraj' && (
-                  <>
-                    <FD l="System / Category" v={form.system_category} opts={NPT_SYSTEMS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, system_category: e.target.value })} />
-                    <FM l="Equipment Failed" v={form.part_equipment} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, part_equipment: e.target.value })} />
-                    <FM l="Root Cause" v={form.root_cause} rows={2} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, root_cause: e.target.value })} />
-                    <FM l="Corrective Action" v={form.corrective_action} rows={2} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, corrective_action: e.target.value })} />
-                  </>
-                )}
-                {form.npt_type === 'Contractual' && (
-                  <div className="col-span-2">
-                    <FM l="Contractual Process Description" v={form.contractual_process} rows={3} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, contractual_process: e.target.value })} />
-                  </div>
-                )}
-                <FD l="Responsible Party" v={form.action_party} opts={['Maint. Supervisor', 'Drilling Engr.', 'Electrical Engr.', 'Rig Manager', 'Client Rep', 'WSL']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, action_party: e.target.value })} />
-              </div>
-            </div>
-            <div className="modal-foot">
-              <button className="btn btn-o" onClick={() => setShowAddModal(false)}>Cancel</button>
-              <button className="btn btn-t" onClick={handleAddSubmit}>Save Event</button>
-            </div>
-          </div>
+          )}
+          <FD l="Responsible Party" v={form.action_party} opts={['Maint. Supervisor', 'Drilling Engr.', 'Electrical Engr.', 'Rig Manager', 'Client Rep', 'WSL']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, action_party: e.target.value })} />
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

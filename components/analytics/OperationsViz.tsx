@@ -3,8 +3,11 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart } from 'recharts';
 import { fuelTrend, wellTracking } from '@/lib/data';
 import { KPI, Bdg } from '@/components/Shared';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export function OperationsViz(){
+  const isMobile = useIsMobile();
+  const chartH = isMobile ? 180 : 220;
   return(
     <div>
       <div className="kpi-row">
@@ -16,8 +19,8 @@ export function OperationsViz(){
       <div className="g2">
         <div className="card">
           <div className="card-hdr">Fuel Consumed vs Received (L)</div>
-          <div className="chart-wrap" style={{height:220}}>
-            <ResponsiveContainer width="100%" height={220}>
+          <div className="chart-wrap" style={{height:chartH}}>
+            <ResponsiveContainer width="100%" height={chartH}>
               <ComposedChart data={fuelTrend}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
                 <XAxis dataKey="m" tick={{fontSize:10}} stroke="#ccc"/>
@@ -46,7 +49,7 @@ export function OperationsViz(){
         <div className="card-hdr">Well Lifecycle Tracker — Active Wells</div>
         <div className="tw">
           <table>
-            <thead><tr>{["Rig","Well","Field","Spud Date","Phase","Target TD","Current TD","Progress","AFE Days","Actual","Variance"].map(h=><th key={h} className="th">{h}</th>)}</tr></thead>
+            <thead><tr>{["Rig","Well","Field","Spud Date","Phase","Target TD","Current TD","Progress","AFE Days","Actual","Variance"].map(h=><th key={h} scope="col" className="th">{h}</th>)}</tr></thead>
             <tbody>
               {wellTracking.map((r,i)=>{
                 const prog=Math.min(100,Math.round((r.cTD/r.tTD)*100));
@@ -62,7 +65,7 @@ export function OperationsViz(){
                     <td style={{fontFamily:"monospace",fontWeight:700}}>{r.cTD.toLocaleString()}</td>
                     <td>
                       <div style={{display:"flex",alignItems:"center",gap:5}}>
-                        <div className="prog-track" style={{width:50}}><div className="prog-fill" style={{width:prog+"%",background:"#07788D"}}/></div>
+                        <div className="prog-track" style={{minWidth:40,flex:1,maxWidth:60}}><div className="prog-fill" style={{width:prog+"%",background:"#07788D"}}/></div>
                         <span style={{fontSize:10,fontWeight:600,color:"#07788D"}}>{prog}%</span>
                       </div>
                     </td>

@@ -131,8 +131,8 @@
 }
 
 @theme inline {
-    /* ── Font Family: Inter ── */
-    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    /* ── Font Family: Geist Sans ── */
+    --font-sans: var(--font-geist, "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif);
 
     /* ── Sidebar Colors ── */
     --color-sidebar-ring: var(--sidebar-ring);

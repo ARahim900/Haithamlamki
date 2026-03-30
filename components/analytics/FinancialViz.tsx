@@ -3,8 +3,11 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ComposedChart, Area } from 'recharts';
 import { fleetRows, revData } from '@/lib/data';
 import { KPI } from '@/components/Shared';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export function FinancialViz(){
+  const isMobile = useIsMobile();
+  const chartH = isMobile ? 180 : 220;
   const rigRevData=fleetRows.slice(0,8).map((r,i)=>({rig:"R"+r.rig,rev:3.9-i*0.1,bud:3.7-i*0.05,npt:0.08+i*0.03}));
   return(
     <div>
@@ -17,8 +20,8 @@ export function FinancialViz(){
       <div className="g2">
         <div className="card">
           <div className="card-hdr">Revenue vs Budget by Rig ($M) — Jun</div>
-          <div className="chart-wrap" style={{height:220}}>
-            <ResponsiveContainer width="100%" height={220}>
+          <div className="chart-wrap" style={{height:chartH}}>
+            <ResponsiveContainer width="100%" height={chartH}>
               <BarChart data={rigRevData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
                 <XAxis dataKey="rig" tick={{fontSize:9}} stroke="#ccc"/>
@@ -33,8 +36,8 @@ export function FinancialViz(){
         </div>
         <div className="card">
           <div className="card-hdr">Monthly Revenue vs Budget ($M)</div>
-          <div className="chart-wrap" style={{height:220}}>
-            <ResponsiveContainer width="100%" height={220}>
+          <div className="chart-wrap" style={{height:chartH}}>
+            <ResponsiveContainer width="100%" height={chartH}>
               <ComposedChart data={revData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
                 <XAxis dataKey="m" tick={{fontSize:10}} stroke="#ccc"/>
@@ -53,7 +56,7 @@ export function FinancialViz(){
         <div className="card-hdr">Rate Type Breakdown — All Rigs Jun 2025</div>
         <div className="tw">
           <table>
-            <thead><tr>{["Rig","Op Hrs","Op Days","Reduced Hrs","Breakdown","Special","Zero","Stack","Total Hrs","Est. Revenue ($)"].map(h=><th key={h} className="th">{h}</th>)}</tr></thead>
+            <thead><tr>{["Rig","Op Hrs","Op Days","Reduced Hrs","Breakdown","Special","Zero","Stack","Total Hrs","Est. Revenue ($)"].map(h=><th key={h} scope="col" className="th">{h}</th>)}</tr></thead>
             <tbody>
               {fleetRows.slice(0,8).map((r,i)=>{
                 const op=720-i*8;const rd=i%2===0?0:24;const sp=r.rate==="Special"?24:0;

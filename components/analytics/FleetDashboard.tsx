@@ -3,8 +3,10 @@ import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { fleetRows, revData, nptPie } from '@/lib/data';
 import { Bdg, KPI } from '@/components/Shared';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
+  const isMobile = useIsMobile();
   const activeRigs=fleetRows.filter(r=>r.status!=="Stacked").length;
   const avgCSAT=Math.round(fleetRows.reduce((s,r)=>s+r.csat,0)/fleetRows.length);
   const avgNPT=(fleetRows.reduce((s,r)=>s+r.npt,0)/fleetRows.length).toFixed(1);
@@ -26,8 +28,8 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
       <div className="g2">
         <div className="card">
           <div className="card-hdr">Revenue vs Budget ($M) — YTD</div>
-          <div className="chart-wrap" style={{height:160}}>
-            <ResponsiveContainer width="100%" height={160}>
+          <div className="chart-wrap" style={{height:isMobile ? 140 : 160}}>
+            <ResponsiveContainer width="100%" height={isMobile ? 140 : 160}>
               <AreaChart data={revData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
                 <XAxis dataKey="m" tick={{fontSize:10, fill: "#888"}} stroke="#eaeaea"/>
@@ -42,8 +44,8 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
         </div>
         <div className="card">
           <div className="card-hdr">NPT by System — MTD</div>
-          <div className="chart-wrap" style={{height:160}}>
-            <ResponsiveContainer width="100%" height={160}>
+          <div className="chart-wrap" style={{height:isMobile ? 140 : 160}}>
+            <ResponsiveContainer width="100%" height={isMobile ? 140 : 160}>
               <PieChart>
                 <Pie data={nptPie} cx="50%" cy="50%" innerRadius={35} outerRadius={60} paddingAngle={2} dataKey="v" nameKey="n">
                   {nptPie.map((d,i)=><Cell key={i} fill={d.c}/>)}
@@ -67,7 +69,7 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
         </div>
         <div className="tw">
           <table>
-            <thead><tr>{["Rig","Well","Status","Depth (ft)","Days","Rate","CSAT","NPT 30d"].map(h=><th key={h} className={"th"+(h==="Days"||h==="NPT 30d"?" tb-num":"")}>{h}</th>)}</tr></thead>
+            <thead><tr>{["Rig","Well","Status","Depth (ft)","Days","Rate","CSAT","NPT 30d"].map(h=><th key={h} scope="col" className={"th"+(h==="Days"||h==="NPT 30d"?" tb-num":"")}>{h}</th>)}</tr></thead>
             <tbody>
               {fleetRows.map((r,i)=>(
                 <tr key={i}>

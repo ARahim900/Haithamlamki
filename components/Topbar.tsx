@@ -24,21 +24,23 @@ export function Topbar({page,col,setCol}: {page: string, col?: boolean, setCol: 
   const [par,cur]=CRUMBS[page]||["","Dashboard"];
   const isEntry=par==="Data Entry";
   return (
-    <div className="topbar">
+    <header className="topbar" role="banner">
       <div className="tb-left">
-        <button className="mobile-menu" onClick={()=>setCol(c=>!c)} aria-label="Toggle menu" aria-expanded={!!col}>
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><line x1="3" y1="5" x2="15" y2="5"/><line x1="3" y1="9" x2="15" y2="9"/><line x1="3" y1="13" x2="15" y2="13"/></svg>
+        <button className="mobile-menu" onClick={()=>setCol(c=>!c)} aria-label="Toggle menu" aria-expanded={!col} type="button">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true"><line x1="3" y1="5" x2="15" y2="5"/><line x1="3" y1="9" x2="15" y2="9"/><line x1="3" y1="13" x2="15" y2="13"/></svg>
         </button>
-        <span className="bc-par">{par}</span>
-        <span className="bc-sep"> / </span>
-        <span className="bc-cur">{cur}</span>
-        {isEntry&&<span style={{marginLeft:10,background:"#ECEEF1",color:"#6B7280",fontSize:9,fontWeight:600,padding:"3px 8px",borderRadius:4,textTransform:"uppercase",letterSpacing:".3px"}}>Entry</span>}
+        <nav aria-label="Breadcrumb">
+          <span className="bc-par">{par}</span>
+          <span className="bc-sep" aria-hidden="true"> / </span>
+          <span className="bc-cur" aria-current="page">{cur}</span>
+        </nav>
+        {isEntry&&<span className="tb-tag">Entry</span>}
       </div>
-      <div className="tb-right">
-        <span style={{background:"#F5F6F8",color:"#6B7280",borderRadius:4,padding:"4px 10px",fontSize:11,fontWeight:500,border:"1px solid #E5E7EB"}}>PDO</span>
-        <span style={{background:"#EFF7F2",color:"#2A6B4A",borderRadius:4,padding:"4px 10px",fontSize:11,fontWeight:600,border:"1px solid #C3DFC9"}}>● Live</span>
-        <div style={{width:30,height:30,borderRadius:"50%",background:"#243B42",display:"flex",alignItems:"center",justifyContent:"center",color:"rgba(255,255,255,0.85)",fontSize:11,fontWeight:600}}>RM</div>
+      <div className="tb-right" aria-label="Status indicators">
+        <span className="tb-badge">PDO</span>
+        <span className="tb-badge tb-badge-live" aria-label="System is live">● Live</span>
+        <div className="tb-avatar" aria-label="User: RM">RM</div>
       </div>
-    </div>
+    </header>
   );
 }

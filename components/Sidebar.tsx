@@ -1,5 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import Image from 'next/image';
 
 export const NAV_ANALYTICS=[
   {id:"home",lbl:"Fleet Dashboard",ico:"📊"},
@@ -26,6 +27,13 @@ export const NAV_ENTRY=[
 
 type Section = 'analytics' | 'ops' | 'entry' | null;
 
+function handleKeyActivate(e: React.KeyboardEvent, action: () => void) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    action();
+  }
+}
+
 export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: string) => void, col: boolean, setCol: React.Dispatch<React.SetStateAction<boolean>>}){
   const [openSection, setOpenSection] = useState<Section>('analytics');
 
@@ -33,67 +41,120 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
     setOpenSection(prev => prev === section ? null : section);
   };
 
-  const navigate = (id: string) => {
+  const navigate = useCallback((id: string) => {
     setPage(id);
     if (window.innerWidth < 768) setCol(true);
-  };
+  }, [setPage, setCol]);
+
+  const toggleCollapse = useCallback(() => setCol(c => !c), [setCol]);
 
   return (
     <>
-    {!col && <div className="sb-backdrop" aria-hidden="true" onClick={()=>setCol(true)} />}
-    <div className={"sb"+(col?" col":"")}>
-      <div className="sb-logo" onClick={()=>setCol(c=>!c)}>
+    {!col && <div className="sb-backdrop" aria-hidden="true" onClick={() => setCol(true)} />}
+    <aside className={"sb"+(col?" col":"")} aria-label="Main navigation">
+      <button
+        className="sb-logo"
+        onClick={toggleCollapse}
+        aria-label={col ? "Expand sidebar" : "Collapse sidebar"}
+        aria-expanded={!col}
+        type="button"
+      >
         {col ? (
           <div className="logo-box" style={{fontWeight:900,fontSize:14,letterSpacing:'-0.5px'}}>A</div>
         ) : (
-          <img src="/abraj-logo.jpeg" alt="Abraj Energy Services" className="logo-img" />
+          <Image src="/abraj-logo.jpeg" alt="Abraj Energy Services" className="logo-img" width={160} height={40} priority />
         )}
-      </div>
-      <nav>
+      </button>
+      <nav aria-label="Dashboard navigation">
         {/* Analytics */}
-        {!col&&<div className="sec-lbl">Analytics</div>}
-        {!col&&<div className="ni" onClick={()=>toggleSection('analytics')}>
-          <span className="ni-icon">📊</span><span className="ni-lbl">Dashboards</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:10,opacity:.5}}>{openSection==='analytics'?"▾":"▸"}</span>
-        </div>}
-        {(openSection==='analytics'||col)&&<div className={col?"":"ni-kids"}>
+        {!col&&<div className="sec-lbl" id="sec-analytics">Analytics</div>}
+        {!col&&<button
+          className="ni"
+          onClick={() => toggleSection('analytics')}
+          onKeyDown={e => handleKeyActivate(e, () => toggleSection('analytics'))}
+          aria-expanded={openSection === 'analytics'}
+          aria-controls="nav-analytics"
+          type="button"
+        >
+          <span className="ni-icon" aria-hidden="true">📊</span><span className="ni-lbl">Dashboards</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:10,opacity:.5}} aria-hidden="true">{openSection==='analytics'?"▾":"▸"}</span>
+        </button>}
+        {(openSection==='analytics'||col)&&<div id="nav-analytics" role="list" className={col?"":"ni-kids"} aria-labelledby={col ? undefined : "sec-analytics"}>
           {NAV_ANALYTICS.map(i=>(
-            <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>navigate(i.id)} title={col?i.lbl:""}>
-              <span className="ni-icon">{i.ico}</span>
+            <button
+              key={i.id}
+              className={"ni-kid"+(page===i.id?" act":"")}
+              onClick={() => navigate(i.id)}
+              aria-current={page===i.id ? "page" : undefined}
+              title={col?i.lbl:""}
+              role="listitem"
+              type="button"
+            >
+              <span className="ni-icon" aria-hidden="true">{i.ico}</span>
               {!col && <span className="ni-kid-txt">{i.lbl}</span>}
-            </div>
+            </button>
           ))}
         </div>}
         {/* Operations */}
-        {!col&&<div className="sec-lbl">Operations</div>}
-        {!col&&<div className="ni" onClick={()=>toggleSection('ops')}>
-          <span className="ni-icon">⚙️</span><span className="ni-lbl">Rig Ops</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:10,opacity:.5}}>{openSection==='ops'?"▾":"▸"}</span>
-        </div>}
-        {(openSection==='ops'||col)&&<div className={col?"":"ni-kids"}>
+        {!col&&<div className="sec-lbl" id="sec-ops">Operations</div>}
+        {!col&&<button
+          className="ni"
+          onClick={() => toggleSection('ops')}
+          onKeyDown={e => handleKeyActivate(e, () => toggleSection('ops'))}
+          aria-expanded={openSection === 'ops'}
+          aria-controls="nav-ops"
+          type="button"
+        >
+          <span className="ni-icon" aria-hidden="true">⚙️</span><span className="ni-lbl">Rig Ops</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:10,opacity:.5}} aria-hidden="true">{openSection==='ops'?"▾":"▸"}</span>
+        </button>}
+        {(openSection==='ops'||col)&&<div id="nav-ops" role="list" className={col?"":"ni-kids"} aria-labelledby={col ? undefined : "sec-ops"}>
           {NAV_OPS.map(i=>(
-            <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>navigate(i.id)} title={col?i.lbl:""}>
-              <span className="ni-icon">{i.ico}</span>
+            <button
+              key={i.id}
+              className={"ni-kid"+(page===i.id?" act":"")}
+              onClick={() => navigate(i.id)}
+              aria-current={page===i.id ? "page" : undefined}
+              title={col?i.lbl:""}
+              role="listitem"
+              type="button"
+            >
+              <span className="ni-icon" aria-hidden="true">{i.ico}</span>
               {!col && <span className="ni-kid-txt">{i.lbl}</span>}
-            </div>
+            </button>
           ))}
         </div>}
         {/* Data Entry */}
-        {!col&&<div className="sec-lbl">Data Entry</div>}
-        {!col&&<div className="ni" onClick={()=>toggleSection('entry')}>
-          <span className="ni-icon">📝</span><span className="ni-lbl">Entry Forms</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:10,opacity:.5}}>{openSection==='entry'?"▾":"▸"}</span>
-        </div>}
-        {(openSection==='entry'||col)&&<div className={col?"":"ni-kids"}>
+        {!col&&<div className="sec-lbl" id="sec-entry">Data Entry</div>}
+        {!col&&<button
+          className="ni"
+          onClick={() => toggleSection('entry')}
+          onKeyDown={e => handleKeyActivate(e, () => toggleSection('entry'))}
+          aria-expanded={openSection === 'entry'}
+          aria-controls="nav-entry"
+          type="button"
+        >
+          <span className="ni-icon" aria-hidden="true">📝</span><span className="ni-lbl">Entry Forms</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:10,opacity:.5}} aria-hidden="true">{openSection==='entry'?"▾":"▸"}</span>
+        </button>}
+        {(openSection==='entry'||col)&&<div id="nav-entry" role="list" className={col?"":"ni-kids"} aria-labelledby={col ? undefined : "sec-entry"}>
           {NAV_ENTRY.map(i=>(
-            <div key={i.id} className={"ni-kid"+(page===i.id?" act":"")} onClick={()=>navigate(i.id)} title={col?i.lbl:""}>
-              <span className="ni-icon">{i.ico}</span>
+            <button
+              key={i.id}
+              className={"ni-kid"+(page===i.id?" act":"")}
+              onClick={() => navigate(i.id)}
+              aria-current={page===i.id ? "page" : undefined}
+              title={col?i.lbl:""}
+              role="listitem"
+              type="button"
+            >
+              <span className="ni-icon" aria-hidden="true">{i.ico}</span>
               {!col && <span className="ni-kid-txt">{i.lbl}</span>}
-            </div>
+            </button>
           ))}
         </div>}
       </nav>
-      <div className="sb-foot" onClick={()=>setCol(c=>!c)}>
-        <span style={{fontSize:12}}>{col?"▶":"◀"}</span>{!col&&<span>Collapse</span>}
-      </div>
-    </div>
+      <button className="sb-foot" onClick={toggleCollapse} aria-label={col ? "Expand sidebar" : "Collapse sidebar"} type="button">
+        <span aria-hidden="true" style={{fontSize:12}}>{col?"▶":"◀"}</span>{!col&&<span>Collapse</span>}
+      </button>
+    </aside>
     </>
   );
 }

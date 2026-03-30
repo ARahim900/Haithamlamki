@@ -3,8 +3,10 @@ import React from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
 import { utilData, crmData, wellTracking } from '@/lib/data';
 import { KPI, Bdg } from '@/components/Shared';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export function PerformanceViz(){
+  const isMobile = useIsMobile();
   const csatTrend=[{m:"Jan",avg:84},{m:"Feb",avg:85},{m:"Mar",avg:86},{m:"Apr",avg:87},{m:"May",avg:86},{m:"Jun",avg:89}];
   const wellVarData=wellTracking.map(w=>({well:w.well.substring(0,8),var:w.actD-w.afeD,prog:Math.min(100,Math.round((w.cTD/w.tTD)*100))}));
   return(
@@ -18,8 +20,8 @@ export function PerformanceViz(){
       <div className="g2">
         <div className="card">
           <div className="card-hdr">Monthly Utilization Breakdown (%)</div>
-          <div className="chart-wrap" style={{height:220}}>
-            <ResponsiveContainer width="100%" height={220}>
+          <div className="chart-wrap" style={{height:isMobile ? 180 : 220}}>
+            <ResponsiveContainer width="100%" height={isMobile ? 180 : 220}>
               <BarChart data={utilData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
                 <XAxis dataKey="m" tick={{fontSize:10}} stroke="#ccc"/>
@@ -37,8 +39,8 @@ export function PerformanceViz(){
         </div>
         <div className="card">
           <div className="card-hdr">CSAT Fleet Average Trend</div>
-          <div className="chart-wrap" style={{height:180}}>
-            <ResponsiveContainer width="100%" height={180}>
+          <div className="chart-wrap" style={{height:isMobile ? 150 : 180}}>
+            <ResponsiveContainer width="100%" height={isMobile ? 150 : 180}>
               <LineChart data={csatTrend}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
                 <XAxis dataKey="m" tick={{fontSize:10}} stroke="#ccc"/>
@@ -60,8 +62,8 @@ export function PerformanceViz(){
       <div className="g2">
         <div className="card">
           <div className="card-hdr">Customer Satisfaction by Rig (%)</div>
-          <div className="chart-wrap" style={{height:200}}>
-            <ResponsiveContainer width="100%" height={200}>
+          <div className="chart-wrap" style={{height:isMobile ? 170 : 200}}>
+            <ResponsiveContainer width="100%" height={isMobile ? 170 : 200}>
               <BarChart data={crmData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
                 <XAxis dataKey="rig" tick={{fontSize:9}} stroke="#ccc"/>

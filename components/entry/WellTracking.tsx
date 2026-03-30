@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { FA, FD, FM, FieldLegend, Bdg } from '@/components/Shared';
+import { Modal } from '@/components/Modal';
 import { useWellTracking } from '@/hooks/useDb';
 import { RIGS } from '@/lib/data';
 
@@ -185,61 +186,53 @@ export function WellTracking() {
       </div>
 
       {/* Add Modal */}
-      {showAddModal && (
-        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-hdr">
-              <span className="modal-title">Add New Well</span>
-              <button className="modal-close" onClick={() => setShowAddModal(false)}>×</button>
-            </div>
-            <div className="modal-body">
-              <div className="grid grid-cols-2 gap-4">
-                <FD l="Rig" v={form.rig || selectedRig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
-                <FM l="Well Name" v={form.well_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, well_name: e.target.value })} />
-                <FM l="Field" v={form.field} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, field: e.target.value })} />
-                <FD l="Status" v={form.status} opts={['In Progress', 'Completed', 'Suspended']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, status: e.target.value })} />
-                <FM l="Total Depth (ft)" v={form.total_depth} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, total_depth: e.target.value })} />
-                <FM l="Current Depth (ft)" v={form.current_depth} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, current_depth: e.target.value })} />
-                <FM l="Spud Date" v={form.spud_date} type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, spud_date: e.target.value })} />
-                <FM l="AFE Days" v={form.afe_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, afe_days: e.target.value })} />
-              </div>
-            </div>
-            <div className="modal-foot">
-              <button className="btn btn-o" onClick={() => setShowAddModal(false)}>Cancel</button>
-              <button className="btn btn-t" onClick={handleAddSubmit}>Save Well</button>
-            </div>
-          </div>
+      <Modal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        title="Add New Well"
+        footer={
+          <>
+            <button className="btn btn-o" onClick={() => setShowAddModal(false)}>Cancel</button>
+            <button className="btn btn-t" onClick={handleAddSubmit}>Save Well</button>
+          </>
+        }
+      >
+        <div className="grid grid-cols-2 gap-4">
+          <FD l="Rig" v={form.rig || selectedRig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
+          <FM l="Well Name" v={form.well_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, well_name: e.target.value })} />
+          <FM l="Field" v={form.field} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, field: e.target.value })} />
+          <FD l="Status" v={form.status} opts={['In Progress', 'Completed', 'Suspended']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, status: e.target.value })} />
+          <FM l="Total Depth (ft)" v={form.total_depth} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, total_depth: e.target.value })} />
+          <FM l="Current Depth (ft)" v={form.current_depth} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, current_depth: e.target.value })} />
+          <FM l="Spud Date" v={form.spud_date} type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, spud_date: e.target.value })} />
+          <FM l="AFE Days" v={form.afe_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, afe_days: e.target.value })} />
         </div>
-      )}
+      </Modal>
 
       {/* Edit Modal */}
-      {showEditModal && (
-        <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-hdr">
-              <span className="modal-title">Edit Well</span>
-              <button className="modal-close" onClick={() => setShowEditModal(false)}>×</button>
-            </div>
-            <div className="modal-body">
-              <div className="grid grid-cols-2 gap-4">
-                <FD l="Rig" v={form.rig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
-                <FM l="Well Name" v={form.well_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, well_name: e.target.value })} />
-                <FM l="Field" v={form.field} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, field: e.target.value })} />
-                <FD l="Status" v={form.status} opts={['In Progress', 'Completed', 'Suspended']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, status: e.target.value })} />
-                <FM l="Total Depth (ft)" v={form.total_depth} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, total_depth: e.target.value })} />
-                <FM l="Current Depth (ft)" v={form.current_depth} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, current_depth: e.target.value })} />
-                <FM l="Spud Date" v={form.spud_date} type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, spud_date: e.target.value })} />
-                <FM l="AFE Days" v={form.afe_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, afe_days: e.target.value })} />
-                <FM l="Actual Days" v={form.actual_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, actual_days: e.target.value })} />
-              </div>
-            </div>
-            <div className="modal-foot">
-              <button className="btn btn-o" onClick={() => setShowEditModal(false)}>Cancel</button>
-              <button className="btn btn-t" onClick={handleEditSubmit}>Update Well</button>
-            </div>
-          </div>
+      <Modal
+        open={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        title="Edit Well"
+        footer={
+          <>
+            <button className="btn btn-o" onClick={() => setShowEditModal(false)}>Cancel</button>
+            <button className="btn btn-t" onClick={handleEditSubmit}>Update Well</button>
+          </>
+        }
+      >
+        <div className="grid grid-cols-2 gap-4">
+          <FD l="Rig" v={form.rig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
+          <FM l="Well Name" v={form.well_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, well_name: e.target.value })} />
+          <FM l="Field" v={form.field} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, field: e.target.value })} />
+          <FD l="Status" v={form.status} opts={['In Progress', 'Completed', 'Suspended']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, status: e.target.value })} />
+          <FM l="Total Depth (ft)" v={form.total_depth} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, total_depth: e.target.value })} />
+          <FM l="Current Depth (ft)" v={form.current_depth} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, current_depth: e.target.value })} />
+          <FM l="Spud Date" v={form.spud_date} type="date" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, spud_date: e.target.value })} />
+          <FM l="AFE Days" v={form.afe_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, afe_days: e.target.value })} />
+          <FM l="Actual Days" v={form.actual_days} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, actual_days: e.target.value })} />
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { FA, FD, FM, FDr, FieldLegend, KPI, Bdg } from '@/components/Shared';
+import { Modal } from '@/components/Modal';
 import { useBillingAccruals } from '@/hooks/useDb';
 import { RIGS, MONTHS } from '@/lib/data';
 
@@ -174,34 +175,30 @@ export function BillingAccruals() {
       </div>
 
       {/* Add Modal */}
-      {showAddModal && (
-        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-hdr">
-              <span className="modal-title">Add Billing Accrual</span>
-              <button className="modal-close" onClick={() => setShowAddModal(false)}>×</button>
-            </div>
-            <div className="modal-body">
-              <div className="grid grid-cols-2 gap-4">
-                <FD l="Rig" v={form.rig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
-                <FM l="WBS #" v={form.wbs} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, wbs: e.target.value })} />
-                <FM l="Well Name" v={form.well_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, well_name: e.target.value })} />
-                <FM l="Network" v={form.network} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, network: e.target.value })} />
-                <FM l="Field" v={form.field_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, field_name: e.target.value })} />
-                <FD l="Area" v={form.area} opts={['North', 'South', 'Central']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, area: e.target.value })} />
-                <FM l="OP Hours" v={form.opp_hrs} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, opp_hrs: e.target.value })} />
-                <FM l="Reduced Hours" v={form.reduce_hrs} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, reduce_hrs: e.target.value })} />
-                <FM l="Breakdown Hours" v={form.bkd_hrs} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, bkd_hrs: e.target.value })} />
-                <FM l="Rig Move Amount ($)" v={form.rig_move_amt} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, rig_move_amt: e.target.value })} />
-              </div>
-            </div>
-            <div className="modal-foot">
-              <button className="btn btn-o" onClick={() => setShowAddModal(false)}>Cancel</button>
-              <button className="btn btn-t" onClick={handleAddSubmit}>Save Entry</button>
-            </div>
-          </div>
+      <Modal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        title="Add Billing Accrual"
+        footer={
+          <>
+            <button className="btn btn-o" onClick={() => setShowAddModal(false)}>Cancel</button>
+            <button className="btn btn-t" onClick={handleAddSubmit}>Save Entry</button>
+          </>
+        }
+      >
+        <div className="grid grid-cols-2 gap-4">
+          <FD l="Rig" v={form.rig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, rig: e.target.value })} />
+          <FM l="WBS #" v={form.wbs} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, wbs: e.target.value })} />
+          <FM l="Well Name" v={form.well_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, well_name: e.target.value })} />
+          <FM l="Network" v={form.network} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, network: e.target.value })} />
+          <FM l="Field" v={form.field_name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, field_name: e.target.value })} />
+          <FD l="Area" v={form.area} opts={['North', 'South', 'Central']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, area: e.target.value })} />
+          <FM l="OP Hours" v={form.opp_hrs} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, opp_hrs: e.target.value })} />
+          <FM l="Reduced Hours" v={form.reduce_hrs} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, reduce_hrs: e.target.value })} />
+          <FM l="Breakdown Hours" v={form.bkd_hrs} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, bkd_hrs: e.target.value })} />
+          <FM l="Rig Move Amount ($)" v={form.rig_move_amt} type="number" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, rig_move_amt: e.target.value })} />
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

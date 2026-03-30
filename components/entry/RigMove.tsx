@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { FD, FM, FieldLegend } from '@/components/Shared';
+import { Modal } from '@/components/Modal';
 import { useRigMoves } from '@/hooks/useDb';
 import { RIGS } from '@/lib/data';
 
@@ -219,14 +220,10 @@ export function RigMove() {
       </div>
 
       {/* Add Modal */}
-      {showAddModal && (
-        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-hdr">
-              <span className="modal-title">Add New Rig Move</span>
-              <button className="modal-close" onClick={() => setShowAddModal(false)}>×</button>
-            </div>
-            <div className="modal-body">
+      <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title="Add New Rig Move" footer={<>
+              <button className="btn btn-o" onClick={() => setShowAddModal(false)}>Cancel</button>
+              <button className="btn btn-t" onClick={handleAddSubmit}>Save Move</button>
+            </>}>
               <div className="grid grid-cols-2 gap-4">
                 <FD l="Rig" v={addForm.rig} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, rig: e.target.value })} />
                 <FD l="Move Type" v={addForm.move_type} opts={['Intra-field', 'Inter-field', 'Pad to Pad']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setAddForm({ ...addForm, move_type: e.target.value })} />
@@ -246,24 +243,13 @@ export function RigMove() {
               <div className="mt-4">
                 <FM l="Remarks" v={addForm.remarks} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setAddForm({ ...addForm, remarks: e.target.value })} rows={2} />
               </div>
-            </div>
-            <div className="modal-foot">
-              <button className="btn btn-o" onClick={() => setShowAddModal(false)}>Cancel</button>
-              <button className="btn btn-t" onClick={handleAddSubmit}>Save Move</button>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* Edit Modal */}
-      {showEditModal && (
-        <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-hdr">
-              <span className="modal-title">Edit Rig Move</span>
-              <button className="modal-close" onClick={() => setShowEditModal(false)}>×</button>
-            </div>
-            <div className="modal-body">
+      <Modal open={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Rig Move" footer={<>
+              <button className="btn btn-o" onClick={() => setShowEditModal(false)}>Cancel</button>
+              <button className="btn btn-t" onClick={handleEditSubmit}>Update Move</button>
+            </>}>
               <div className="grid grid-cols-2 gap-4">
                 <FD l="Rig" v={editForm.rig || ''} opts={RIGS} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEditForm({ ...editForm, rig: e.target.value })} />
                 <FD l="Move Type" v={editForm.move_type || 'Intra-field'} opts={['Intra-field', 'Inter-field', 'Pad to Pad']} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEditForm({ ...editForm, move_type: e.target.value })} />
@@ -283,33 +269,15 @@ export function RigMove() {
               <div className="mt-4">
                 <FM l="Remarks" v={editForm.remarks || ''} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditForm({ ...editForm, remarks: e.target.value })} rows={2} />
               </div>
-            </div>
-            <div className="modal-foot">
-              <button className="btn btn-o" onClick={() => setShowEditModal(false)}>Cancel</button>
-              <button className="btn btn-t" onClick={handleEditSubmit}>Update Move</button>
-            </div>
-          </div>
-        </div>
-      )}
+      </Modal>
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
-          <div className="modal modal-sm" onClick={e => e.stopPropagation()}>
-            <div className="modal-hdr">
-              <span className="modal-title">Confirm Delete</span>
-              <button className="modal-close" onClick={() => setShowDeleteModal(false)}>×</button>
-            </div>
-            <div className="modal-body">
-              <p className="text-center text-gray-600">Are you sure you want to delete this rig move record? This action cannot be undone.</p>
-            </div>
-            <div className="modal-foot">
+      <Modal open={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Confirm Delete" small footer={<>
               <button className="btn btn-o" onClick={() => setShowDeleteModal(false)}>Cancel</button>
               <button className="btn btn-d" onClick={handleDeleteConfirm}>Delete</button>
-            </div>
-          </div>
-        </div>
-      )}
+            </>}>
+              <p className="text-center text-gray-600">Are you sure you want to delete this rig move record? This action cannot be undone.</p>
+      </Modal>
     </div>
   );
 }
