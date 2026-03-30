@@ -24,8 +24,12 @@ export const NAV_ENTRY=[
   {id:"billing",lbl:"Billing Ticket",ico:"🧾"},
   {id:"crm",lbl:"Customer Satisfaction",ico:"⭐"},
 ];
+export const NAV_SYSTEM=[
+  {id:"reports",lbl:"Reports & Export",ico:"📥"},
+  {id:"settings",lbl:"Settings",ico:"⚙️"},
+];
 
-type Section = 'analytics' | 'ops' | 'entry' | null;
+type Section = 'analytics' | 'ops' | 'entry' | 'system' | null;
 
 function handleKeyActivate(e: React.KeyboardEvent, action: () => void) {
   if (e.key === 'Enter' || e.key === ' ') {
@@ -146,6 +150,34 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
         </button>}
         {(openSection==='entry'||col)&&<div id="nav-entry" role="list" className={col?"":"ni-kids"} aria-labelledby={col ? undefined : "sec-entry"}>
           {NAV_ENTRY.map(i=>(
+            <button
+              key={i.id}
+              className={"ni-kid"+(page===i.id?" act":"")}
+              onClick={() => navigate(i.id)}
+              aria-current={page===i.id ? "page" : undefined}
+              title={col?i.lbl:""}
+              role="listitem"
+              type="button"
+            >
+              <span className="ni-icon" aria-hidden="true">{i.ico}</span>
+              {!col && <span className="ni-kid-txt">{i.lbl}</span>}
+            </button>
+          ))}
+        </div>}
+        {/* System */}
+        {!col&&<div className="sec-lbl" id="sec-system">System</div>}
+        {!col&&<button
+          className="ni"
+          onClick={() => toggleSection('system')}
+          onKeyDown={e => handleKeyActivate(e, () => toggleSection('system'))}
+          aria-expanded={openSection === 'system'}
+          aria-controls="nav-system"
+          type="button"
+        >
+          <span className="ni-icon" aria-hidden="true">🔧</span><span className="ni-lbl">System</span><span className="ni-arr" style={{marginLeft:"auto",fontSize:10,opacity:.5}} aria-hidden="true">{openSection==='system'?"▾":"▸"}</span>
+        </button>}
+        {(openSection==='system'||col)&&<div id="nav-system" role="list" className={col?"":"ni-kids"} aria-labelledby={col ? undefined : "sec-system"}>
+          {NAV_SYSTEM.map(i=>(
             <button
               key={i.id}
               className={"ni-kid"+(page===i.id?" act":"")}

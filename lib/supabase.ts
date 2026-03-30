@@ -2,17 +2,17 @@ import { createClient } from '@supabase/supabase-js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Supabase client — Haithamlamki Drilling Operations project
-// Project: haithamlamki-drilling-ops  (separate from Muscat Bay)
-// URL:     https://ydvccqwtpofygzxveckj.supabase.co
+// Project: ibsnzlcdtgsikuivryfh
+// URL:     https://ibsnzlcdtgsikuivryfh.supabase.co
 // ─────────────────────────────────────────────────────────────────────────────
 
 const supabaseUrl =
   process.env.NEXT_PUBLIC_SUPABASE_URL ??
-  'https://ydvccqwtpofygzxveckj.supabase.co';
+  'https://ibsnzlcdtgsikuivryfh.supabase.co';
 
 const supabaseAnonKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkdmNjcXd0cG9meWd6eHZlY2tqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI0ODI1MDAsImV4cCI6MjA1ODA1ODUwMH0.GM7LpHmbWUy0yr06hrsQ6d-CBmpbZWYAB-BH_-Zujh8';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlic256bGNkdGdzaWt1aXZyeWZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5MTE4NzEsImV4cCI6MjA5MDQ4Nzg3MX0.WhEq55n9YRz5oDCAcRfPHSUb7zbkLL2vd6H307eVBxE';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 

@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 export const CRUMBS: Record<string, string[]>={
   home:["Analytics","Fleet Dashboard"],
@@ -18,11 +18,38 @@ export const CRUMBS: Record<string, string[]>={
   welltrack:["Data Entry","Well Tracking (Sheet 7)"],
   nptbill:["Data Entry","NPT Billing (Sheet 8)"],
   util:["Data Entry","Utilization (Sheet 6)"],
+  settings:["System","Settings"],
+  reports:["System","Reports & Export"],
 };
 
-export function Topbar({page,col,setCol}: {page: string, col?: boolean, setCol: React.Dispatch<React.SetStateAction<boolean>>}){
+interface TopbarProps {
+  page: string;
+  col?: boolean;
+  setCol: React.Dispatch<React.SetStateAction<boolean>>;
+  userInitials?: string;
+  userEmail?: string;
+  onLogout?: () => void;
+  onNavigate?: (page: string) => void;
+}
+
+export function Topbar({page,col,setCol,userInitials,userEmail,onLogout,onNavigate}: TopbarProps){
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [par,cur]=CRUMBS[page]||["","Dashboard"];
   const isEntry=par==="Data Entry";
+
+  // Close menu on outside click
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [menuOpen]);
+
   return (
     <header className="topbar" role="banner">
       <div className="tb-left">
@@ -39,7 +66,53 @@ export function Topbar({page,col,setCol}: {page: string, col?: boolean, setCol: 
       <div className="tb-right" aria-label="Status indicators">
         <span className="tb-badge">PDO</span>
         <span className="tb-badge tb-badge-live" aria-label="System is live">● Live</span>
-        <div className="tb-avatar" aria-label="User: RM">RM</div>
+        <div className="tb-user-menu" ref={menuRef}>
+          <button
+            className="tb-avatar"
+            onClick={() => setMenuOpen(o => !o)}
+            aria-label={`User menu${userEmail ? ': ' + userEmail : ''}`}
+            aria-expanded={menuOpen}
+            aria-haspopup="true"
+            type="button"
+          >
+            {userInitials || 'U'}
+          </button>
+          {menuOpen && (
+            <div className="tb-dropdown" role="menu">
+              {userEmail && (
+                <div className="tb-dropdown-header" role="none">
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>{userInitials}</div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis' }}>{userEmail}</div>
+                </div>
+              )}
+              <button
+                className="tb-dropdown-item"
+                onClick={() => { setMenuOpen(false); onNavigate?.('settings'); }}
+                role="menuitem"
+                type="button"
+              >
+                <span aria-hidden="true">⚙️</span> Settings
+              </button>
+              <button
+                className="tb-dropdown-item"
+                onClick={() => { setMenuOpen(false); onNavigate?.('reports'); }}
+                role="menuitem"
+                type="button"
+              >
+                <span aria-hidden="true">📥</span> Reports
+              </button>
+              <div className="tb-dropdown-divider" role="separator" />
+              <button
+                className="tb-dropdown-item tb-dropdown-danger"
+                onClick={() => { setMenuOpen(false); onLogout?.(); }}
+                role="menuitem"
+                type="button"
+              >
+                <span aria-hidden="true">🚪</span> Sign Out
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

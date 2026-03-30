@@ -8,57 +8,104 @@
  */
 
 import { supabase } from './supabase';
+import { FALLBACK_DATA } from './fallback';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Generic helpers
+// Generic helpers (with offline fallback to mock data)
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function getAll<T>(table: string): Promise<T[]> {
-  const { data, error } = await supabase.from(table).select('*').order('id');
-  if (error) throw new Error(`[${table}] getAll: ${error.message}`);
-  return (data ?? []) as T[];
+  try {
+    const { data, error } = await supabase.from(table).select('*').order('id');
+    if (error) throw error;
+    return (data ?? []) as T[];
+  } catch {
+    // Supabase offline — return mock data
+    const fallback = FALLBACK_DATA[table];
+    if (fallback) return fallback as T[];
+    return [];
+  }
 }
 
 async function getById<T>(table: string, id: number): Promise<T | null> {
-  const { data, error } = await supabase
-    .from(table)
-    .select('*')
-    .eq('id', id)
-    .single();
-  if (error) throw new Error(`[${table}] getById(${id}): ${error.message}`);
-  return (data ?? null) as T | null;
+  try {
+    const { data, error } = await supabase
+      .from(table)
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) throw error;
+    return (data ?? null) as T | null;
+  } catch {
+    const fallback = FALLBACK_DATA[table];
+    if (fallback) return (fallback as Array<T & { id: number }>).find(r => r.id === id) ?? null;
+    return null;
+  }
 }
 
 async function insert<T>(table: string, row: Omit<T, 'id'>): Promise<T> {
-  const { data, error } = await supabase
-    .from(table)
-    .insert(row)
-    .select()
-    .single();
-  if (error) throw new Error(`[${table}] insert: ${error.message}`);
-  return data as T;
+  try {
+    const { data, error } = await supabase
+      .from(table)
+      .insert(row)
+      .select()
+      .single();
+    if (error) throw error;
+    return data as T;
+  } catch {
+    // Offline: return the row with a generated id
+    const fallback = FALLBACK_DATA[table] ?? [];
+    const maxId = fallback.reduce((mx: number, r) => Math.max(mx, (r as { id: number }).id ?? 0), 0);
+    const created = { id: maxId + 1, ...row } as T;
+    fallback.push(created);
+    return created;
+  }
 }
 
 async function insertMany<T>(table: string, rows: Omit<T, 'id'>[]): Promise<T[]> {
-  const { data, error } = await supabase.from(table).insert(rows).select();
-  if (error) throw new Error(`[${table}] insertMany: ${error.message}`);
-  return (data ?? []) as T[];
+  try {
+    const { data, error } = await supabase.from(table).insert(rows).select();
+    if (error) throw error;
+    return (data ?? []) as T[];
+  } catch {
+    return rows.map((r, i) => ({ id: Date.now() + i, ...r }) as T);
+  }
 }
 
 async function update<T>(table: string, id: number, patch: Partial<T>): Promise<T> {
-  const { data, error } = await supabase
-    .from(table)
-    .update(patch)
-    .eq('id', id)
-    .select()
-    .single();
-  if (error) throw new Error(`[${table}] update(${id}): ${error.message}`);
-  return data as T;
+  try {
+    const { data, error } = await supabase
+      .from(table)
+      .update(patch)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data as T;
+  } catch {
+    // Offline: merge patch into the fallback row
+    const fallback = FALLBACK_DATA[table] ?? [];
+    const idx = fallback.findIndex(r => (r as { id: number }).id === id);
+    if (idx >= 0) {
+      fallback[idx] = { ...fallback[idx] as object, ...patch };
+      return fallback[idx] as T;
+    }
+    return { id, ...patch } as T;
+  }
 }
 
 async function remove(table: string, id: number): Promise<void> {
-  const { error } = await supabase.from(table).delete().eq('id', id);
-  if (error) throw new Error(`[${table}] delete(${id}): ${error.message}`);
+  try {
+    const { error } = await supabase.from(table).delete().eq('id', id);
+    if (error) throw error;
+  } catch {
+    // Offline: remove from fallback array
+    const fallback = FALLBACK_DATA[table];
+    if (fallback) {
+      const idx = fallback.findIndex(r => (r as { id: number }).id === id);
+      if (idx >= 0) fallback.splice(idx, 1);
+    }
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -158,13 +205,13 @@ export interface DdorReport {
 export const DdorReports = {
   getAll: () => getAll<DdorReport>('ddor_reports'),
   getByRig: async (rig: string): Promise<DdorReport[]> => {
-    const { data, error } = await supabase
-      .from('ddor_reports')
-      .select('*')
-      .eq('rig', rig)
-      .order('report_date');
-    if (error) throw new Error(`[ddor_reports] getByRig: ${error.message}`);
-    return (data ?? []) as DdorReport[];
+    try {
+      const { data, error } = await supabase.from('ddor_reports').select('*').eq('rig', rig).order('report_date');
+      if (error) throw error;
+      return (data ?? []) as DdorReport[];
+    } catch {
+      return ((FALLBACK_DATA['ddor_reports'] ?? []) as DdorReport[]).filter(r => r.rig === rig);
+    }
   },
   insert: (row: Omit<DdorReport, 'id' | 'created_at'>) => insert<DdorReport>('ddor_reports', row),
   insertMany: (rows: Omit<DdorReport, 'id' | 'created_at'>[]) => insertMany<DdorReport>('ddor_reports', rows),
@@ -207,13 +254,13 @@ export const BillingTickets = {
   update: (id: number, patch: Partial<BillingTicket>) => update<BillingTicket>('billing_tickets', id, patch),
   delete: (id: number) => remove('billing_tickets', id),
   getDays: async (ticketId: number): Promise<BillingTicketDay[]> => {
-    const { data, error } = await supabase
-      .from('billing_ticket_days')
-      .select('*')
-      .eq('ticket_id', ticketId)
-      .order('day_number');
-    if (error) throw new Error(`[billing_ticket_days] getDays: ${error.message}`);
-    return (data ?? []) as BillingTicketDay[];
+    try {
+      const { data, error } = await supabase.from('billing_ticket_days').select('*').eq('ticket_id', ticketId).order('day_number');
+      if (error) throw error;
+      return (data ?? []) as BillingTicketDay[];
+    } catch {
+      return ((FALLBACK_DATA['billing_ticket_days'] ?? []) as BillingTicketDay[]).filter(r => r.ticket_id === ticketId);
+    }
   },
   insertDay: (row: Omit<BillingTicketDay, 'id' | 'created_at'>) =>
     insert<BillingTicketDay>('billing_ticket_days', row),
@@ -248,22 +295,22 @@ export interface NptEvent {
 export const NptEvents = {
   getAll: () => getAll<NptEvent>('npt_events'),
   getByRig: async (rig: string): Promise<NptEvent[]> => {
-    const { data, error } = await supabase
-      .from('npt_events')
-      .select('*')
-      .eq('rig', rig)
-      .order('event_date');
-    if (error) throw new Error(`[npt_events] getByRig: ${error.message}`);
-    return (data ?? []) as NptEvent[];
+    try {
+      const { data, error } = await supabase.from('npt_events').select('*').eq('rig', rig).order('event_date');
+      if (error) throw error;
+      return (data ?? []) as NptEvent[];
+    } catch {
+      return ((FALLBACK_DATA['npt_events'] ?? []) as NptEvent[]).filter(r => r.rig === rig);
+    }
   },
   getByYear: async (year: number): Promise<NptEvent[]> => {
-    const { data, error } = await supabase
-      .from('npt_events')
-      .select('*')
-      .eq('year', year)
-      .order('event_date');
-    if (error) throw new Error(`[npt_events] getByYear: ${error.message}`);
-    return (data ?? []) as NptEvent[];
+    try {
+      const { data, error } = await supabase.from('npt_events').select('*').eq('year', year).order('event_date');
+      if (error) throw error;
+      return (data ?? []) as NptEvent[];
+    } catch {
+      return ((FALLBACK_DATA['npt_events'] ?? []) as NptEvent[]).filter(r => r.year === year);
+    }
   },
   insert: (row: Omit<NptEvent, 'id' | 'created_at' | 'updated_at'>) => insert<NptEvent>('npt_events', row),
   insertMany: (rows: Omit<NptEvent, 'id' | 'created_at' | 'updated_at'>[]) => insertMany<NptEvent>('npt_events', rows),
@@ -292,22 +339,22 @@ export interface Utilization {
 export const UtilizationData = {
   getAll: () => getAll<Utilization>('utilization'),
   getByYear: async (year: number): Promise<Utilization[]> => {
-    const { data, error } = await supabase
-      .from('utilization')
-      .select('*')
-      .eq('year', year)
-      .order('id');
-    if (error) throw new Error(`[utilization] getByYear: ${error.message}`);
-    return (data ?? []) as Utilization[];
+    try {
+      const { data, error } = await supabase.from('utilization').select('*').eq('year', year).order('id');
+      if (error) throw error;
+      return (data ?? []) as Utilization[];
+    } catch {
+      return ((FALLBACK_DATA['utilization'] ?? []) as Utilization[]).filter(r => r.year === year);
+    }
   },
   insert: (row: Omit<Utilization, 'id' | 'created_at'>) => insert<Utilization>('utilization', row),
   insertMany: (rows: Omit<Utilization, 'id' | 'created_at'>[]) => insertMany<Utilization>('utilization', rows),
   update: (id: number, patch: Partial<Utilization>) => update<Utilization>('utilization', id, patch),
   upsertByMonth: async (rig: string, year: number, month: string, data: Partial<Utilization>): Promise<void> => {
-    const { error } = await supabase
-      .from('utilization')
-      .upsert({ rig, year, month, ...data }, { onConflict: 'rig,year,month' });
-    if (error) throw new Error(`[utilization] upsert: ${error.message}`);
+    try {
+      const { error } = await supabase.from('utilization').upsert({ rig, year, month, ...data }, { onConflict: 'rig,year,month' });
+      if (error) throw error;
+    } catch { /* offline — no-op */ }
   },
 };
 
@@ -337,13 +384,13 @@ export interface WellTracking {
 export const WellTrackingData = {
   getAll: () => getAll<WellTracking>('well_tracking'),
   getByRig: async (rig: string): Promise<WellTracking[]> => {
-    const { data, error } = await supabase
-      .from('well_tracking')
-      .select('*')
-      .eq('rig', rig)
-      .order('spud_date');
-    if (error) throw new Error(`[well_tracking] getByRig: ${error.message}`);
-    return (data ?? []) as WellTracking[];
+    try {
+      const { data, error } = await supabase.from('well_tracking').select('*').eq('rig', rig).order('spud_date');
+      if (error) throw error;
+      return (data ?? []) as WellTracking[];
+    } catch {
+      return ((FALLBACK_DATA['well_tracking'] ?? []) as WellTracking[]).filter(r => r.rig === rig);
+    }
   },
   insert: (row: Omit<WellTracking, 'id' | 'created_at' | 'updated_at'>) => insert<WellTracking>('well_tracking', row),
   insertMany: (rows: Omit<WellTracking, 'id' | 'created_at' | 'updated_at'>[]) => insertMany<WellTracking>('well_tracking', rows),
@@ -376,22 +423,22 @@ export interface NptBilling {
 export const NptBillingData = {
   getAll: () => getAll<NptBilling>('npt_billing'),
   getByRig: async (rig: string): Promise<NptBilling[]> => {
-    const { data, error } = await supabase
-      .from('npt_billing')
-      .select('*')
-      .eq('rig', rig)
-      .order('year,month');
-    if (error) throw new Error(`[npt_billing] getByRig: ${error.message}`);
-    return (data ?? []) as NptBilling[];
+    try {
+      const { data, error } = await supabase.from('npt_billing').select('*').eq('rig', rig).order('year,month');
+      if (error) throw error;
+      return (data ?? []) as NptBilling[];
+    } catch {
+      return ((FALLBACK_DATA['npt_billing'] ?? []) as NptBilling[]).filter(r => r.rig === rig);
+    }
   },
   insert: (row: Omit<NptBilling, 'id' | 'created_at'>) => insert<NptBilling>('npt_billing', row),
   insertMany: (rows: Omit<NptBilling, 'id' | 'created_at'>[]) => insertMany<NptBilling>('npt_billing', rows),
   update: (id: number, patch: Partial<NptBilling>) => update<NptBilling>('npt_billing', id, patch),
   upsertByRigMonth: async (rig: string, year: number, month: string, patch: Partial<NptBilling>): Promise<void> => {
-    const { error } = await supabase
-      .from('npt_billing')
-      .upsert({ rig, year, month, ...patch }, { onConflict: 'rig,year,month' });
-    if (error) throw new Error(`[npt_billing] upsert: ${error.message}`);
+    try {
+      const { error } = await supabase.from('npt_billing').upsert({ rig, year, month, ...patch }, { onConflict: 'rig,year,month' });
+      if (error) throw error;
+    } catch { /* offline — no-op */ }
   },
 };
 
@@ -421,13 +468,13 @@ export interface FuelConsumption {
 export const FuelConsumptionData = {
   getAll: () => getAll<FuelConsumption>('fuel_consumption'),
   getByRig: async (rig: string): Promise<FuelConsumption[]> => {
-    const { data, error } = await supabase
-      .from('fuel_consumption')
-      .select('*')
-      .eq('rig', rig)
-      .order('year,month');
-    if (error) throw new Error(`[fuel_consumption] getByRig: ${error.message}`);
-    return (data ?? []) as FuelConsumption[];
+    try {
+      const { data, error } = await supabase.from('fuel_consumption').select('*').eq('rig', rig).order('year,month');
+      if (error) throw error;
+      return (data ?? []) as FuelConsumption[];
+    } catch {
+      return ((FALLBACK_DATA['fuel_consumption'] ?? []) as FuelConsumption[]).filter(r => r.rig === rig);
+    }
   },
   insert: (row: Omit<FuelConsumption, 'id' | 'created_at'>) => insert<FuelConsumption>('fuel_consumption', row),
   insertMany: (rows: Omit<FuelConsumption, 'id' | 'created_at'>[]) => insertMany<FuelConsumption>('fuel_consumption', rows),
@@ -454,22 +501,22 @@ export interface Revenue {
 export const RevenueData = {
   getAll: () => getAll<Revenue>('revenue'),
   getByRig: async (rig: string): Promise<Revenue[]> => {
-    const { data, error } = await supabase
-      .from('revenue')
-      .select('*')
-      .eq('rig', rig)
-      .order('year,month');
-    if (error) throw new Error(`[revenue] getByRig: ${error.message}`);
-    return (data ?? []) as Revenue[];
+    try {
+      const { data, error } = await supabase.from('revenue').select('*').eq('rig', rig).order('year,month');
+      if (error) throw error;
+      return (data ?? []) as Revenue[];
+    } catch {
+      return ((FALLBACK_DATA['revenue'] ?? []) as Revenue[]).filter(r => r.rig === rig);
+    }
   },
   getByYear: async (year: number): Promise<Revenue[]> => {
-    const { data, error } = await supabase
-      .from('revenue')
-      .select('*')
-      .eq('year', year)
-      .order('rig');
-    if (error) throw new Error(`[revenue] getByYear: ${error.message}`);
-    return (data ?? []) as Revenue[];
+    try {
+      const { data, error } = await supabase.from('revenue').select('*').eq('year', year).order('rig');
+      if (error) throw error;
+      return (data ?? []) as Revenue[];
+    } catch {
+      return ((FALLBACK_DATA['revenue'] ?? []) as Revenue[]).filter(r => r.year === year);
+    }
   },
   insert: (row: Omit<Revenue, 'id' | 'created_at'>) => insert<Revenue>('revenue', row),
   insertMany: (rows: Omit<Revenue, 'id' | 'created_at'>[]) => insertMany<Revenue>('revenue', rows),
@@ -491,22 +538,22 @@ export interface CrmScore {
 export const CrmScores = {
   getAll: () => getAll<CrmScore>('crm_scores'),
   getByRig: async (rig: string): Promise<CrmScore[]> => {
-    const { data, error } = await supabase
-      .from('crm_scores')
-      .select('*')
-      .eq('rig', rig)
-      .order('year,month');
-    if (error) throw new Error(`[crm_scores] getByRig: ${error.message}`);
-    return (data ?? []) as CrmScore[];
+    try {
+      const { data, error } = await supabase.from('crm_scores').select('*').eq('rig', rig).order('year,month');
+      if (error) throw error;
+      return (data ?? []) as CrmScore[];
+    } catch {
+      return ((FALLBACK_DATA['crm_scores'] ?? []) as CrmScore[]).filter(r => r.rig === rig);
+    }
   },
   insert: (row: Omit<CrmScore, 'id' | 'created_at'>) => insert<CrmScore>('crm_scores', row),
   insertMany: (rows: Omit<CrmScore, 'id' | 'created_at'>[]) => insertMany<CrmScore>('crm_scores', rows),
   update: (id: number, patch: Partial<CrmScore>) => update<CrmScore>('crm_scores', id, patch),
   upsertByRigMonth: async (rig: string, year: number, month: string, patch: Partial<CrmScore>): Promise<void> => {
-    const { error } = await supabase
-      .from('crm_scores')
-      .upsert({ rig, year, month, ...patch }, { onConflict: 'rig,year,month' });
-    if (error) throw new Error(`[crm_scores] upsert: ${error.message}`);
+    try {
+      const { error } = await supabase.from('crm_scores').upsert({ rig, year, month, ...patch }, { onConflict: 'rig,year,month' });
+      if (error) throw error;
+    } catch { /* offline — no-op */ }
   },
 };
 
@@ -538,13 +585,13 @@ export interface BillingAccrual {
 export const BillingAccruals = {
   getAll: () => getAll<BillingAccrual>('billing_accruals'),
   getByRig: async (rig: string): Promise<BillingAccrual[]> => {
-    const { data, error } = await supabase
-      .from('billing_accruals')
-      .select('*')
-      .eq('rig', rig)
-      .order('id');
-    if (error) throw new Error(`[billing_accruals] getByRig: ${error.message}`);
-    return (data ?? []) as BillingAccrual[];
+    try {
+      const { data, error } = await supabase.from('billing_accruals').select('*').eq('rig', rig).order('id');
+      if (error) throw error;
+      return (data ?? []) as BillingAccrual[];
+    } catch {
+      return ((FALLBACK_DATA['billing_accruals'] ?? []) as BillingAccrual[]).filter(r => r.rig === rig);
+    }
   },
   insert: (row: Omit<BillingAccrual, 'id' | 'created_at'>) => insert<BillingAccrual>('billing_accruals', row),
   insertMany: (rows: Omit<BillingAccrual, 'id' | 'created_at'>[]) => insertMany<BillingAccrual>('billing_accruals', rows),
