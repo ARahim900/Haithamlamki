@@ -40,7 +40,7 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
 
   return (
     <>
-    {!col && <div className="sb-backdrop" onClick={()=>setCol(true)} />}
+    {!col && <div className="sb-backdrop" aria-hidden="true" onClick={()=>setCol(true)} />}
     <div className={"sb"+(col?" col":"")}>
       <div className="sb-logo" onClick={()=>setCol(c=>!c)}>
         {col ? (

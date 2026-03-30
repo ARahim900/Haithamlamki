@@ -22,10 +22,14 @@ import './dashboard.css';
 
 export default function DashboardApp() {
   const [page, setPage] = useState('home');
-  const [col, setCol] = useState(false);
+  const [col, setCol] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
 
   useEffect(() => {
-    if (window.innerWidth < 1024) setCol(true);
+    const mql = window.matchMedia('(max-width: 1023px)');
+    const handler = (e: MediaQueryListEvent) => setCol(e.matches);
+    setCol(mql.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
   }, []);
 
   const renderContent = () => {

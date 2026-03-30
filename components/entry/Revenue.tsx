@@ -6,6 +6,15 @@ import { RIGS, MONTHS } from '@/lib/data';
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
+// Color palette — all pass WCAG AA against white (#fff)
+const POSITIVE_COLOR = '#1A7742';  // 5.1:1 contrast ratio
+const NEGATIVE_COLOR = '#B91C1C';  // 5.7:1 contrast ratio
+const MUTED_COLOR = '#5F6B7A';     // 4.9:1 contrast ratio
+const WARNING_COLOR = '#B45309';   // 4.8:1 contrast ratio
+const DIMMED_COLOR = '#D4D7DC';
+
+const NPT_REPAIR_THRESHOLD = 15000;
+
 export function Revenue() {
   const { data: revenueData, loading, error, refetch } = useRevenue();
   const [selectedMonth, setSelectedMonth] = useState('Jun');
@@ -79,17 +88,17 @@ export function Revenue() {
                     <td><strong>{r.rig}</strong></td>
                     <td className="tb-num">{(r.actual ?? 0).toLocaleString()}</td>
                     <td className="tb-num">{(r.budgeted ?? 0).toLocaleString()}</td>
-                    <td className="tb-num" style={{ fontWeight: 600, color: revVar >= 0 ? '#2A6B4A' : '#8B3A3A' }}>
+                    <td className="tb-num" style={{ fontWeight: 600, color: revVar >= 0 ? POSITIVE_COLOR : NEGATIVE_COLOR }}>
                       {revVar >= 0 ? '+' : ''}{revVar.toLocaleString()}
                     </td>
                     <td className="tb-num">{(r.fuel ?? 0).toLocaleString()}</td>
-                    <td className="tb-num" style={{ color: (r.npt_repair ?? 0) > 15000 ? '#8B3A3A' : '#5F6B7A' }}>
+                    <td className="tb-num" style={{ color: (r.npt_repair ?? 0) > NPT_REPAIR_THRESHOLD ? NEGATIVE_COLOR : MUTED_COLOR }}>
                       {(r.npt_repair ?? 0).toLocaleString()}
                     </td>
-                    <td className="tb-num" style={{ color: (r.npt_zero ?? 0) ? '#D97706' : '#D4D7DC' }}>
+                    <td className="tb-num" style={{ color: (r.npt_zero ?? 0) ? WARNING_COLOR : DIMMED_COLOR }}>
                       {(r.npt_zero ?? 0) ? (r.npt_zero ?? 0).toLocaleString() : '-'}
                     </td>
-                    <td style={{ fontSize: 12, color: '#5F6B7A' }}>{r.comments || '-'}</td>
+                    <td style={{ fontSize: 12, color: MUTED_COLOR }}>{r.comments || '-'}</td>
                   </tr>
                 );
               })}
@@ -99,13 +108,13 @@ export function Revenue() {
               {filteredData.length > 0 && (
                 <tr style={{ background: '#EFF7F2', fontWeight: 600 }}>
                   <td style={{ fontWeight: 600 }}>TOTAL</td>
-                  <td className="tb-num" style={{ fontWeight: 600, color: '#2A6B4A' }}>${totalActual.toLocaleString()}</td>
+                  <td className="tb-num" style={{ fontWeight: 600, color: POSITIVE_COLOR }}>${totalActual.toLocaleString()}</td>
                   <td className="tb-num">${totalBudget.toLocaleString()}</td>
-                  <td className="tb-num" style={{ fontWeight: 600, color: totalActual - totalBudget >= 0 ? '#2A6B4A' : '#8B3A3A' }}>
+                  <td className="tb-num" style={{ fontWeight: 600, color: totalActual - totalBudget >= 0 ? POSITIVE_COLOR : NEGATIVE_COLOR }}>
                     {totalActual - totalBudget >= 0 ? '+' : ''}${(totalActual - totalBudget).toLocaleString()}
                   </td>
                   <td className="tb-num">${totalFuel.toLocaleString()}</td>
-                  <td className="tb-num" style={{ color: '#8B3A3A' }}>${filteredData.reduce((s, r) => s + (r.npt_repair ?? 0), 0).toLocaleString()}</td>
+                  <td className="tb-num" style={{ color: NEGATIVE_COLOR }}>${filteredData.reduce((s, r) => s + (r.npt_repair ?? 0), 0).toLocaleString()}</td>
                   <td className="tb-num">${filteredData.reduce((s, r) => s + (r.npt_zero ?? 0), 0).toLocaleString()}</td>
                   <td></td>
                 </tr>

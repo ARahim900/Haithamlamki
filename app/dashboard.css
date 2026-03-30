@@ -366,9 +366,10 @@ tr:hover td { background: #FAFBFC; transition: background .15s ease; }
 
 .modal-close:focus,
 .modal-close:focus-visible {
-  outline: 1px solid rgba(255, 255, 255, 0.5);
-  outline-offset: 1px;
-  background: rgba(255, 255, 255, 0.2);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.3);
 }
 
 .modal-body {
