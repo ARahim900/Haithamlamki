@@ -27,7 +27,7 @@ export function PerformanceViz(){
                 <CartesianGrid strokeDasharray="3 3" stroke={t.grid}/>
                 <XAxis dataKey="m" tick={{fontSize:10}} stroke={t.axis}/>
                 <YAxis tick={{fontSize:10}} stroke={t.axis}/>
-                <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
+                <Tooltip contentStyle={{borderRadius:6,fontSize:11}} trigger="click"/>
                 <Legend wrapperStyle={{fontSize:10}}/>
                 <Bar dataKey="op" fill={t.primary} stackId="a" name="Operating"/>
                 <Bar dataKey="rd" fill={t.warning} stackId="a" name="Reduced"/>
@@ -46,7 +46,7 @@ export function PerformanceViz(){
                 <CartesianGrid strokeDasharray="3 3" stroke={t.grid}/>
                 <XAxis dataKey="m" tick={{fontSize:10}} stroke={t.axis}/>
                 <YAxis domain={[80,100]} tick={{fontSize:10}} stroke={t.axis}/>
-                <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
+                <Tooltip contentStyle={{borderRadius:6,fontSize:11}} trigger="click"/>
                 <Line type="monotone" dataKey="avg" stroke={t.primary} strokeWidth={2.5} dot={{r:4,fill:t.primary}} name="Avg CSAT %"/>
               </LineChart>
             </ResponsiveContainer>
@@ -69,7 +69,7 @@ export function PerformanceViz(){
                 <CartesianGrid strokeDasharray="3 3" stroke={t.grid}/>
                 <XAxis dataKey="rig" tick={{fontSize:9}} stroke={t.axis}/>
                 <YAxis domain={[60,100]} tick={{fontSize:10}} stroke={t.axis}/>
-                <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
+                <Tooltip contentStyle={{borderRadius:6,fontSize:11}} trigger="click"/>
                 <Bar dataKey="score" name="CSAT %" radius={[3,3,0,0]}>
                   {crmData.map((d,i)=><Cell key={i} fill={d.score>=90?t.primary:d.score>=80?t.warning:t.negative}/>)}
                 </Bar>

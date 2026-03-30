@@ -27,7 +27,7 @@ export function FinancialViz(){
                 <CartesianGrid strokeDasharray="3 3" stroke={t.grid}/>
                 <XAxis dataKey="rig" tick={{fontSize:9}} stroke={t.axis}/>
                 <YAxis tick={{fontSize:9}} stroke={t.axis} domain={[0,4.5]}/>
-                <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
+                <Tooltip contentStyle={{borderRadius:6,fontSize:11}} trigger="click"/>
                 <Legend wrapperStyle={{fontSize:10}}/>
                 <Bar dataKey="bud" fill={t.info} name="Budget" opacity={0.5} radius={[2,2,0,0]}/>
                 <Bar dataKey="rev" fill={t.primary} name="Actual" radius={[3,3,0,0]}/>
@@ -43,7 +43,7 @@ export function FinancialViz(){
                 <CartesianGrid strokeDasharray="3 3" stroke={t.grid}/>
                 <XAxis dataKey="m" tick={{fontSize:10}} stroke={t.axis}/>
                 <YAxis tick={{fontSize:10}} stroke={t.axis}/>
-                <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
+                <Tooltip contentStyle={{borderRadius:6,fontSize:11}} trigger="click"/>
                 <Legend wrapperStyle={{fontSize:10}}/>
                 <Area type="monotone" dataKey="bud" stroke={t.info} fill={t.info+"10"} strokeDasharray="4 4" name="Budget"/>
                 <Area type="monotone" dataKey="act" stroke={t.primary} fill={t.primary+"12"} strokeWidth={2} name="Actual"/>

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 
 export const NAV_ANALYTICS=[
@@ -47,6 +47,16 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
   }, [setPage, setCol]);
 
   const toggleCollapse = useCallback(() => setCol(c => !c), [setCol]);
+
+  // Close sidebar overlay on Escape key
+  useEffect(() => {
+    if (col) return; // only listen when sidebar is open as overlay
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setCol(true);
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [col, setCol]);
 
   return (
     <>

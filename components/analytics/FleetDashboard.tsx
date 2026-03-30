@@ -35,7 +35,7 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
                 <CartesianGrid strokeDasharray="3 3" stroke={t.grid}/>
                 <XAxis dataKey="m" tick={{fontSize:10, fill: t.axisText}} stroke={t.axisLight}/>
                 <YAxis tick={{fontSize:10, fill: t.axisText}} stroke={t.axisLight} domain={[2.5,4.5]} width={30}/>
-                <Tooltip contentStyle={{borderRadius:6,fontSize:10}}/>
+                <Tooltip contentStyle={{borderRadius:6,fontSize:10}} trigger="click"/>
                 <Legend align="center" verticalAlign="bottom" wrapperStyle={{fontSize:10, paddingTop: 6}}/>
                 <Area type="monotone" dataKey="bud" stroke={t.info} fill={t.info+"10"} strokeDasharray="4 4" strokeWidth={1.5} name="Budget"/>
                 <Area type="monotone" dataKey="act" stroke={t.primary} fill={t.primary+"12"} strokeWidth={2} name="Actual"/>
@@ -51,7 +51,7 @@ export function FleetDashboard({setPage}: {setPage: (p: string) => void}){
                 <Pie data={nptPie} cx="50%" cy="50%" innerRadius={35} outerRadius={60} paddingAngle={2} dataKey="v" nameKey="n">
                   {nptPie.map((d,i)=><Cell key={i} fill={d.c}/>)}
                 </Pie>
-                <Tooltip contentStyle={{borderRadius:6,fontSize:10}}/>
+                <Tooltip contentStyle={{borderRadius:6,fontSize:10}} trigger="click"/>
                 <Legend align="center" verticalAlign="bottom" iconSize={6} wrapperStyle={{fontSize:10, paddingTop: 4}}/>
               </PieChart>
             </ResponsiveContainer>

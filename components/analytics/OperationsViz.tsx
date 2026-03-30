@@ -26,7 +26,7 @@ export function OperationsViz(){
                 <CartesianGrid strokeDasharray="3 3" stroke={t.grid}/>
                 <XAxis dataKey="m" tick={{fontSize:10}} stroke={t.axis}/>
                 <YAxis tick={{fontSize:10}} stroke={t.axis}/>
-                <Tooltip contentStyle={{borderRadius:6,fontSize:11}}/>
+                <Tooltip contentStyle={{borderRadius:6,fontSize:11}} trigger="click"/>
                 <Legend wrapperStyle={{fontSize:10}}/>
                 <Bar dataKey="con" fill={t.negative} name="Consumed" radius={[3,3,0,0]}/>
                 <Bar dataKey="rec" fill={t.primary} name="Received" radius={[3,3,0,0]}/>
