@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Sidebar } from '@/components/Sidebar';
 import { Topbar, CRUMBS } from '@/components/Topbar';
+import { MobileNav } from '@/components/MobileNav';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useAuth } from '@/hooks/useAuth';
 import { LoginPage } from '@/components/auth/LoginPage';
@@ -57,10 +58,18 @@ export default function DashboardApp() {
   const { user, loading: authLoading, isAuthenticated, login, register, logout } = useAuth();
   const [page, setPage] = useState('home');
   const [col, setCol] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches);
 
   useEffect(() => {
     const mql = window.matchMedia('(max-width: 1023px)');
     const handler = (e: MediaQueryListEvent) => setCol(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 767px)');
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mql.addEventListener('change', handler);
     return () => mql.removeEventListener('change', handler);
   }, []);
@@ -121,9 +130,9 @@ export default function DashboardApp() {
   };
 
   return (
-    <div className="app">
+    <div className={'app' + (isMobile ? ' app-mobile' : '')}>
       <a href="#main-content" className="skip-link">Skip to content</a>
-      <Sidebar page={page} setPage={setPage} col={col} setCol={setCol} />
+      {!isMobile && <Sidebar page={page} setPage={setPage} col={col} setCol={setCol} />}
       <div className="main">
         <Topbar
           page={page}
@@ -133,6 +142,7 @@ export default function DashboardApp() {
           userEmail={user?.email}
           onLogout={logout}
           onNavigate={setPage}
+          isMobile={isMobile}
         />
         <main id="main-content" className="content" role="main" aria-label={pageTitle}>
           <h1 className="sr-only">{pageTitle}</h1>
@@ -141,6 +151,7 @@ export default function DashboardApp() {
           </ErrorBoundary>
         </main>
       </div>
+      {isMobile && <MobileNav page={page} setPage={setPage} onLogout={logout} />}
     </div>
   );
 }

@@ -76,7 +76,9 @@ export function Sidebar({page,setPage,col,setCol}: {page: string, setPage: (p: s
         {col ? (
           <div className="logo-box" style={{fontWeight:900,fontSize:14,letterSpacing:'-0.5px'}}>A</div>
         ) : (
-          <Image src="/abraj-logo.jpeg" alt="Abraj Energy Services" className="logo-img" width={160} height={40} priority />
+          <div className="logo-plate">
+            <Image src="/abraj-logo.jpeg" alt="Abraj Energy Services" className="logo-img" width={208} height={52} priority />
+          </div>
         )}
       </button>
       <nav aria-label="Dashboard navigation">

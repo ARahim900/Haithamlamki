@@ -1,0 +1,24 @@
+{
+  "name": "Abraj MIS",
+  "short_name": "Abraj MIS",
+  "description": "Rig Operations Management Platform — Abraj Energy Services",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#243B42",
+  "theme_color": "#2D7A89",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

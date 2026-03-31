@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 
 export const CRUMBS: Record<string, string[]>={
   home:["Analytics","Fleet Dashboard"],
@@ -30,9 +31,10 @@ interface TopbarProps {
   userEmail?: string;
   onLogout?: () => void;
   onNavigate?: (page: string) => void;
+  isMobile?: boolean;
 }
 
-export function Topbar({page,col,setCol,userInitials,userEmail,onLogout,onNavigate}: TopbarProps){
+export function Topbar({page,col,setCol,userInitials,userEmail,onLogout,onNavigate,isMobile}: TopbarProps){
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const [par,cur]=CRUMBS[page]||["","Dashboard"];
@@ -50,6 +52,82 @@ export function Topbar({page,col,setCol,userInitials,userEmail,onLogout,onNaviga
     return () => document.removeEventListener('mousedown', handler);
   }, [menuOpen]);
 
+  // Mobile topbar — cleaner, app-like
+  if (isMobile) {
+    return (
+      <header className="topbar topbar-mobile" role="banner">
+        <div className="tb-left">
+          <Image src="/abraj-logo.jpeg" alt="Abraj" className="tb-mobile-logo" width={28} height={28} />
+          <span className="bc-cur" aria-current="page">{cur}</span>
+          {isEntry&&<span className="tb-tag">Entry</span>}
+        </div>
+        <div className="tb-right" aria-label="Status indicators">
+          <button
+            className="tb-btn"
+            onClick={() => {
+              const html = document.documentElement;
+              html.classList.toggle('dark');
+              localStorage.setItem('abraj-theme', html.classList.contains('dark') ? 'dark' : 'light');
+            }}
+            aria-label="Toggle Dark Mode"
+            title="Toggle Dark Mode"
+            type="button"
+          >
+            🌓
+          </button>
+          <span className="tb-badge tb-badge-live" aria-label="System is live">● Live</span>
+          <div className="tb-user-menu" ref={menuRef}>
+            <button
+              className="tb-avatar"
+              onClick={() => setMenuOpen(o => !o)}
+              aria-label={`User menu${userEmail ? ': ' + userEmail : ''}`}
+              aria-expanded={menuOpen}
+              aria-haspopup="true"
+              type="button"
+            >
+              {userInitials || 'U'}
+            </button>
+            {menuOpen && (
+              <div className="tb-dropdown" role="menu">
+                {userEmail && (
+                  <div className="tb-dropdown-header" role="none">
+                    <div style={{ fontWeight: 600, fontSize: 13 }}>{userInitials}</div>
+                    <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis' }}>{userEmail}</div>
+                  </div>
+                )}
+                <button
+                  className="tb-dropdown-item"
+                  onClick={() => { setMenuOpen(false); onNavigate?.('settings'); }}
+                  role="menuitem"
+                  type="button"
+                >
+                  <span aria-hidden="true">⚙️</span> Settings
+                </button>
+                <button
+                  className="tb-dropdown-item"
+                  onClick={() => { setMenuOpen(false); onNavigate?.('reports'); }}
+                  role="menuitem"
+                  type="button"
+                >
+                  <span aria-hidden="true">📥</span> Reports
+                </button>
+                <div className="tb-dropdown-divider" role="separator" />
+                <button
+                  className="tb-dropdown-item tb-dropdown-danger"
+                  onClick={() => { setMenuOpen(false); onLogout?.(); }}
+                  role="menuitem"
+                  type="button"
+                >
+                  <span aria-hidden="true">🚪</span> Sign Out
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header className="topbar" role="banner">
       <div className="tb-left">
@@ -64,6 +142,15 @@ export function Topbar({page,col,setCol,userInitials,userEmail,onLogout,onNaviga
         {isEntry&&<span className="tb-tag">Entry</span>}
       </div>
       <div className="tb-right" aria-label="Status indicators">
+        <button
+          className="tb-btn"
+          onClick={() => document.documentElement.classList.toggle('dark')}
+          aria-label="Toggle Dark Mode"
+          title="Toggle Dark Mode"
+          type="button"
+        >
+          🌓
+        </button>
         <span className="tb-badge">PDO</span>
         <span className="tb-badge tb-badge-live" aria-label="System is live">● Live</span>
         <div className="tb-user-menu" ref={menuRef}>
