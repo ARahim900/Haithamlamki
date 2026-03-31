@@ -57,7 +57,7 @@ export function Topbar({page,col,setCol,userInitials,userEmail,onLogout,onNaviga
     return (
       <header className="topbar topbar-mobile" role="banner">
         <div className="tb-left">
-          <Image src="/abraj-logo.jpeg" alt="Abraj" className="tb-mobile-logo" width={28} height={28} />
+          <Image src="/abraj-logo.jpeg" alt="Abraj" className="tb-mobile-logo" width={80} height={28} />
           <span className="bc-cur" aria-current="page">{cur}</span>
           {isEntry&&<span className="tb-tag">Entry</span>}
         </div>

@@ -951,10 +951,11 @@ tr:hover td { background: var(--color-surface); transition: background .15s ease
 .topbar-mobile .bc-cur { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
 .topbar-mobile .tb-right { gap: var(--space-1); }
 .tb-mobile-logo {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  object-fit: cover;
+  width: auto;
+  height: 26px;
+  max-width: 80px;
+  border-radius: 4px;
+  object-fit: contain;
   flex-shrink: 0;
 }
 
