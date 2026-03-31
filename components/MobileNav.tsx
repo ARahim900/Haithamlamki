@@ -1,9 +1,6 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  NAV_OPS,
-  NAV_ENTRY,
-} from './Sidebar';
+import React, { useState, useEffect } from 'react';
+import { NAV_OPS, NAV_ENTRY } from './Sidebar';
 
 interface MobileNavProps {
   page: string;
@@ -11,168 +8,161 @@ interface MobileNavProps {
   onLogout?: () => void;
 }
 
-/* ── Bottom bar: 5 primary items + More ── */
-
-const BOTTOM_ITEMS: { id: string; label: string; icon: string; directNav?: string; sheetItems?: { id: string; lbl: string; ico: string }[] }[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: '📊', directNav: 'home' },
-  { id: 'rigops', label: 'Rig Ops', icon: '⚙️', sheetItems: NAV_OPS },
-  { id: 'ddor', label: 'DDOR', icon: '📋', directNav: 'ddor' },
+/* ── "More" full-screen menu items ── */
+const MORE_SECTIONS = [
   {
-    id: 'entry',
-    label: 'Forms',
-    icon: '📝',
-    sheetItems: NAV_ENTRY.filter(i => i.id !== 'ddor'),
+    label: 'Analytics',
+    items: [
+      { id: 'viz-financial', lbl: 'Financial Analytics', ico: '💰' },
+      { id: 'viz-performance', lbl: 'Performance Analytics', ico: '📈' },
+    ],
   },
-  { id: 'reports', label: 'Reports', icon: '📥', directNav: 'reports' },
+  {
+    label: 'System',
+    items: [
+      { id: 'reports', lbl: 'Reports & Export', ico: '📥' },
+      { id: 'settings', lbl: 'Settings', ico: '⚙️' },
+    ],
+  },
 ];
 
-/* ── More drawer items ── */
-const MORE_ITEMS: { id: string; lbl: string; ico: string }[] = [
-  { id: 'viz-financial', lbl: 'Financial Analytics', ico: '💰' },
-  { id: 'viz-performance', lbl: 'Performance Analytics', ico: '📈' },
-  { id: 'viz-operations', lbl: 'Operations Analytics', ico: '⚙️' },
-  { id: 'settings', lbl: 'Settings', ico: '⚙️' },
-];
+const MORE_PAGE_IDS = MORE_SECTIONS.flatMap(s => s.items.map(i => i.id));
 
-/** Map a page id to the active bottom-bar tab id */
+/** Map page to active bottom tab */
 function getActiveTab(page: string): string {
   if (page === 'home') return 'dashboard';
-  if (NAV_OPS.some(i => i.id === page)) return 'rigops';
-  if (page === 'ddor') return 'ddor';
-  if (NAV_ENTRY.filter(i => i.id !== 'ddor').some(i => i.id === page)) return 'entry';
-  if (page === 'reports') return 'reports';
-  // Pages in the More drawer don't highlight any bottom tab
-  if (MORE_ITEMS.some(i => i.id === page)) return 'more';
+  if (NAV_OPS.some(i => i.id === page)) return 'ops';
+  if (NAV_ENTRY.some(i => i.id === page)) return 'entry';
+  if (MORE_PAGE_IDS.includes(page)) return 'more';
   return 'dashboard';
 }
 
 export function MobileNav({ page, setPage, onLogout }: MobileNavProps) {
-  const [openSheet, setOpenSheet] = useState<string | null>(null);
-  const sheetRef = useRef<HTMLDivElement>(null);
+  const [moreOpen, setMoreOpen] = useState(false);
   const activeTab = getActiveTab(page);
-
-  // Close sheet on outside click
-  useEffect(() => {
-    if (!openSheet) return;
-    const handler = (e: MouseEvent) => {
-      if (sheetRef.current && !sheetRef.current.contains(e.target as Node)) {
-        setOpenSheet(null);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [openSheet]);
 
   // Close on Escape
   useEffect(() => {
-    if (!openSheet) return;
+    if (!moreOpen) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpenSheet(null);
+      if (e.key === 'Escape') setMoreOpen(false);
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [openSheet]);
+  }, [moreOpen]);
 
-  const handleTabClick = (item: typeof BOTTOM_ITEMS[number]) => {
-    if (item.directNav) {
-      setPage(item.directNav);
-      setOpenSheet(null);
-      return;
+  // Lock body scroll when More is open
+  useEffect(() => {
+    if (moreOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
     }
-    // Toggle sheet for items with sub-navigation
-    setOpenSheet(prev => prev === item.id ? null : item.id);
-  };
+    return () => { document.body.style.overflow = ''; };
+  }, [moreOpen]);
 
-  const handleMoreClick = () => {
-    setOpenSheet(prev => prev === 'more' ? null : 'more');
-  };
-
-  const handleItemClick = (id: string) => {
+  const navigateTo = (id: string) => {
     setPage(id);
-    setOpenSheet(null);
+    setMoreOpen(false);
   };
-
-  // Determine which sheet items to show
-  const sheetData = openSheet === 'more'
-    ? { label: 'More', items: MORE_ITEMS }
-    : BOTTOM_ITEMS.find(b => b.id === openSheet && b.sheetItems)
-      ? { label: BOTTOM_ITEMS.find(b => b.id === openSheet)!.label, items: BOTTOM_ITEMS.find(b => b.id === openSheet)!.sheetItems! }
-      : null;
 
   return (
     <>
-      {/* Bottom sheet overlay */}
-      {openSheet && sheetData && (
-        <div className="mnav-backdrop" onClick={() => setOpenSheet(null)} aria-hidden="true" />
-      )}
-
-      {/* Bottom sheet with sub-items */}
-      {openSheet && sheetData && (
-        <div className="mnav-sheet" ref={sheetRef} role="dialog" aria-label={sheetData.label}>
-          <div className="mnav-sheet-handle" aria-hidden="true" />
-          <div className="mnav-sheet-title">{sheetData.label}</div>
-          <div className="mnav-sheet-items">
-            {sheetData.items.map(item => (
-              <button
-                key={item.id}
-                className={'mnav-sheet-item' + (page === item.id ? ' active' : '')}
-                onClick={() => handleItemClick(item.id)}
-                aria-current={page === item.id ? 'page' : undefined}
-                type="button"
-              >
-                <span className="mnav-sheet-item-icon" aria-hidden="true">{item.ico}</span>
-                <span className="mnav-sheet-item-label">{item.lbl}</span>
-                {page === item.id && <span className="mnav-sheet-item-check" aria-hidden="true">●</span>}
-              </button>
+      {/* ── Full-screen More menu ── */}
+      {moreOpen && (
+        <div className="more-overlay" role="dialog" aria-label="More navigation">
+          <div className="more-header">
+            <span className="more-title">More</span>
+            <button
+              className="more-close"
+              onClick={() => setMoreOpen(false)}
+              aria-label="Close menu"
+              type="button"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="more-body">
+            {MORE_SECTIONS.map(section => (
+              <div key={section.label} className="more-section">
+                <div className="more-section-label">{section.label}</div>
+                {section.items.map(item => (
+                  <button
+                    key={item.id}
+                    className={'more-item' + (page === item.id ? ' active' : '')}
+                    onClick={() => navigateTo(item.id)}
+                    aria-current={page === item.id ? 'page' : undefined}
+                    type="button"
+                  >
+                    <span className="more-item-icon" aria-hidden="true">{item.ico}</span>
+                    <span className="more-item-label">{item.lbl}</span>
+                    {page === item.id && <span className="more-item-check" aria-hidden="true">●</span>}
+                  </button>
+                ))}
+              </div>
             ))}
-            {openSheet === 'more' && onLogout && (
-              <>
-                <div className="mnav-sheet-divider" />
+            {onLogout && (
+              <div className="more-section">
+                <div className="more-divider" />
                 <button
-                  className="mnav-sheet-item mnav-sheet-danger"
-                  onClick={() => { setOpenSheet(null); onLogout(); }}
+                  className="more-item more-item-danger"
+                  onClick={() => { setMoreOpen(false); onLogout(); }}
                   type="button"
                 >
-                  <span className="mnav-sheet-item-icon" aria-hidden="true">🚪</span>
-                  <span className="mnav-sheet-item-label">Sign Out</span>
+                  <span className="more-item-icon" aria-hidden="true">🚪</span>
+                  <span className="more-item-label">Sign Out</span>
                 </button>
-              </>
+              </div>
             )}
           </div>
         </div>
       )}
 
-      {/* Bottom tab bar — 5 primary + More */}
+      {/* ── Bottom tab bar — 4 tabs ── */}
       <nav className="mnav" aria-label="Mobile navigation" role="tablist">
-        {BOTTOM_ITEMS.map(item => {
-          const isActive = activeTab === item.id;
-          return (
-            <button
-              key={item.id}
-              className={'mnav-tab' + (isActive ? ' active' : '')}
-              onClick={() => handleTabClick(item)}
-              aria-selected={isActive}
-              role="tab"
-              type="button"
-            >
-              <span className="mnav-tab-icon" aria-hidden="true">{item.icon}</span>
-              <span className="mnav-tab-label">{item.label}</span>
-              {isActive && <span className="mnav-tab-dot" aria-hidden="true" />}
-            </button>
-          );
-        })}
-        {/* More button */}
+        <button
+          className={'mnav-tab' + (activeTab === 'dashboard' ? ' active' : '')}
+          onClick={() => navigateTo('home')}
+          aria-selected={activeTab === 'dashboard'}
+          role="tab"
+          type="button"
+        >
+          <span className="mnav-tab-icon" aria-hidden="true">📊</span>
+          <span className="mnav-tab-label">Dashboard</span>
+        </button>
+
+        <button
+          className={'mnav-tab' + (activeTab === 'ops' ? ' active' : '')}
+          onClick={() => { if (activeTab !== 'ops') navigateTo('viz-operations'); }}
+          aria-selected={activeTab === 'ops'}
+          role="tab"
+          type="button"
+        >
+          <span className="mnav-tab-icon" aria-hidden="true">⚙️</span>
+          <span className="mnav-tab-label">Operations</span>
+        </button>
+
+        <button
+          className={'mnav-tab' + (activeTab === 'entry' ? ' active' : '')}
+          onClick={() => { if (activeTab !== 'entry') navigateTo('ddor'); }}
+          aria-selected={activeTab === 'entry'}
+          role="tab"
+          type="button"
+        >
+          <span className="mnav-tab-icon" aria-hidden="true">📋</span>
+          <span className="mnav-tab-label">Entry</span>
+        </button>
+
         <button
           className={'mnav-tab' + (activeTab === 'more' ? ' active' : '')}
-          onClick={handleMoreClick}
+          onClick={() => setMoreOpen(o => !o)}
           aria-selected={activeTab === 'more'}
-          aria-expanded={openSheet === 'more'}
+          aria-expanded={moreOpen}
           role="tab"
           type="button"
         >
           <span className="mnav-tab-icon" aria-hidden="true">☰</span>
           <span className="mnav-tab-label">More</span>
-          {activeTab === 'more' && <span className="mnav-tab-dot" aria-hidden="true" />}
         </button>
       </nav>
     </>

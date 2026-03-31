@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import { Sidebar } from '@/components/Sidebar';
 import { Topbar, CRUMBS } from '@/components/Topbar';
 import { MobileNav } from '@/components/MobileNav';
+import { MobileSubNav } from '@/components/MobileSubNav';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useAuth } from '@/hooks/useAuth';
 import { LoginPage } from '@/components/auth/LoginPage';
@@ -144,6 +145,7 @@ export default function DashboardApp() {
           onNavigate={setPage}
           isMobile={isMobile}
         />
+        {isMobile && <MobileSubNav page={page} setPage={setPage} />}
         <main id="main-content" className="content" role="main" aria-label={pageTitle}>
           <h1 className="sr-only">{pageTitle}</h1>
           <ErrorBoundary>

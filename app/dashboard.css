@@ -959,13 +959,13 @@ tr:hover td { background: var(--color-surface); transition: background .15s ease
   flex-shrink: 0;
 }
 
-/* ── Bottom Navigation Bar ── */
+/* ── Bottom Navigation Bar — 4 tabs ── */
 .mnav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 64px;
+  height: 60px;
   display: none;
   background: var(--color-card);
   border-top: 1px solid var(--color-border);
@@ -986,139 +986,175 @@ tr:hover td { background: var(--color-surface); transition: background .15s ease
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
   background: none;
   border: none;
   cursor: pointer;
   color: var(--color-text-muted);
   transition: color 0.2s ease;
-  position: relative;
   padding: var(--space-2) 0;
   -webkit-tap-highlight-color: transparent;
   min-height: 44px;
 }
 .mnav-tab:active { background: rgba(45, 122, 137, 0.04); }
 .mnav-tab.active { color: var(--color-primary); }
-.mnav-tab-icon { font-size: 20px; line-height: 1; }
-.mnav-tab-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1px; line-height: 1; }
-.mnav-tab-dot {
-  position: absolute;
-  top: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
+.mnav-tab-icon { font-size: 22px; line-height: 1; }
+.mnav-tab-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1px; line-height: 1; }
+
+/* ── Horizontal Sub-Navigation (in-page tabs) ── */
+.msubnav {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--color-card);
+  border-bottom: 1px solid var(--color-border-light);
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+.msubnav::-webkit-scrollbar { display: none; }
+
+.msubnav-tab {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  background: none;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 36px;
+}
+.msubnav-tab:active { background: var(--color-surface); }
+.msubnav-tab.active {
   background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
 }
 
-/* ── Bottom Sheet (sub-navigation) ── */
-.mnav-backdrop {
+/* ── Full-screen More menu ── */
+.more-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  z-index: 39;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  animation: fadeIn 0.15s ease-out;
+  z-index: 50;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  animation: moreSlideUp 0.25s cubic-bezier(0.32, 0.72, 0, 1);
 }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes moreSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
 
-.mnav-sheet {
-  position: fixed;
-  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
-  left: 0;
-  right: 0;
-  background: var(--color-card);
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
-  z-index: 41;
-  padding: var(--space-2) 0 var(--space-3);
-  max-height: 60vh;
+.more-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  padding-top: max(var(--space-4), env(safe-area-inset-top, 0));
+  border-bottom: 1px solid var(--color-border-light);
+  flex-shrink: 0;
+}
+.more-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+.more-close {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--color-surface);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s ease;
+}
+.more-close:active { background: var(--color-border-light); }
+
+.more-body {
+  flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  animation: sheetSlideUp 0.25s cubic-bezier(0.32, 0.72, 0, 1);
-}
-@keyframes sheetSlideUp {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  padding: var(--space-3) var(--space-3) calc(var(--space-5) + env(safe-area-inset-bottom, 0));
 }
 
-.mnav-sheet-handle {
-  width: 36px;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--color-border);
-  margin: var(--space-1) auto var(--space-2);
-}
-.mnav-sheet-title {
-  font-size: 13px;
+.more-section { margin-bottom: var(--space-3); }
+.more-section-label {
+  font-size: 11px;
   font-weight: 700;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 0 var(--space-4) var(--space-2);
-  border-bottom: 1px solid var(--color-border-light);
-  margin-bottom: var(--space-1);
+  letter-spacing: 0.8px;
+  padding: var(--space-2) var(--space-3) var(--space-1);
 }
 
-.mnav-sheet-items { padding: 0 var(--space-2); }
-
-.mnav-sheet-item {
+.more-item {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   width: 100%;
-  padding: var(--space-3) var(--space-3);
+  padding: var(--space-3);
   border: none;
   background: none;
   border-radius: var(--radius-md);
   cursor: pointer;
   color: var(--color-text-primary);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   text-align: left;
   transition: background 0.15s ease;
-  min-height: 48px;
+  min-height: 50px;
   -webkit-tap-highlight-color: transparent;
 }
-.mnav-sheet-item:active { background: var(--color-surface); }
-.mnav-sheet-item.active {
-  background: rgba(45, 122, 137, 0.06);
+.more-item:active { background: var(--color-surface); }
+.more-item.active {
+  background: rgba(45, 122, 137, 0.08);
   color: var(--color-primary);
   font-weight: 600;
 }
-.mnav-sheet-item-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
-.mnav-sheet-item-label { flex: 1; }
-.mnav-sheet-item-check { color: var(--color-primary); font-size: 8px; flex-shrink: 0; }
+.more-item-icon { font-size: 20px; width: 28px; text-align: center; flex-shrink: 0; }
+.more-item-label { flex: 1; }
+.more-item-check { color: var(--color-primary); font-size: 8px; flex-shrink: 0; }
+.more-divider { height: 1px; background: var(--color-border-light); margin: var(--space-2) var(--space-3); }
+.more-item-danger { color: var(--color-negative); }
+.more-item-danger:active { background: var(--color-negative-bg); }
 
-.mnav-sheet-divider { height: 1px; background: var(--color-border-light); margin: var(--space-2) var(--space-3); }
-
-.mnav-sheet-danger { color: var(--color-negative); }
-.mnav-sheet-danger:active { background: var(--color-negative-bg); }
-
-/* ── Dark mode adjustments for mobile nav ── */
+/* ── Dark mode ── */
 html.dark .mnav { background: var(--color-card); border-top-color: var(--color-border); }
-html.dark .mnav-sheet { background: var(--color-card); }
 html.dark .mnav-tab:active { background: rgba(61, 138, 153, 0.08); }
-html.dark .mnav-sheet-item:active { background: rgba(255, 255, 255, 0.04); }
-html.dark .mnav-sheet-item.active { background: rgba(61, 138, 153, 0.1); }
+html.dark .msubnav { background: var(--color-card); }
+html.dark .msubnav-tab:active { background: rgba(255, 255, 255, 0.04); }
+html.dark .msubnav-tab.active { background: var(--color-primary); color: #fff; }
+html.dark .more-overlay { background: var(--color-bg); }
+html.dark .more-close { background: rgba(255, 255, 255, 0.08); }
+html.dark .more-close:active { background: rgba(255, 255, 255, 0.12); }
+html.dark .more-item:active { background: rgba(255, 255, 255, 0.04); }
+html.dark .more-item.active { background: rgba(61, 138, 153, 0.12); }
 
 @media (prefers-color-scheme: dark) {
   :root .mnav { background: var(--color-card); border-top-color: var(--color-border); }
-  :root .mnav-sheet { background: var(--color-card); }
 }
 
-/* ── PWA Standalone mode — extra safe-area padding ── */
+/* ── PWA Standalone mode ── */
 @media (display-mode: standalone) {
   .topbar-mobile { padding-top: env(safe-area-inset-top, 0); height: calc(48px + env(safe-area-inset-top, 0)); }
-  .mnav { padding-bottom: env(safe-area-inset-bottom, 0); height: calc(64px + env(safe-area-inset-bottom, 0)); }
-  .app-mobile .content { padding-bottom: calc(var(--space-4) + 80px + env(safe-area-inset-bottom, 0)); }
+  .mnav { padding-bottom: env(safe-area-inset-bottom, 0); height: calc(60px + env(safe-area-inset-bottom, 0)); }
+  .app-mobile .content { padding-bottom: calc(var(--space-4) + 76px + env(safe-area-inset-bottom, 0)); }
 }
 
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
-  .mnav-sheet { animation: none; }
-  .mnav-backdrop { animation: none; }
+  .more-overlay { animation: none; }
 }
